@@ -1,0 +1,527 @@
+// StudyStack — schema.prisma
+// Scope: Full spec (F1–F19). Contains all core domains (Auth, Course, Assessment,
+// Mastery, QnA, Export, Certificate, Marketplace, Classroom) in a single unified schema.
+//
+// IMPORTANT — vector columns:
+// Prisma 7 does not natively type pgvector for a self-hosted Postgres instance.
+// Every `Unsupported("vector(768)")` field below is a placeholder Prisma will
+// treat as opaque — `prisma migrate dev` will NOT create a correctly-typed
+// vector column or any index on it. See studystack-vector-schema.sql for the
+// hand-written migration that actually creates the extension, sets the real
+// column type, and builds the HNSW index. Run that immediately after the
+// Prisma-generated migration for this schema, before any embedding writes.
+//
+// 768 dimensions assumes Gemini Embedding with Matryoshka truncation to 768 —
+// confirm against whatever embedding model is finalized before first migration,
+// since changing dimension later means re-embedding + re-indexing everything.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider   = "postgresql"
+  url        = env("DATABASE_URL")
+  extensions = [vector]
+}
+
+// ─────────────────────────────────────────────────────────────────────────
+// Enums
+// ─────────────────────────────────────────────────────────────────────────
+
+enum Role {
+  student
+  teacher
+  creator
+  admin
+}
+
+enum AgeBracket {
+  adult
+  minor_school_consented
+  unknown // default for unresolved self-serve accounts — never defaults to adult
+}
+
+enum ExplanationStyle {
+  neutral
+  sports
+  pop_culture
+  historical
+  cooking
+  sci_fi
+}
+
+enum ConceptMatchStatus {
+  confident
+  pending_review
+  resolved
+}
+
+enum CourseSourceType {
+  upload
+  topic
+}
+
+enum CourseStatus {
+  intake_pending
+  ingesting
+  structuring
+  ready
+  failed
+}
+
+enum Goal {
+  class
+  exam_prep
+  curiosity
+}
+
+enum Level {
+  beginner
+  some_background
+}
+
+enum CourseVisibility {
+  private
+  public_shared
+}
+
+enum LicenseStatus {
+  user_uploaded_unknown
+  open_license
+}
+
+enum ContentProvenance {
+  reused_from_upload
+  reused_from_topic_research
+  generated
+}
+
+enum ConceptReviewStatus {
+  pending_review
+  resolved_merged
+  dismissed
+}
+
+enum QuizAttemptType {
+  module_quiz
+  final_project
+}
+
+enum CertificateCourseType {
+  ai_generated
+  instructor_verified
+}
+
+enum MarketplaceReviewStatus {
+  pending
+  approved
+  rejected
+}
+
+// ─────────────────────────────────────────────────────────────────────────
+// Auth
+// ─────────────────────────────────────────────────────────────────────────
+
+model User {
+  id               String            @id @default(uuid())
+  email            String            @unique
+  passwordHash     String
+  name             String
+  role             Role              @default(student)
+  ageBracket       AgeBracket        @default(unknown)
+  explanationStyle ExplanationStyle?
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+
+  coursesOwned         Course[]                 @relation("CourseOwner")
+  resolvedReviewsAdmin ConceptReviewCandidate[] @relation("ReviewResolvedBy")
+  courseForks          CourseFork[]             @relation("ForkedBy")
+  courseReports        CourseReport[]           @relation("CourseReporter")
+  quizAttempts         QuizAttempt[]            @relation("QuizStudent")
+  masteryScores        MasteryScore[]           @relation("MasteryStudent")
+  qnaMessages          QnaMessage[]             @relation("QnaStudent")
+  certificates         Certificate[]            @relation("CertificateStudent")
+  purchases            Purchase[]               @relation("PurchaseBuyer")
+  marketplaceCourses         MarketplaceReviewQueue[] @relation("MarketplaceCreator")
+  assignedMarketplaceReviews MarketplaceReviewQueue[] @relation("MarketplaceReviewer")
+  classroomsTaught           Classroom[]              @relation("ClassroomTeacher")
+  classroomsEnrolled         ClassroomStudent[]       @relation("ClassroomStudentRelation")
+
+  @@map("users")
+}
+
+// ─────────────────────────────────────────────────────────────────────────
+// Course — F1, F2, F3
+// ─────────────────────────────────────────────────────────────────────────
+
+model Course {
+  id         String           @id @default(uuid())
+  ownerId    String
+  owner      User             @relation("CourseOwner", fields: [ownerId], references: [id])
+  sourceType CourseSourceType
+  topic      String?
+  title      String
+  status     CourseStatus     @default(intake_pending)
+
+  goal           Goal?
+  level          Level?
+  levelChangedAt DateTime?
+  examDate       DateTime?
+
+  visibility           CourseVisibility @default(private)
+  publishedAt          DateTime?
+  publishGateCheckedAt DateTime?
+  publishAttestationAt DateTime?
+
+  price            Float?
+  creatorPayoutPct Float?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  sourceDocuments SourceDocument[]
+  sourceChunks    SourceChunk[]
+  modules         Module[]
+  courseForks        CourseFork[]
+  courseReports      CourseReport[]
+  certificates       Certificate[]
+  purchases          Purchase[]
+  marketplaceReviews MarketplaceReviewQueue[]
+  classrooms         Classroom[]
+
+  @@map("courses")
+}
+
+// ─────────────────────────────────────────────────────────────────────────
+// Ingestion / source material — F1
+// ─────────────────────────────────────────────────────────────────────────
+
+model SourceDocument {
+  id               String        @id @default(uuid())
+  courseId         String
+  course           Course        @relation(fields: [courseId], references: [id])
+  fileUrl          String?
+  sourceUrl        String?
+  fileType         String?
+  extractionStatus String?
+  licenseStatus    LicenseStatus @default(user_uploaded_unknown)
+  uploadedAt       DateTime      @default(now())
+
+  sourceChunks SourceChunk[]
+
+  @@map("source_documents")
+}
+
+model SourceChunk {
+  id               String         @id @default(uuid())
+  sourceDocumentId String
+  sourceDocument   SourceDocument @relation(fields: [sourceDocumentId], references: [id])
+  courseId         String
+  course           Course         @relation(fields: [courseId], references: [id])
+  chunkText        String
+  metadata         Json
+  needsResearchFill Boolean       @default(false)
+  embedding        Unsupported("vector(768)")?
+  createdAt        DateTime       @default(now())
+
+  @@index([courseId])
+  @@map("source_chunks")
+}
+
+// ─────────────────────────────────────────────────────────────────────────
+// Course structure — F4
+// ─────────────────────────────────────────────────────────────────────────
+
+model Module {
+  id       String @id @default(uuid())
+  courseId String
+  course   Course @relation(fields: [courseId], references: [id])
+  order    Int
+  title    String
+  createdAt DateTime @default(now())
+
+  subtopics    Subtopic[]
+  quizAttempts QuizAttempt[]
+
+  @@map("modules")
+}
+
+model Subtopic {
+  id                      String  @id @default(uuid())
+  moduleId                String
+  module                  Module  @relation(fields: [moduleId], references: [id])
+  order                   Int
+  title                   String
+  practiceProblemsOverride Boolean?
+  createdAt               DateTime @default(now())
+
+  tutorialContent  TutorialContent[]
+  subtopicConcepts SubtopicConcept[]
+  practiceProblems PracticeProblem[]
+  qnaMessages      QnaMessage[]
+
+  @@map("subtopics")
+}
+
+// ─────────────────────────────────────────────────────────────────────────
+// Canonical concepts — F4 (concept resolution)
+// ─────────────────────────────────────────────────────────────────────────
+
+model Concept {
+  id            String   @id @default(uuid())
+  canonicalName String
+  subjectArea   String
+  aliases       String[]
+  embedding     Unsupported("vector(768)")?
+  createdAt     DateTime @default(now())
+  matchStatus   ConceptMatchStatus @default(confident)
+  mergedIntoId  String?
+  mergedInto    Concept?  @relation("ConceptMerge", fields: [mergedIntoId], references: [id])
+  mergedFrom    Concept[] @relation("ConceptMerge")
+
+  subtopicConcepts       SubtopicConcept[]
+  reviewCandidatesAsNew  ConceptReviewCandidate[] @relation("CandidateConcept")
+  reviewCandidatesAsBase ConceptReviewCandidate[] @relation("MatchedConcept")
+  quizAttempts           QuizAttempt[]
+  masteryScores          MasteryScore[]
+  conceptReviewContents  ConceptReviewContent[]
+
+  @@map("concepts")
+}
+
+model SubtopicConcept {
+  subtopicId String
+  subtopic   Subtopic @relation(fields: [subtopicId], references: [id])
+  conceptId  String
+  concept    Concept  @relation(fields: [conceptId], references: [id])
+
+  @@id([subtopicId, conceptId])
+  @@map("subtopic_concepts")
+}
+
+model ConceptReviewCandidate {
+  id                 String              @id @default(uuid())
+  candidateConceptId String
+  candidateConcept   Concept             @relation("CandidateConcept", fields: [candidateConceptId], references: [id])
+  matchedConceptId   String
+  matchedConcept     Concept             @relation("MatchedConcept", fields: [matchedConceptId], references: [id])
+  similarityScore    Float
+  status             ConceptReviewStatus @default(pending_review)
+  createdAt          DateTime            @default(now())
+  resolvedAt         DateTime?
+  resolvedByUserId   String?
+  resolvedBy         User?               @relation("ReviewResolvedBy", fields: [resolvedByUserId], references: [id])
+
+  @@map("concept_review_candidates")
+}
+
+// ─────────────────────────────────────────────────────────────────────────
+// Subtopic tutorials — F5, F6
+// ─────────────────────────────────────────────────────────────────────────
+
+model TutorialContent {
+  id         String   @id @default(uuid())
+  subtopicId String
+  subtopic   Subtopic @relation(fields: [subtopicId], references: [id])
+
+  level       Level
+  styleBucket String @default("neutral")
+
+  explanation      Json
+  diagramSpec      Json?
+  imageSource      Json?
+  example          Json?
+  resourceDecision Json?
+
+  provenance ContentProvenance
+  generatedAt DateTime @default(now())
+
+  @@unique([subtopicId, level, styleBucket])
+  @@map("tutorial_content")
+}
+
+// ─────────────────────────────────────────────────────────────────────────
+// Course Forks & Reports — F14, F19
+// ─────────────────────────────────────────────────────────────────────────
+
+model CourseFork {
+  id               String   @id @default(uuid())
+  originalCourseId String
+  originalCourse   Course   @relation(fields: [originalCourseId], references: [id])
+  studentId        String
+  student          User     @relation("ForkedBy", fields: [studentId], references: [id])
+  createdAt        DateTime @default(now())
+
+  classroomStudents ClassroomStudent[]
+  quizAttempts      QuizAttempt[]
+
+  @@map("course_forks")
+}
+
+model CourseReport {
+  id         String   @id @default(uuid())
+  courseId   String
+  course     Course   @relation(fields: [courseId], references: [id])
+  reporterId String
+  reporter   User     @relation("CourseReporter", fields: [reporterId], references: [id])
+  reason     String
+  createdAt  DateTime @default(now())
+
+  @@map("course_reports")
+}
+
+// ─────────────────────────────────────────────────────────────────────────
+// Assessment & Mastery — F7, F8, F9, F11, F12
+// ─────────────────────────────────────────────────────────────────────────
+
+model QuizAttempt {
+  id         String          @id @default(uuid())
+  studentId  String
+  student    User            @relation("QuizStudent", fields: [studentId], references: [id])
+  moduleId   String
+  module     Module          @relation(fields: [moduleId], references: [id])
+  conceptId  String?
+  concept    Concept?        @relation(fields: [conceptId], references: [id])
+  forkId     String?
+  courseFork CourseFork?     @relation(fields: [forkId], references: [id])
+  type       QuizAttemptType @default(module_quiz)
+  question   String
+  answer     String
+  correct    Boolean
+  timestamp  DateTime        @default(now())
+
+  @@map("quiz_attempts")
+}
+
+model MasteryScore {
+  studentId      String
+  student        User     @relation("MasteryStudent", fields: [studentId], references: [id])
+  conceptId      String
+  concept        Concept  @relation(fields: [conceptId], references: [id])
+  score          Float
+  lastReviewedAt DateTime @default(now())
+  nextReviewAt   DateTime
+
+  @@id([studentId, conceptId])
+  @@map("mastery_scores")
+}
+
+model ConceptReviewContent {
+  id           String   @id @default(uuid())
+  conceptId    String
+  concept      Concept  @relation(fields: [conceptId], references: [id])
+  level        Level
+  angleVariant String
+  explanation  Json
+  generatedAt  DateTime @default(now())
+
+  @@unique([conceptId, level, angleVariant])
+  @@map("concept_review_content")
+}
+
+model PracticeProblem {
+  id          String   @id @default(uuid())
+  subtopicId  String
+  subtopic    Subtopic @relation(fields: [subtopicId], references: [id])
+  problemText String
+  hintsJson   Json
+  solution    String
+
+  @@map("practice_problems")
+}
+
+// ─────────────────────────────────────────────────────────────────────────
+// In-Tutorial Q&A — F10
+// ─────────────────────────────────────────────────────────────────────────
+
+model QnaMessage {
+  id         String   @id @default(uuid())
+  subtopicId String
+  subtopic   Subtopic @relation(fields: [subtopicId], references: [id])
+  studentId  String
+  student    User     @relation("QnaStudent", fields: [studentId], references: [id])
+  question   String
+  answer     String
+  timestamp  DateTime @default(now())
+
+  @@map("qna_messages")
+}
+
+// ─────────────────────────────────────────────────────────────────────────
+// Certificates — F16
+// ─────────────────────────────────────────────────────────────────────────
+
+model Certificate {
+  id               String                @id @default(uuid())
+  studentId        String
+  student          User                  @relation("CertificateStudent", fields: [studentId], references: [id])
+  courseId         String
+  course           Course                @relation(fields: [courseId], references: [id])
+  issuedAt         DateTime              @default(now())
+  verificationSlug String                @unique
+  courseType       CertificateCourseType
+
+  @@map("certificates")
+}
+
+// ─────────────────────────────────────────────────────────────────────────
+// Marketplace — F17
+// ─────────────────────────────────────────────────────────────────────────
+
+model Purchase {
+  id        String   @id @default(uuid())
+  courseId  String
+  course    Course   @relation(fields: [courseId], references: [id])
+  buyerId   String
+  buyer     User     @relation("PurchaseBuyer", fields: [buyerId], references: [id])
+  amount    Float
+  timestamp DateTime @default(now())
+
+  @@map("purchases")
+}
+
+model MarketplaceReviewQueue {
+  id                       String                  @id @default(uuid())
+  courseId                 String
+  course                   Course                  @relation(fields: [courseId], references: [id])
+  creatorId                String
+  creator                  User                    @relation("MarketplaceCreator", fields: [creatorId], references: [id])
+  submittedAt              DateTime                @default(now())
+  slaDueAt                 DateTime
+  status                   MarketplaceReviewStatus @default(pending)
+  assignedReviewerId       String?
+  assignedReviewer         User?                   @relation("MarketplaceReviewer", fields: [assignedReviewerId], references: [id])
+  copyrightChecklistPassed Boolean
+
+  @@map("marketplace_review_queue")
+}
+
+// ─────────────────────────────────────────────────────────────────────────
+// Classroom Mode — F19
+// ─────────────────────────────────────────────────────────────────────────
+
+model Classroom {
+  id                 String             @id @default(uuid())
+  teacherId          String
+  teacher            User               @relation("ClassroomTeacher", fields: [teacherId], references: [id])
+  courseId           String
+  course             Course             @relation(fields: [courseId], references: [id])
+  consentOnFile      Boolean            @default(false)
+  consentDocumentUrl String?
+  students           ClassroomStudent[]
+
+  @@map("classrooms")
+}
+
+model ClassroomStudent {
+  classroomId String
+  classroom   Classroom   @relation(fields: [classroomId], references: [id])
+  studentId   String
+  student     User        @relation("ClassroomStudentRelation", fields: [studentId], references: [id])
+  forkId      String?
+  fork        CourseFork? @relation(fields: [forkId], references: [id])
+
+  @@id([classroomId, studentId])
+  @@map("classroom_students")
+}

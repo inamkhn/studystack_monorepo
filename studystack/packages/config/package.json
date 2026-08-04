@@ -1,0 +1,14 @@
+{
+  "name": "@studystack/config",
+  "version": "0.0.1",
+  "private": true,
+  "main": "./tsconfig.base.json",
+  "exports": {
+    "./tsconfig.base.json": "./tsconfig.base.json",
+    "./tsconfig.nextjs.json": "./tsconfig.nextjs.json"
+  },
+  "scripts": {
+    "build": "echo 'config — nothing to build'",
+    "clean": "rm -rf dist"
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "name": "@studystack/api-client",
+  "version": "0.0.1",
+  "private": true,
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "scripts": {
+    "build": "tsc --noEmit",
+    "clean": "rm -rf dist",
+    "generate": "echo 'Generated API client — run after api is running with openapi-typescript'",
+    "lint": "eslint ."
+  },
+  "dependencies": {
+    "@studystack/types": "workspace:*"
+  },
+  "devDependencies": {
+    "openapi-typescript": "^7.8.1",
+    "typescript": "^5.8.3"
+  }
+}
