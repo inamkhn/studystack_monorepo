@@ -3,23 +3,25 @@
 // Mastery, QnA, Export, Certificate, Marketplace, Classroom) in a single unified schema.
 //
 // IMPORTANT — vector columns:
-// With `extensions = [vector]` and the `postgresqlExtensions` preview
-// feature, `prisma migrate dev` generates correct `vector(768)` columns
-// and `CREATE EXTENSION IF NOT EXISTS vector` natively. The HNSW indexes
-// are the only piece Prisma does not generate — run vector-schema.sql
-// after the Prisma migration to create them, before any embedding writes.
+// Prisma 7 does not natively type pgvector for a self-hosted Postgres instance.
+// Every `Unsupported("vector(768)")` field below is a placeholder Prisma will
+// treat as opaque — `prisma migrate dev` will NOT create a correctly-typed
+// vector column or any index on it. See studystack-vector-schema.sql for the
+// hand-written migration that actually creates the extension, sets the real
+// column type, and builds the HNSW index. Run that immediately after the
+// Prisma-generated migration for this schema, before any embedding writes.
 //
 // 768 dimensions assumes Gemini Embedding with Matryoshka truncation to 768 —
 // confirm against whatever embedding model is finalized before first migration,
 // since changing dimension later means re-embedding + re-indexing everything.
 
 generator client {
-  provider        = "prisma-client-js"
-  previewFeatures = ["postgresqlExtensions"]
+  provider = "prisma-client-js"
 }
 
 datasource db {
   provider   = "postgresql"
+  url        = env("DATABASE_URL")
   extensions = [vector]
 }
 
@@ -40,6 +42,9 @@ enum AgeBracket {
   unknown // default for unresolved self-serve accounts — never defaults to adult
 }
 
+// Closed enum per Feature 18 ("explain-it-your-way", not free text).
+// PLACEHOLDER VALUES — confirm the actual persona list against the Feature 18
+// spec before migrating; these are illustrative only, not sourced from it.
 enum ExplanationStyle {
   neutral
   sports
@@ -81,40 +86,24 @@ enum Level {
 
 enum CourseVisibility {
   private
-  public_shared
+  public_shared // Feature 14 — free reading via course_forks; personalization/mastery stays gated
 }
 
 enum LicenseStatus {
-  user_uploaded_unknown
-  open_license
+  user_uploaded_unknown // default for uploads — skippable early-attestation checkbox at upload time
+  open_license // default for topic-research sources
 }
 
 enum ContentProvenance {
-  reused_from_upload
-  reused_from_topic_research
-  generated
+  reused_from_upload        // diagram lifted from a student's uploaded file (F1 path) — triggers publish gate when license_status = user_uploaded_unknown
+  reused_from_topic_research // diagram reused from open-license research material (F2 path) — does NOT trigger publish gate; license_status = open_license by construction
+  generated                  // diagram freshly generated as SVG — always publishable
 }
 
 enum ConceptReviewStatus {
   pending_review
   resolved_merged
   dismissed
-}
-
-enum QuizAttemptType {
-  module_quiz
-  final_project
-}
-
-enum CertificateCourseType {
-  ai_generated
-  instructor_verified
-}
-
-enum MarketplaceReviewStatus {
-  pending
-  approved
-  rejected
 }
 
 // ─────────────────────────────────────────────────────────────────────────
@@ -128,38 +117,27 @@ model User {
   name             String
   role             Role              @default(student)
   ageBracket       AgeBracket        @default(unknown)
-  explanationStyle ExplanationStyle?
+  explanationStyle ExplanationStyle? // Feature 18 — account-level setting, updated via AuthModule
   createdAt        DateTime          @default(now())
   updatedAt        DateTime          @updatedAt
 
   coursesOwned         Course[]                 @relation("CourseOwner")
   resolvedReviewsAdmin ConceptReviewCandidate[] @relation("ReviewResolvedBy")
-  courseForks          CourseFork[]             @relation("ForkedBy")
-  courseReports        CourseReport[]           @relation("CourseReporter")
-  quizAttempts         QuizAttempt[]            @relation("QuizStudent")
-  masteryScores        MasteryScore[]           @relation("MasteryStudent")
-  qnaMessages          QnaMessage[]             @relation("QnaStudent")
-  certificates         Certificate[]            @relation("CertificateStudent")
-  purchases            Purchase[]               @relation("PurchaseBuyer")
+
+  // F7-F19 Reverse Relations
+  courseForks                CourseFork[]             @relation("ForkedBy")
+  courseReports              CourseReport[]           @relation("CourseReporter")
+  quizAttempts               QuizAttempt[]            @relation("QuizStudent")
+  masteryScores              MasteryScore[]           @relation("MasteryStudent")
+  qnaMessages                QnaMessage[]             @relation("QnaStudent")
+  certificates               Certificate[]            @relation("CertificateStudent")
+  purchases                  Purchase[]               @relation("PurchaseBuyer")
   marketplaceCourses         MarketplaceReviewQueue[] @relation("MarketplaceCreator")
   assignedMarketplaceReviews MarketplaceReviewQueue[] @relation("MarketplaceReviewer")
   classroomsTaught           Classroom[]              @relation("ClassroomTeacher")
   classroomsEnrolled         ClassroomStudent[]       @relation("ClassroomStudentRelation")
-  refreshTokens              RefreshToken[]
 
   @@map("users")
-}
-
-model RefreshToken {
-  id        String    @id @default(uuid())
-  token     String    @unique
-  userId    String
-  user      User      @relation(fields: [userId], references: [id])
-  expiresAt DateTime
-  revokedAt DateTime?
-  createdAt DateTime  @default(now())
-
-  @@map("refresh_tokens")
 }
 
 // ─────────────────────────────────────────────────────────────────────────
@@ -167,29 +145,29 @@ model RefreshToken {
 // ─────────────────────────────────────────────────────────────────────────
 
 model Course {
-  id         String           @id @default(uuid())
+  id        String           @id @default(uuid())
   ownerId    String
   owner      User             @relation("CourseOwner", fields: [ownerId], references: [id])
   sourceType CourseSourceType
-  topic      String?
+  topic      String? // present if sourceType = topic
   title      String
   status     CourseStatus     @default(intake_pending)
 
+  // F3 — Intake: Goal + Level
   goal           Goal?
   level          Level?
-  levelChangedAt DateTime?
-  examDate       DateTime?
+  levelChangedAt DateTime? // set whenever level is changed mid-course (F3); triggers regen of not-yet-completed subtopics only
+  examDate       DateTime? // optional, only shown when goal = exam_prep; tightens F8 review cadence
 
+  // F14 — Public Course Sharing
   visibility           CourseVisibility @default(private)
   publishedAt          DateTime?
   publishGateCheckedAt DateTime?
-  publishAttestationAt DateTime?
+  publishAttestationAt DateTime? // set when the copyright-gate attestation is completed; required before visibility can flip to public_shared
 
-  description      String?
+  // F17 — Marketplace
   price            Float?
   creatorPayoutPct Float?
-  stripeProductId  String?
-  stripePriceId    String?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -197,13 +175,14 @@ model Course {
   sourceDocuments SourceDocument[]
   sourceChunks    SourceChunk[]
   modules         Module[]
+
+  // F14, F16, F17, F19 Reverse Relations
   courseForks        CourseFork[]
   courseReports      CourseReport[]
   certificates       Certificate[]
   purchases          Purchase[]
   marketplaceReviews MarketplaceReviewQueue[]
   classrooms         Classroom[]
-  exports            Export[]
 
   @@map("courses")
 }
@@ -216,8 +195,8 @@ model SourceDocument {
   id               String        @id @default(uuid())
   courseId         String
   course           Course        @relation(fields: [courseId], references: [id])
-  fileUrl          String?
-  sourceUrl        String?
+  fileUrl          String?       // optional for F2 topic path
+  sourceUrl        String?       // F2 topic path external reference
   fileType         String?
   extractionStatus String?
   licenseStatus    LicenseStatus @default(user_uploaded_unknown)
@@ -229,16 +208,26 @@ model SourceDocument {
 }
 
 model SourceChunk {
-  id               String         @id @default(uuid())
+  id               String          @id @default(uuid())
   sourceDocumentId String
-  sourceDocument   SourceDocument @relation(fields: [sourceDocumentId], references: [id])
-  courseId         String
-  course           Course         @relation(fields: [courseId], references: [id])
-  chunkText        String
-  metadata         Json
-  needsResearchFill Boolean       @default(false)
-  embedding        Unsupported("vector(768)")?
-  createdAt        DateTime       @default(now())
+  sourceDocument   SourceDocument  @relation(fields: [sourceDocumentId], references: [id])
+
+  // Denormalized onto the chunk (not just reachable via sourceDocument) so
+  // every retrieval query can filter/RLS-scope on courseId directly, without
+  // a join — this is the actual security boundary the LLM-handling doc
+  // requires (§3.2), not just a convenience filter.
+  courseId String
+  course   Course @relation(fields: [courseId], references: [id])
+
+  chunkText         String
+  metadata          Json // section_ref, page_number, etc.
+  needsResearchFill Boolean @default(false)
+
+  // Prisma 5+ with extensions=[vector] will natively create the vector column
+  // and handle the extension.
+  embedding Unsupported("vector(768)")?
+
+  createdAt DateTime @default(now())
 
   @@index([courseId])
   @@map("source_chunks")
@@ -254,30 +243,30 @@ model Module {
   course   Course @relation(fields: [courseId], references: [id])
   order    Int
   title    String
+
   createdAt DateTime @default(now())
 
   subtopics    Subtopic[]
   quizAttempts QuizAttempt[]
 
-  @@index([courseId])
   @@map("modules")
 }
 
 model Subtopic {
-  id                      String  @id @default(uuid())
-  moduleId                String
-  module                  Module  @relation(fields: [moduleId], references: [id])
-  order                   Int
-  title                   String
+  id       String @id @default(uuid())
+  moduleId String
+  module   Module @relation(fields: [moduleId], references: [id])
+  order    Int
+  title    String
   practiceProblemsOverride Boolean?
-  createdAt               DateTime @default(now())
+
+  createdAt DateTime @default(now())
 
   tutorialContent  TutorialContent[]
   subtopicConcepts SubtopicConcept[]
   practiceProblems PracticeProblem[]
   qnaMessages      QnaMessage[]
 
-  @@index([moduleId])
   @@map("subtopics")
 }
 
@@ -290,12 +279,16 @@ model Concept {
   canonicalName String
   subjectArea   String
   aliases       String[]
-  embedding     Unsupported("vector(768)")?
-  createdAt     DateTime @default(now())
-  matchStatus   ConceptMatchStatus @default(confident)
-  mergedIntoId  String?
-  mergedInto    Concept?  @relation("ConceptMerge", fields: [mergedIntoId], references: [id])
-  mergedFrom    Concept[] @relation("ConceptMerge")
+
+  // Placeholder — see header note.
+  embedding Unsupported("vector(768)")?
+
+  createdAt DateTime @default(now())
+
+  matchStatus  ConceptMatchStatus @default(confident)
+  mergedIntoId String?
+  mergedInto   Concept?  @relation("ConceptMerge", fields: [mergedIntoId], references: [id])
+  mergedFrom   Concept[] @relation("ConceptMerge")
 
   subtopicConcepts       SubtopicConcept[]
   reviewCandidatesAsNew  ConceptReviewCandidate[] @relation("CandidateConcept")
@@ -307,6 +300,9 @@ model Concept {
   @@map("concepts")
 }
 
+// Write-locked to a single service method (ConceptResolutionService) per the
+// features doc — regeneration must never be able to touch concept identity
+// directly through a generic subtopic-update path.
 model SubtopicConcept {
   subtopicId String
   subtopic   Subtopic @relation(fields: [subtopicId], references: [id])
@@ -317,18 +313,23 @@ model SubtopicConcept {
   @@map("subtopic_concepts")
 }
 
+// Admin dedup queue — populated on `ambiguous` match outcomes during
+// concept resolution; `merged` rows are the audit trail left behind by
+// mergeConcepts(), not deleted after the fact.
 model ConceptReviewCandidate {
-  id                 String              @id @default(uuid())
+  id               String  @id @default(uuid())
   candidateConceptId String
-  candidateConcept   Concept             @relation("CandidateConcept", fields: [candidateConceptId], references: [id])
-  matchedConceptId   String
-  matchedConcept     Concept             @relation("MatchedConcept", fields: [matchedConceptId], references: [id])
-  similarityScore    Float
-  status             ConceptReviewStatus @default(pending_review)
-  createdAt          DateTime            @default(now())
-  resolvedAt         DateTime?
-  resolvedByUserId   String?
-  resolvedBy         User?               @relation("ReviewResolvedBy", fields: [resolvedByUserId], references: [id])
+  candidateConcept Concept @relation("CandidateConcept", fields: [candidateConceptId], references: [id])
+  matchedConceptId String
+  matchedConcept   Concept @relation("MatchedConcept", fields: [matchedConceptId], references: [id])
+
+  similarityScore Float
+  status          ConceptReviewStatus @default(pending_review)
+
+  createdAt        DateTime  @default(now())
+  resolvedAt       DateTime?
+  resolvedByUserId String?
+  resolvedBy       User?     @relation("ReviewResolvedBy", fields: [resolvedByUserId], references: [id])
 
   @@map("concept_review_candidates")
 }
@@ -343,7 +344,7 @@ model TutorialContent {
   subtopic   Subtopic @relation(fields: [subtopicId], references: [id])
 
   level       Level
-  styleBucket String @default("neutral")
+  styleBucket String @default("neutral") // persona restyle key, Feature 18
 
   explanation      Json
   diagramSpec      Json?
@@ -351,11 +352,34 @@ model TutorialContent {
   example          Json?
   resourceDecision Json?
 
-  provenance ContentProvenance
+  provenance ContentProvenance // reused_from_upload vs generated — feeds the F14/F17 copyright gate
+
   generatedAt DateTime @default(now())
 
+  // Cache key is (subtopicId, level, styleBucket) — enforce as unique so a
+  // cache miss can never silently create a duplicate row instead of reusing.
   @@unique([subtopicId, level, styleBucket])
   @@map("tutorial_content")
+}
+
+// ─────────────────────────────────────────────────────────────────────────
+// New Enums (F9, F16, F17)
+// ─────────────────────────────────────────────────────────────────────────
+
+enum QuizAttemptType {
+  module_quiz
+  final_project
+}
+
+enum CertificateCourseType {
+  ai_generated
+  instructor_verified
+}
+
+enum MarketplaceReviewStatus {
+  pending
+  approved
+  rejected
 }
 
 // ─────────────────────────────────────────────────────────────────────────
@@ -466,23 +490,6 @@ model QnaMessage {
 }
 
 // ─────────────────────────────────────────────────────────────────────────
-// Export — F13
-// ─────────────────────────────────────────────────────────────────────────
-
-model Export {
-  id          String    @id @default(uuid())
-  courseId    String
-  course      Course    @relation(fields: [courseId], references: [id])
-  format      String    // pdf | docx | markdown
-  status      String    @default("pending") // pending | generating | completed | failed
-  fileUrl     String?
-  createdAt   DateTime  @default(now())
-  completedAt DateTime?
-
-  @@map("exports")
-}
-
-// ─────────────────────────────────────────────────────────────────────────
 // Certificates — F16
 // ─────────────────────────────────────────────────────────────────────────
 
@@ -543,6 +550,7 @@ model Classroom {
   course             Course             @relation(fields: [courseId], references: [id])
   consentOnFile      Boolean            @default(false)
   consentDocumentUrl String?
+  
   students           ClassroomStudent[]
 
   @@map("classrooms")

@@ -50,6 +50,9 @@ importers:
       '@nestjs/core':
         specifier: ^11.0.1
         version: 11.1.28(@nestjs/common@11.1.28(class-transformer@0.5.1)(class-validator@0.14.4)(reflect-metadata@0.2.2)(rxjs@7.8.2)(supports-color@10.2.2))(@nestjs/platform-express@11.1.28)(reflect-metadata@0.2.2)(rxjs@7.8.2)
+      '@nestjs/jwt':
+        specifier: ^11.0.0
+        version: 11.0.2(@nestjs/common@11.1.28(class-transformer@0.5.1)(class-validator@0.14.4)(reflect-metadata@0.2.2)(rxjs@7.8.2)(supports-color@10.2.2))
       '@nestjs/passport':
         specifier: ^11.0.5
         version: 11.0.5(@nestjs/common@11.1.28(class-transformer@0.5.1)(class-validator@0.14.4)(reflect-metadata@0.2.2)(rxjs@7.8.2)(supports-color@10.2.2))(passport@0.7.0)
@@ -65,6 +68,9 @@ importers:
       '@studystack/types':
         specifier: workspace:*
         version: link:../../packages/types
+      bcryptjs:
+        specifier: ^2.4.3
+        version: 2.4.3
       bullmq:
         specifier: ^5.52.3
         version: 5.81.3(supports-color@10.2.2)
@@ -108,6 +114,9 @@ importers:
       '@studystack/config':
         specifier: workspace:*
         version: link:../../packages/config
+      '@types/bcryptjs':
+        specifier: ^2.4.6
+        version: 2.4.6
       '@types/express':
         specifier: ^5.0.0
         version: 5.0.6
@@ -327,6 +336,9 @@ packages:
   '@aws-sdk/core@3.977.4':
     resolution: {integrity: sha512-CEkcQlMOQJCvul60U7wdAOACjtdgFWDsfJI+6wUOGdhGNV2lGbuJpi/R50QLpFG3Tp+sQxa/RmzC3X7KHbhuTA==}
     engines: {node: '>=20.0.0'}
+    deprecated: |-
+      Deprecated due to Document number parsing bug in JSON, see
+        https://github.com/aws/aws-sdk-js-v3/issues/8246. Newer version available.
 
   '@aws-sdk/credential-provider-env@3.972.65':
     resolution: {integrity: sha512-lJT2aRw9wCV8jPHyFJjdZLD4HTydL6/22AnCSOB8e/LqOc55nEJGLHkJQeSxhn8QiqyjFwPKQFtMw0ovjRUY/g==}
@@ -1667,6 +1679,11 @@ packages:
       '@nestjs/websockets':
         optional: true
 
+  '@nestjs/jwt@11.0.2':
+    resolution: {integrity: sha512-rK8aE/3/Ma45gAWfCksAXUNbOoSOUudU0Kn3rT39htPF7wsYXtKfjALKeKKJbFrIWbLjsbqfXX5bIJNvgBugGA==}
+    peerDependencies:
+      '@nestjs/common': ^8.0.0 || ^9.0.0 || ^10.0.0 || ^11.0.0
+
   '@nestjs/mapped-types@2.1.1':
     resolution: {integrity: sha512-SCCoMEJ6jdeI5h/N+KCVF1+pmg/hmEkNA5nHTS8Gvww7T/LCl4o1gFLinw2iQ60w7slFkszHcGLKGdazVI4F8A==}
     peerDependencies:
@@ -2186,6 +2203,9 @@ packages:
 
   '@types/babel__traverse@7.28.0':
     resolution: {integrity: sha512-8PvcXf70gTDZBgt9ptxJ8elBeBjcLOAcOtoO/mPJjtji1+CdGbHgm77om1GrsPxsiE+uXIpNSK64UYaIwQXd4Q==}
+
+  '@types/bcryptjs@2.4.6':
+    resolution: {integrity: sha512-9xlo6R2qDs5uixm0bcIqCeMCE6HiQsIyel9KQySStiyqNl2tnj2mP3DX1Nf56MD6KMenNNlBBsy3LJ7gUEQPXQ==}
 
   '@types/body-parser@1.19.6':
     resolution: {integrity: sha512-HLFeCYgz89uk22N5Qg3dvGvsv46B8GLvKKo1zKG4NybA8U2DiEO3w9lqGg29t/tfLRJpJ6iQxnVw4OnB7MoM9g==}
@@ -2846,6 +2866,9 @@ packages:
     resolution: {integrity: sha512-r7WnVImvVCeFpf2DOXfy41aPWzeNg3H/A2X4dKmy1QL0MSyyk/e7z8ihJ3N6Nn2PsdhkVlqnEfnUE4a05P2aTA==}
     engines: {node: '>=6.0.0'}
     hasBin: true
+
+  bcryptjs@2.4.3:
+    resolution: {integrity: sha512-V/Hy/X9Vt7f3BbPJEi8BdVFMByHi+jNXrYkW3huaybV/kQ0KJg0Y6PkEMbn+zeT+i+SiKZ/HMqJGIIt4LZDqNQ==}
 
   better-result@2.10.0:
     resolution: {integrity: sha512-oQhh0y1qo2/ZKdAAEvHZAqKKiHOFU5k/bW96fE2ScgQOVkJRiHwB+nOS1SgFsYqRlxMDWvefXi9Q3px7QvgNDw==}
@@ -7444,6 +7467,12 @@ snapshots:
     optionalDependencies:
       '@nestjs/platform-express': 11.1.28(@nestjs/common@11.1.28(class-transformer@0.5.1)(class-validator@0.14.4)(reflect-metadata@0.2.2)(rxjs@7.8.2)(supports-color@10.2.2))(@nestjs/core@11.1.28)(supports-color@10.2.2)
 
+  '@nestjs/jwt@11.0.2(@nestjs/common@11.1.28(class-transformer@0.5.1)(class-validator@0.14.4)(reflect-metadata@0.2.2)(rxjs@7.8.2)(supports-color@10.2.2))':
+    dependencies:
+      '@nestjs/common': 11.1.28(class-transformer@0.5.1)(class-validator@0.14.4)(reflect-metadata@0.2.2)(rxjs@7.8.2)(supports-color@10.2.2)
+      '@types/jsonwebtoken': 9.0.10
+      jsonwebtoken: 9.0.3
+
   '@nestjs/mapped-types@2.1.1(@nestjs/common@11.1.28(class-transformer@0.5.1)(class-validator@0.14.4)(reflect-metadata@0.2.2)(rxjs@7.8.2)(supports-color@10.2.2))(class-transformer@0.5.1)(class-validator@0.14.4)(reflect-metadata@0.2.2)':
     dependencies:
       '@nestjs/common': 11.1.28(class-transformer@0.5.1)(class-validator@0.14.4)(reflect-metadata@0.2.2)(rxjs@7.8.2)(supports-color@10.2.2)
@@ -7936,6 +7965,8 @@ snapshots:
   '@types/babel__traverse@7.28.0':
     dependencies:
       '@babel/types': 7.29.8
+
+  '@types/bcryptjs@2.4.6': {}
 
   '@types/body-parser@1.19.6':
     dependencies:
@@ -8699,6 +8730,8 @@ snapshots:
   base64-js@1.5.1: {}
 
   baseline-browser-mapping@2.11.12: {}
+
+  bcryptjs@2.4.3: {}
 
   better-result@2.10.0: {}
 
