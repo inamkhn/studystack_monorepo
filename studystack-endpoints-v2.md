@@ -49,7 +49,7 @@ Polled during ingestion; returns current status plus incremental progress until 
 Accepts a topic string; creates a `courses` row (`sourceType = topic`) and triggers the research step before converging into module generation.
 
 `PATCH /courses/:id/intake`
-Records `goal` and `level` immediately after topic/upload submission, then triggers async module/subtopic structure generation (Feature 4). This is the point where both upload and topic-only paths converge — after intake, the course transitions from `intake_pending` through `structuring` to `ready`.
+Records `goal` and `level` immediately after topic/upload submission. Does **not** itself trigger structure generation — Feature 4 requires `source_chunks` to already exist, and for the upload path ingestion is an async job that can still be running when intake is submitted (large uploads process incrementally). Structure generation (Feature 4) is instead kicked off internally once both conditions are met — intake recorded *and* ingestion/research complete, whichever finishes second — not as a REST call from this endpoint. The course still transitions `intake_pending` → `structuring` → `ready`, but the `structuring` transition is driven by that internal completion check, not by this PATCH alone.
 
 `PATCH /courses/:id/level`
 Changes `level` mid-course; re-triggers generation only for not-yet-completed subtopics.
@@ -104,4 +104,6 @@ For the authenticated student, returns every one of their courses in which this 
 For a given subtopic, returns other courses/subtopics of the student's sharing its concept(s), plus their existing `mastery_scores` entry for that concept if one exists. Called by the client to render the "you already know this — skip or review?" prompt on a subtopic.
 
 `GET /students/me/concept-graph`
-Returns the authenticated student's full concept-mastery graph across all enrolled courses — the aggregate view powering any cross-course visualization, not scoped to a single course. Also serves as the data source for Feature 11's Visual Mastery Map.
+Returns the authenticated student's full concept-mastery graph across all enrolled courses — the aggregate view powering any cross-course visualization, not scoped to a single course.
+
+**Not** the data source for Feature 11's Visual Mastery Map, despite an earlier version of this doc claiming otherwise — F11 is single-course and node-per-subtopic (per the features doc: *"Render every module/subtopic as a node... Pure read/derived view over `mastery_scores` + `modules`/`subtopics`"*), while this endpoint is cross-course and concept-level. A subtopic can map to zero, one, or multiple concepts, so this isn't indexed the way F11 needs. F11 needs its own endpoint (e.g. `GET /courses/:id/mastery-map`) — out of scope for this file, which only covers Auth, F1–3, F4–6, F4 (expanded), and F15.

@@ -435,6 +435,14 @@ model QuizAttempt {
   @@map("quiz_attempts")
 }
 
+// Deliberately NOT scoped by forkId or courseId — mastery is tracked
+// globally per (studentId, conceptId) so a student's mastery of a concept
+// carries across every course/fork that touches it (required by Feature 15's
+// cross-course knowledge linking). Adding fork/course scoping here would
+// fragment that. Classroom dashboards (Feature 19) must NOT join this table
+// via classroom_students.fork_id like they do for QuizAttempt — join via
+// studentId directly and scope to the classroom's course by filtering to the
+// concept_ids reachable through modules -> subtopics -> subtopic_concepts.
 model MasteryScore {
   studentId      String
   student        User     @relation("MasteryStudent", fields: [studentId], references: [id])
