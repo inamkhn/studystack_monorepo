@@ -5,7 +5,7 @@ import {
 } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { JwtService } from "@nestjs/jwt";
-import { AgeBracket, User } from "@prisma/client";
+import { AgeBracket, Prisma, User } from "@prisma/client";
 import * as bcrypt from "bcryptjs";
 import { randomBytes } from "crypto";
 import { PrismaService } from "../prisma/prisma.service.js";
@@ -27,8 +27,11 @@ export class AuthService {
   // ── Register ────────────────────────────────────────────────────────────
 
   async register(dto: RegisterDto): Promise<UserWithoutPassword> {
+    // Normalize email so the unique constraint is case-insensitive in effect.
+    const email = dto.email.toLowerCase();
+
     const existing = await this.prisma.user.findUnique({
-      where: { email: dto.email },
+      where: { email },
     });
 
     if (existing) {
@@ -37,24 +40,36 @@ export class AuthService {
 
     const passwordHash = await bcrypt.hash(dto.password, 12);
 
-    const user = await this.prisma.user.create({
-      data: {
-        email: dto.email,
-        passwordHash,
-        name: dto.name,
-        ageBracket: "unknown", // minor-safe default — never defaults to adult
-      },
-    });
+    try {
+      const user = await this.prisma.user.create({
+        data: {
+          email,
+          passwordHash,
+          name: dto.name,
+          ageBracket: "unknown", // minor-safe default — never defaults to adult
+        },
+      });
 
-    const { passwordHash: _, ...safeUser } = user;
-    return safeUser;
+      const { passwordHash: _, ...safeUser } = user;
+      return safeUser;
+    } catch (error) {
+      // TOCTOU guard: a concurrent register with the same email loses the
+      // unique-constraint race — surface it as the same 409, not a 500.
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.code === "P2002"
+      ) {
+        throw new ConflictException("Email already registered");
+      }
+      throw error;
+    }
   }
 
   // ── Login ───────────────────────────────────────────────────────────────
 
   async login(dto: LoginDto): Promise<{ accessToken: string; refreshToken: string }> {
     const user = await this.prisma.user.findUnique({
-      where: { email: dto.email },
+      where: { email: dto.email.toLowerCase() },
     });
 
     if (!user) {

@@ -40,6 +40,9 @@ enum AgeBracket {
   unknown // default for unresolved self-serve accounts — never defaults to adult
 }
 
+// Closed enum per Feature 18 ("explain-it-your-way", not free text).
+// PLACEHOLDER VALUES — confirm the actual persona list against the Feature 18
+// spec before migrating; these are illustrative only, not sourced from it.
 enum ExplanationStyle {
   neutral
   sports
@@ -138,6 +141,8 @@ model User {
   courseReports        CourseReport[]           @relation("CourseReporter")
   quizAttempts         QuizAttempt[]            @relation("QuizStudent")
   masteryScores        MasteryScore[]           @relation("MasteryStudent")
+  subtopicCompletions  SubtopicCompletion[]     @relation("CompletionStudent")
+  moduleQuizzes        ModuleQuiz[]             @relation("QuizOwner")
   qnaMessages          QnaMessage[]             @relation("QnaStudent")
   certificates         Certificate[]            @relation("CertificateStudent")
   purchases            Purchase[]               @relation("PurchaseBuyer")
@@ -204,6 +209,7 @@ model Course {
   marketplaceReviews MarketplaceReviewQueue[]
   classrooms         Classroom[]
   exports            Export[]
+  finalProject       FinalProject?
 
   @@map("courses")
 }
@@ -258,6 +264,7 @@ model Module {
 
   subtopics    Subtopic[]
   quizAttempts QuizAttempt[]
+  quizzes      ModuleQuiz[]
 
   @@index([courseId])
   @@map("modules")
@@ -269,6 +276,9 @@ model Subtopic {
   module                  Module  @relation(fields: [moduleId], references: [id])
   order                   Int
   title                   String
+  // F12 — auto calc-heavy flag, set once at module-generation time (F4);
+  // practiceProblemsOverride takes precedence when non-null.
+  calcHeavy               Boolean @default(false)
   practiceProblemsOverride Boolean?
   createdAt               DateTime @default(now())
 
@@ -276,6 +286,7 @@ model Subtopic {
   subtopicConcepts SubtopicConcept[]
   practiceProblems PracticeProblem[]
   qnaMessages      QnaMessage[]
+  completions      SubtopicCompletion[]
 
   @@index([moduleId])
   @@map("subtopics")
@@ -405,9 +416,14 @@ model QuizAttempt {
   type       QuizAttemptType @default(module_quiz)
   question   String
   answer     String
+  rationale  String?
   correct    Boolean
   timestamp  DateTime        @default(now())
 
+  // F19 dashboard joins via classroom_students.fork_id → course_forks.id;
+  // per-student history queries use studentId.
+  @@index([studentId])
+  @@index([forkId])
   @@map("quiz_attempts")
 }
 
@@ -421,6 +437,8 @@ model MasteryScore {
   nextReviewAt   DateTime
 
   @@id([studentId, conceptId])
+  // F15 cross-course overlap checks and F19 concept-set filtering query by conceptId.
+  @@index([conceptId])
   @@map("mastery_scores")
 }
 
@@ -429,8 +447,8 @@ model ConceptReviewContent {
   conceptId    String
   concept      Concept  @relation(fields: [conceptId], references: [id])
   level        Level
-  angleVariant String
-  explanation  Json
+  angleVariant Int
+  explanation  String
   generatedAt  DateTime @default(now())
 
   @@unique([conceptId, level, angleVariant])
@@ -460,6 +478,9 @@ model QnaMessage {
   student    User     @relation("QnaStudent", fields: [studentId], references: [id])
   question   String
   answer     String
+  // F10 semantic cache — embedding on the question, scoped to subtopicId,
+  // powers the near-duplicate-question check before any LLM call.
+  embedding  Unsupported("vector(768)")?
   timestamp  DateTime @default(now())
 
   @@map("qna_messages")
@@ -558,4 +579,55 @@ model ClassroomStudent {
 
   @@id([classroomId, studentId])
   @@map("classroom_students")
+}
+
+// ─────────────────────────────────────────────────────────────────────────
+// Assessment support — F7, F9
+// ─────────────────────────────────────────────────────────────────────────
+
+// Client-driven "mark complete" record (F7 submit gate + F9 last-module gate).
+// One row per (student, subtopic); idempotent upsert via PATCH /subtopics/:id/complete.
+model SubtopicCompletion {
+  studentId   String
+  student     User      @relation("CompletionStudent", fields: [studentId], references: [id])
+  subtopicId  String
+  subtopic    Subtopic  @relation(fields: [subtopicId], references: [id])
+  completedAt DateTime  @default(now())
+
+  @@id([studentId, subtopicId])
+  @@index([subtopicId])
+  @@map("subtopic_completions")
+}
+
+// Per-student generated module quiz — the handoff between gated GET and submit.
+// Regenerated on every GET (per-student generation decision); the row lets submit
+// grade server-side against the exact questions the student answered.
+// `questions` Json: [{ id, type: "recall"|"applied", prompt, conceptId,
+//                     answerKey? (recall), rubric? (applied) }] — answerKey/rubric
+// are stripped before questions are returned to the client.
+model ModuleQuiz {
+  id          String    @id @default(uuid())
+  studentId   String
+  student     User      @relation("QuizOwner", fields: [studentId], references: [id])
+  moduleId    String
+  module      Module    @relation(fields: [moduleId], references: [id])
+  questions   Json
+  submittedAt DateTime?
+  createdAt   DateTime  @default(now())
+
+  @@unique([studentId, moduleId])
+  @@map("module_quizzes")
+}
+
+// Generated final-project prompt, one per course (generated on first GET,
+// served from here on later GETs). Submissions still land in `quiz_attempts`
+// with type = final_project — this row only holds the prompt itself.
+model FinalProject {
+  id        String   @id @default(uuid())
+  courseId  String   @unique
+  course    Course   @relation(fields: [courseId], references: [id])
+  prompt    String
+  createdAt DateTime @default(now())
+
+  @@map("final_projects")
 }

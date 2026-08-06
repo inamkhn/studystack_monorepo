@@ -14,6 +14,7 @@
     "@studystack/types": "workspace:*"
   },
   "devDependencies": {
+    "@studystack/config": "workspace:*",
     "openapi-typescript": "^7.8.1",
     "typescript": "^5.8.3"
   }

@@ -6,6 +6,7 @@ import { AuthController } from "./auth.controller.js";
 import { AuthService } from "./auth.service.js";
 import { JwtAuthGuard } from "./jwt-auth.guard.js";
 import { JwtStrategy } from "./jwt.strategy.js";
+import { RolesGuard } from "./roles.guard.js";
 import { parseDurationToSeconds } from "../common/utils/duration.js";
 
 @Module({
@@ -25,7 +26,7 @@ import { parseDurationToSeconds } from "../common/utils/duration.js";
     }),
   ],
   controllers: [AuthController],
-  providers: [AuthService, JwtStrategy, JwtAuthGuard],
-  exports: [JwtModule],
+  providers: [AuthService, JwtStrategy, JwtAuthGuard, RolesGuard],
+  exports: [JwtModule, RolesGuard],
 })
 export class AuthModule {}

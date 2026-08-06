@@ -8,15 +8,18 @@ import {
   Post,
   UseGuards,
 } from "@nestjs/common";
+import { ApiBearerAuth, ApiTags } from "@nestjs/swagger";
 import { AuthService } from "./auth.service.js";
 import { AgeBracketDto } from "./dto/age-bracket.dto.js";
 import { LoginDto } from "./dto/login.dto.js";
+import { RefreshTokenDto } from "./dto/refresh-token.dto.js";
 import { RegisterDto } from "./dto/register.dto.js";
 import { UpdateProfileDto } from "./dto/update-profile.dto.js";
 import { JwtAuthGuard } from "./jwt-auth.guard.js";
 import { CurrentUser } from "./current-user.decorator.js";
 import { UserWithoutPassword } from "./types.js";
 
+@ApiTags("auth")
 @Controller("auth")
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
@@ -34,22 +37,24 @@ export class AuthController {
 
   @Post("refresh")
   @HttpCode(HttpStatus.OK)
-  async refresh(@Body("refreshToken") refreshToken: string): Promise<{ accessToken: string; refreshToken: string }> {
-    return this.authService.refresh(refreshToken);
+  async refresh(@Body() dto: RefreshTokenDto): Promise<{ accessToken: string; refreshToken: string }> {
+    return this.authService.refresh(dto.refreshToken);
   }
 
   @Post("logout")
   @HttpCode(HttpStatus.NO_CONTENT)
-  async logout(@Body("refreshToken") refreshToken: string): Promise<void> {
-    await this.authService.logout(refreshToken ?? "");
+  async logout(@Body() dto: RefreshTokenDto): Promise<void> {
+    await this.authService.logout(dto.refreshToken);
   }
 
+  @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
   @Get("me")
   async getProfile(@CurrentUser("id") userId: string): Promise<UserWithoutPassword> {
     return this.authService.getProfile(userId);
   }
 
+  @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
   @Patch("me")
   async updateProfile(
@@ -59,6 +64,7 @@ export class AuthController {
     return this.authService.updateProfile(userId, dto);
   }
 
+  @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
   @Patch("me/age-bracket")
   async resolveAgeBracket(

@@ -102,6 +102,9 @@ importers:
         specifier: ^18.3.0
         version: 18.5.0(@types/node@24.13.3)
     devDependencies:
+      '@eslint/js':
+        specifier: ^10.0.1
+        version: 10.0.1(eslint@9.39.5(jiti@2.7.0)(supports-color@10.2.2))
       '@nestjs/cli':
         specifier: ^11.0.0
         version: 11.0.24(@types/node@24.13.3)(lightningcss@1.32.0)(postcss@8.5.25)(prettier@3.9.6)(uglify-js@3.19.3)
@@ -147,6 +150,9 @@ importers:
       typescript:
         specifier: ^5.8.3
         version: 5.9.3
+      typescript-eslint:
+        specifier: ^8.66.0
+        version: 8.66.0(eslint@9.39.5(jiti@2.7.0)(supports-color@10.2.2))(supports-color@10.2.2)(typescript@5.9.3)
 
   apps/web:
     dependencies:
@@ -218,6 +224,9 @@ importers:
         specifier: workspace:*
         version: link:../types
     devDependencies:
+      '@studystack/config':
+        specifier: workspace:*
+        version: link:../config
       openapi-typescript:
         specifier: ^7.8.1
         version: 7.13.0(typescript@5.9.3)
@@ -233,6 +242,9 @@ importers:
         specifier: ^3.24.4
         version: 3.25.76
     devDependencies:
+      '@studystack/config':
+        specifier: workspace:*
+        version: link:../config
       typescript:
         specifier: ^5.8.3
         version: 5.9.3
@@ -243,6 +255,9 @@ importers:
         specifier: workspace:*
         version: link:../types
     devDependencies:
+      '@studystack/config':
+        specifier: workspace:*
+        version: link:../config
       '@types/react':
         specifier: ^19.1.6
         version: 19.2.18
@@ -647,6 +662,15 @@ packages:
   '@eslint/eslintrc@3.3.6':
     resolution: {integrity: sha512-l2Ul9PrHsPCKcEY/ac7VgFj9D80C7S68sOKc618SyHDPK36s1XcFebXY0iTzUVn4Yq+YbwvSnDmCz9yxjX+QrA==}
     engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
+
+  '@eslint/js@10.0.1':
+    resolution: {integrity: sha512-zeR9k5pd4gxjZ0abRoIaxdc7I3nDktoXZk2qOv9gCNWx3mVwEn32VRhyLaRsDiJjTs0xq/T8mfPtyuXu7GWBcA==}
+    engines: {node: ^20.19.0 || ^22.13.0 || >=24}
+    peerDependencies:
+      eslint: ^10.0.0
+    peerDependenciesMeta:
+      eslint:
+        optional: true
 
   '@eslint/js@9.39.5':
     resolution: {integrity: sha512-QywQuszQh77pIXCsq998c8hbhSTI/azTty1Z6N53dmAudKHhy573j3yvRLsX2BSp8YpLtoCEG8E9DJe+8zUh4A==}
@@ -6697,6 +6721,10 @@ snapshots:
       strip-json-comments: 3.1.1
     transitivePeerDependencies:
       - supports-color
+
+  '@eslint/js@10.0.1(eslint@9.39.5(jiti@2.7.0)(supports-color@10.2.2))':
+    optionalDependencies:
+      eslint: 9.39.5(jiti@2.7.0)(supports-color@10.2.2)
 
   '@eslint/js@9.39.5': {}
 

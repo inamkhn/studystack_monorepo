@@ -4,7 +4,7 @@
 // current-user.decorator.ts.
 // ─────────────────────────────────────────────────────────────────────────
 
-import type { User } from "@prisma/client";
+import type { AgeBracket, Role, User } from "@prisma/client";
 
 /** Public user profile — all fields except the password hash. */
 export type UserWithoutPassword = Omit<User, "passwordHash">;
@@ -14,12 +14,12 @@ export interface JwtUser {
   id: string;
   email: string;
   name: string;
-  role: string;
-  ageBracket: string;
+  role: Role;
+  ageBracket: AgeBracket;
 }
 
 /** Shape of the JWT payload (matches signAccessToken). */
 export interface JwtPayload {
   sub: string;
-  role: string;
+  role: Role;
 }

@@ -1,10 +1,11 @@
 -- StudyStack — vector database schema
--- Run this AFTER the Prisma-generated migration for studystack-schema.prisma,
+-- Run this AFTER the Prisma-generated migration for apps/api/prisma/schema.prisma,
 -- and BEFORE any embedding writes.
 --
--- IMPORTANT: Because schema.prisma defines `extensions = [vector]`, Prisma 5+ 
--- natively generates `CREATE EXTENSION IF NOT EXISTS vector` and correctly creates 
--- the `vector(768)` columns when it processes the `Unsupported` type. 
+-- IMPORTANT: Because schema.prisma defines `extensions = [vector]` (with the
+-- `postgresqlExtensions` preview feature), Prisma 7 natively generates
+-- `CREATE EXTENSION IF NOT EXISTS vector` and correctly creates the
+-- `vector(768)` columns when it processes the `Unsupported` type.
 -- You do NOT need to ALTER the columns or manually create the extension.
 --
 -- This script solely exists to attach the HNSW indexes, which Prisma does not 
@@ -35,6 +36,14 @@ CREATE INDEX IF NOT EXISTS source_chunks_embedding_hnsw_idx
 
 CREATE INDEX IF NOT EXISTS concepts_embedding_hnsw_idx
   ON concepts
+  USING hnsw (embedding vector_cosine_ops);
+
+-- ── qna_messages.embedding ────────────────────────────────────────────────
+-- Feature 10 (semantic Q&A cache): near-duplicate question check on incoming
+-- questions, scoped to subtopic_id, before any LLM call.
+
+CREATE INDEX IF NOT EXISTS qna_messages_question_embedding_hnsw_idx
+  ON qna_messages
   USING hnsw (embedding vector_cosine_ops);
 
 -- ── Row-level security on source_chunks (recommended, not yet enforced) ──

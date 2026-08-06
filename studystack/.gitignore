@@ -28,5 +28,8 @@ npm-debug.log*
 # Prisma
 apps/api/prisma/migrations/
 
+# Local file uploads (stand-in until object storage is wired)
+apps/api/uploads/
+
 # Vercel
 .vercel

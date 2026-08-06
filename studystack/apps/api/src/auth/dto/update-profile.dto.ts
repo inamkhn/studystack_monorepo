@@ -9,5 +9,6 @@ export class UpdateProfileDto {
 
   @IsOptional()
   @IsEnum(ExplanationStyle)
-  explanationStyle?: ExplanationStyle;
+  // null clears the persona back to the neutral bucket (Feature 18).
+  explanationStyle?: ExplanationStyle | null;
 }
