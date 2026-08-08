@@ -99,4 +99,37 @@ export class AiService {
       "Final-project generation not yet implemented — lands with AiModule (build order step 5)",
     );
   }
+
+  /**
+   * F10 — in-tutorial Q&A answering. Grounded in this subtopic's
+   * `tutorial_content`; pulls additional `source_chunks` via vector
+   * retrieval when the question needs broader course context.
+   */
+  async answerQnaQuestion(_params: {
+    subtopicId: string;
+    question: string;
+    tutorialExplanation: string;
+  }): Promise<string> {
+    throw new NotImplementedException(
+      "Q&A answering not yet implemented — lands with AiModule (build order step 5)",
+    );
+  }
+
+  /**
+   * F12 — practice-problem generation for a calc/application-heavy subtopic.
+   * Returns an array of problems, each with an ordered hint list and a
+   * final solution. Generated once per subtopic and cached.
+   */
+  async generatePracticeProblems(_params: {
+    subtopicId: string;
+    subtopicTitle: string;
+    level: Level;
+    concepts: { conceptId: string; canonicalName: string }[];
+  }): Promise<
+    { problemText: string; hintsJson: unknown; solution: string }[]
+  > {
+    throw new NotImplementedException(
+      "Practice-problem generation not yet implemented — lands with AiModule (build order step 5)",
+    );
+  }
 }

@@ -20,6 +20,7 @@ import { ExamDateDto } from "./dto/exam-date.dto.js";
 import { GoalDto } from "./dto/goal.dto.js";
 import { IntakeDto } from "./dto/intake.dto.js";
 import { LevelDto } from "./dto/level.dto.js";
+import { ReportDto } from "./dto/report.dto.js";
 import { TopicCourseDto } from "./dto/topic-course.dto.js";
 import { UploadCourseDto } from "./dto/upload-course.dto.js";
 
@@ -132,5 +133,38 @@ export class CourseController {
     @Param("subtopicId") subtopicId: string,
   ) {
     return this.courseService.getConceptLinks(userId, courseId, subtopicId);
+  }
+
+  // ── F14: publish course (provenance gate) ────────────────────────────
+
+  @Post(":id/publish")
+  async publishCourse(
+    @CurrentUser("id") userId: string,
+    @Param("id") courseId: string,
+  ) {
+    return this.courseService.publishCourse(userId, courseId);
+  }
+
+  // ── F14: fork a public course ────────────────────────────────────────
+
+  @Post(":id/fork")
+  @HttpCode(HttpStatus.CREATED)
+  async forkCourse(
+    @CurrentUser("id") userId: string,
+    @Param("id") courseId: string,
+  ) {
+    return this.courseService.forkCourse(userId, courseId);
+  }
+
+  // ── F14: report a course ─────────────────────────────────────────────
+
+  @Post(":id/report")
+  @HttpCode(HttpStatus.CREATED)
+  async reportCourse(
+    @CurrentUser("id") userId: string,
+    @Param("id") courseId: string,
+    @Body() dto: ReportDto,
+  ) {
+    return this.courseService.reportCourse(userId, courseId, dto.reason);
   }
 }

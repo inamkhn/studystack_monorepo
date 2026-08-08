@@ -5,6 +5,7 @@ import { JobsModule } from "../jobs/jobs.module.js";
 import { ConceptsModule } from "./concepts.module.js";
 import { CourseController } from "./course.controller.js";
 import { CourseService } from "./course.service.js";
+import { PublicCourseController } from "./public-course.controller.js";
 import { StudentController } from "./student.controller.js";
 import { TutorialController } from "./tutorial.controller.js";
 
@@ -12,6 +13,7 @@ import { TutorialController } from "./tutorial.controller.js";
   imports: [AuthModule, JobsModule, AiModule, ConceptsModule],
   controllers: [
     CourseController,
+    PublicCourseController,
     TutorialController,
     StudentController,
   ],

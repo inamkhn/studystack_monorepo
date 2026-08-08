@@ -107,6 +107,7 @@ enum ConceptReviewStatus {
 enum QuizAttemptType {
   module_quiz
   final_project
+  practice_problem
 }
 
 enum CertificateCourseType {
@@ -384,6 +385,7 @@ model CourseFork {
   classroomStudents ClassroomStudent[]
   quizAttempts      QuizAttempt[]
 
+  @@unique([originalCourseId, studentId])
   @@map("course_forks")
 }
 
@@ -517,6 +519,7 @@ model Certificate {
   verificationSlug String                @unique
   courseType       CertificateCourseType
 
+  @@unique([studentId, courseId])
   @@map("certificates")
 }
 
@@ -564,6 +567,7 @@ model Classroom {
   course             Course             @relation(fields: [courseId], references: [id])
   consentOnFile      Boolean            @default(false)
   consentDocumentUrl String?
+  inviteCode         String?            @unique
   students           ClassroomStudent[]
 
   @@map("classrooms")
@@ -576,6 +580,7 @@ model ClassroomStudent {
   student     User        @relation("ClassroomStudentRelation", fields: [studentId], references: [id])
   forkId      String?
   fork        CourseFork? @relation(fields: [forkId], references: [id])
+  joinedAt    DateTime    @default(now())
 
   @@id([classroomId, studentId])
   @@map("classroom_students")

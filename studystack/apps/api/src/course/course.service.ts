@@ -1,10 +1,12 @@
 import {
   BadRequestException,
+  ForbiddenException,
   Injectable,
   NotFoundException,
 } from "@nestjs/common";
 import { InjectQueue } from "@nestjs/bullmq";
 import { Goal, Level } from "@prisma/client";
+import { Prisma } from "@prisma/client";
 import { Queue } from "bullmq";
 import { mkdir, writeFile } from "fs/promises";
 import * as path from "path";
@@ -85,7 +87,7 @@ export class CourseService {
   // ── F1: rights attestation (idempotent) ───────────────────────────────
 
   async attestRights(userId: string, courseId: string) {
-    const course = await this.getOwnedCourseOrThrow(userId, courseId);
+    const course = await this.requireOwnedCourse(userId, courseId);
 
     if (course.publishAttestationAt) {
       return course; // already attested — idempotent no-op
@@ -143,7 +145,7 @@ export class CourseService {
   // ── F3: intake ────────────────────────────────────────────────────────
 
   async updateIntake(userId: string, courseId: string, goal: Goal, level: Level) {
-    await this.getOwnedCourseOrThrow(userId, courseId);
+    await this.requireOwnedCourse(userId, courseId);
 
     // Recording intake does NOT trigger structure generation itself — the
     // internal completion check (intake recorded AND ingestion/research done)
@@ -157,7 +159,7 @@ export class CourseService {
   // ── F3: mid-course level change ───────────────────────────────────────
 
   async updateLevel(userId: string, courseId: string, level: Level) {
-    const course = await this.getOwnedCourseOrThrow(userId, courseId);
+    const course = await this.requireOwnedCourse(userId, courseId);
 
     if (course.level === level) {
       return course; // no-op
@@ -176,7 +178,7 @@ export class CourseService {
   // ── F3: mid-course goal change ────────────────────────────────────────
 
   async updateGoal(userId: string, courseId: string, goal: Goal) {
-    const course = await this.getOwnedCourseOrThrow(userId, courseId);
+    const course = await this.requireOwnedCourse(userId, courseId);
 
     if (course.goal === goal) {
       return course; // no-op
@@ -193,7 +195,7 @@ export class CourseService {
   // ── F3: exam date (goal = exam_prep only) ─────────────────────────────
 
   async updateExamDate(userId: string, courseId: string, examDate: string | null) {
-    const course = await this.getOwnedCourseOrThrow(userId, courseId);
+    const course = await this.requireOwnedCourse(userId, courseId);
 
     if (examDate !== null && course.goal !== "exam_prep") {
       throw new BadRequestException(
@@ -328,6 +330,223 @@ export class CourseService {
     };
   }
 
+  // ── F14: publish a course (provenance gate + age_bracket guard) ────────
+
+  /**
+   * Runs the copyright/provenance gate for a course.
+   *
+   * Full scan if `publish_gate_checked_at` is null, incremental (rows
+   * generated since the last check) otherwise.
+   *
+   * Public so MarketplaceService (F17) can reuse the same gate without
+   * duplicating the scan logic.
+   */
+  async runProvenanceGate(
+    courseId: string,
+  ): Promise<{ passed: boolean; offendingSubtopicIds: string[] }> {
+    const course = await this.prisma.course.findUnique({
+      where: { id: courseId },
+      select: { publishGateCheckedAt: true },
+    });
+    if (!course) {
+      throw new NotFoundException("Course not found");
+    }
+
+    // If the course has no upload-provenance content at all, it always passes.
+    const whereProvenance = {
+      subtopic: { module: { courseId } },
+      provenance: "reused_from_upload" as const,
+      ...(course.publishGateCheckedAt
+        ? { generatedAt: { gt: course.publishGateCheckedAt } }
+        : {}),
+    };
+
+    const reusedCount = await this.prisma.tutorialContent.count({
+      where: whereProvenance,
+    });
+
+    if (reusedCount === 0) {
+      return { passed: true, offendingSubtopicIds: [] };
+    }
+
+    // Upload-provenance content exists — check source-document license status.
+    const hasUnknownLicense =
+      (await this.prisma.sourceDocument.count({
+        where: { courseId, licenseStatus: "user_uploaded_unknown" },
+      })) > 0;
+
+    if (!hasUnknownLicense) {
+      return { passed: true, offendingSubtopicIds: [] };
+    }
+
+    // Gate blocked — return the specific subtopics that triggered it.
+    const offending = await this.prisma.tutorialContent.findMany({
+      where: whereProvenance,
+      select: { subtopicId: true },
+      distinct: ["subtopicId"],
+    });
+
+    return {
+      passed: false,
+      offendingSubtopicIds: offending.map((r) => r.subtopicId),
+    };
+  }
+
+  async publishCourse(userId: string, courseId: string) {
+    // F14 / F19: publishing is unavailable to non-adult accounts.
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+      select: { ageBracket: true },
+    });
+    if (user?.ageBracket !== "adult") {
+      throw new ForbiddenException(
+        "Publishing is only available to adult accounts",
+      );
+    }
+
+    const course = await this.requireOwnedCourse(userId, courseId);
+
+    if (course.status !== "ready") {
+      throw new BadRequestException(
+        "Course is not yet ready — wait for ingestion and structuring to complete",
+      );
+    }
+
+    // Provenance gate.
+    const gate = await this.runProvenanceGate(courseId);
+    if (!gate.passed) {
+      throw new BadRequestException(
+        `Cannot publish: copyright is unclear for ${gate.offendingSubtopicIds.length} subtopic(s). ` +
+          "Resolve license status on uploaded source material first.",
+      );
+    }
+
+    // Already published — idempotent no-op (update timestamp on re-publish).
+    const now = new Date();
+    return this.prisma.course.update({
+      where: { id: courseId },
+      data: {
+        visibility: "public_shared",
+        publishedAt: course.publishedAt ?? now,
+        publishGateCheckedAt: now,
+      },
+    });
+  }
+
+  // ── F14: public course browse ──────────────────────────────────────────
+
+  async browsePublicCourses(filters?: {
+    subject?: string;
+    level?: Level;
+    goal?: Goal;
+  }) {
+    const where: Record<string, unknown> = { visibility: "public_shared" };
+
+    if (filters?.subject) {
+      // Subject is stored in `topic` — fuzzy match.
+      where.topic = { contains: filters.subject, mode: "insensitive" };
+    }
+    if (filters?.level) {
+      where.level = filters.level;
+    }
+    if (filters?.goal) {
+      where.goal = filters.goal;
+    }
+
+    return this.prisma.course.findMany({
+      where,
+      select: {
+        id: true,
+        title: true,
+        topic: true,
+        goal: true,
+        level: true,
+        description: true,
+        publishedAt: true,
+        owner: { select: { name: true } },
+      },
+      orderBy: { publishedAt: "desc" },
+      take: 100,
+    });
+  }
+
+  // ── F14: fork a public course (non-owner viewer) ───────────────────────
+
+  async forkCourse(userId: string, courseId: string) {
+    const course = await this.prisma.course.findUnique({
+      where: { id: courseId },
+      select: { id: true, ownerId: true, visibility: true },
+    });
+
+    if (!course) {
+      throw new NotFoundException("Course not found");
+    }
+
+    if (course.ownerId === userId) {
+      throw new BadRequestException("You cannot fork your own course");
+    }
+
+    if (course.visibility !== "public_shared") {
+      throw new BadRequestException("Only public courses can be forked");
+    }
+
+    // Check for an existing fork — idempotent.
+    const existing = await this.prisma.courseFork.findFirst({
+      where: { originalCourseId: courseId, studentId: userId },
+      select: { id: true, createdAt: true },
+    });
+    if (existing) {
+      return existing;
+    }
+
+    try {
+      return await this.prisma.courseFork.create({
+        data: {
+          originalCourseId: courseId,
+          studentId: userId,
+        },
+      });
+    } catch (error) {
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.code === "P2002"
+      ) {
+        // Concurrent fork — another request created one between our
+        // findFirst check and this create. Return the winner's row.
+        return this.prisma.courseFork.findFirstOrThrow({
+          where: { originalCourseId: courseId, studentId: userId },
+          select: { id: true, createdAt: true },
+        });
+      }
+      throw error;
+    }
+  }
+
+  // ── F14: report a course ───────────────────────────────────────────────
+
+  async reportCourse(userId: string, courseId: string, reason: string) {
+    const course = await this.prisma.course.findUnique({
+      where: { id: courseId },
+      select: { id: true, visibility: true },
+    });
+
+    if (!course) {
+      throw new NotFoundException("Course not found");
+    }
+
+    if (course.visibility !== "public_shared") {
+      throw new BadRequestException("Only public courses can be reported");
+    }
+
+    return this.prisma.courseReport.create({
+      data: {
+        courseId,
+        reporterId: userId,
+        reason,
+      },
+    });
+  }
+
   // ── helpers ───────────────────────────────────────────────────────────
 
   /**
@@ -361,7 +580,7 @@ export class CourseService {
   }
 
   /** Mutations are owner-only. */
-  private async getOwnedCourseOrThrow(userId: string, courseId: string) {
+  async requireOwnedCourse(userId: string, courseId: string) {
     const course = await this.prisma.course.findFirst({
       where: { id: courseId, ownerId: userId },
     });
