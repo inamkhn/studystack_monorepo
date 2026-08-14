@@ -2,7 +2,7 @@ import {
   Injectable,
   NotFoundException,
 } from "@nestjs/common";
-import type { Level } from "@prisma/client";
+import type { Level } from "../generated/prisma/client.js";
 import { AiService } from "../ai/ai.service.js";
 import { MasteryService } from "../mastery/mastery.service.js";
 import { PrismaService } from "../prisma/prisma.service.js";

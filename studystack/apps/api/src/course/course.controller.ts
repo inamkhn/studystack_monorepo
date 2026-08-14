@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   HttpCode,
   HttpStatus,
@@ -13,8 +14,13 @@ import {
 } from "@nestjs/common";
 import { FileInterceptor } from "@nestjs/platform-express";
 import { ApiBearerAuth, ApiTags } from "@nestjs/swagger";
+import { diskStorage } from "multer";
+import { mkdirSync } from "node:fs";
+import { randomUUID } from "node:crypto";
+import * as path from "path";
 import { CurrentUser } from "../auth/current-user.decorator.js";
 import { JwtAuthGuard } from "../auth/jwt-auth.guard.js";
+import { UPLOAD_DIR } from "../common/utils/storage.js";
 import { CourseService } from "./course.service.js";
 import { ExamDateDto } from "./dto/exam-date.dto.js";
 import { GoalDto } from "./dto/goal.dto.js";
@@ -36,8 +42,22 @@ export class CourseController {
   @Post("upload")
   @UseInterceptors(
     FileInterceptor("file", {
-      // Memory-buffered until object storage is wired — guard against
-      // unbounded uploads (multer error → 413 PayloadTooLargeException).
+      // F1 §2.2: disk-streamed, never memory-buffered — large (400+ page)
+      // files and concurrent uploads don't pressure the heap. Multer writes a
+      // temp file; the service renames it to <courseId>-<name> once the
+      // course row exists. Multer errors (e.g. size cap) → 413.
+      storage: diskStorage({
+        destination: (_req, _file, cb) => {
+          mkdirSync(UPLOAD_DIR, { recursive: true });
+          cb(null, UPLOAD_DIR);
+        },
+        filename: (_req, file, cb) => {
+          cb(
+            null,
+            `${randomUUID()}${path.extname(file.originalname).toLowerCase()}`,
+          );
+        },
+      }),
       limits: { fileSize: 50 * 1024 * 1024 },
     }),
   )
@@ -63,6 +83,17 @@ export class CourseController {
     @Param("id") courseId: string,
   ) {
     return this.courseService.getIngestionStatus(userId, courseId);
+  }
+
+  // F1 §4.3: owner-only hard delete — DB rows plus uploaded file and
+  // extracted figures. Blocked (409) when forks/purchases/classrooms/
+  // certificates exist.
+  @Delete(":id")
+  async deleteCourse(
+    @CurrentUser("id") userId: string,
+    @Param("id") courseId: string,
+  ) {
+    return this.courseService.deleteCourse(userId, courseId);
   }
 
   // ── F2: topic-only path ────────────────────────────────────────────────

@@ -10,7 +10,6 @@ import {
 } from "@nestjs/common";
 import { ApiBearerAuth, ApiTags } from "@nestjs/swagger";
 import { AuthService } from "./auth.service.js";
-import { AgeBracketDto } from "./dto/age-bracket.dto.js";
 import { LoginDto } from "./dto/login.dto.js";
 import { RefreshTokenDto } from "./dto/refresh-token.dto.js";
 import { RegisterDto } from "./dto/register.dto.js";
@@ -62,15 +61,5 @@ export class AuthController {
     @Body() dto: UpdateProfileDto,
   ): Promise<UserWithoutPassword> {
     return this.authService.updateProfile(userId, dto);
-  }
-
-  @ApiBearerAuth()
-  @UseGuards(JwtAuthGuard)
-  @Patch("me/age-bracket")
-  async resolveAgeBracket(
-    @CurrentUser("id") userId: string,
-    @Body() dto: AgeBracketDto,
-  ): Promise<Pick<UserWithoutPassword, "ageBracket">> {
-    return this.authService.resolveAgeBracket(userId, dto);
   }
 }

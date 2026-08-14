@@ -151,3 +151,35 @@ export const ConceptSchema = z.object({
   createdAt: z.coerce.date(),
 });
 export type Concept = z.infer<typeof ConceptSchema>;
+
+// ── F4 structuring — LLM structured-output contract ────────────────────
+// The module/subtopic/concept structure the frontier model must return for
+// a course (validated via withStructuredOutput before anything is written).
+// Array caps are part of the cost bounding — they limit how much a crafted
+// upload can inflate the generation output.
+
+export const StructureConceptSchema = z.object({
+  canonicalName: z.string().min(1).max(80),
+  aliases: z.array(z.string().max(80)).max(6).default([]),
+});
+export type StructureConcept = z.infer<typeof StructureConceptSchema>;
+
+export const StructureSubtopicSchema = z.object({
+  title: z.string().min(1).max(160),
+  // F12: calc/application-heavy subtopics get practice problems.
+  calcHeavy: z.boolean().default(false),
+  concepts: z.array(StructureConceptSchema).min(1).max(12),
+});
+export type StructureSubtopic = z.infer<typeof StructureSubtopicSchema>;
+
+export const StructureModuleSchema = z.object({
+  title: z.string().min(1).max(160),
+  subtopics: z.array(StructureSubtopicSchema).min(1).max(10),
+});
+export type StructureModule = z.infer<typeof StructureModuleSchema>;
+
+export const CourseStructureSchema = z.object({
+  subjectArea: z.string().min(1).max(80),
+  modules: z.array(StructureModuleSchema).min(1).max(12),
+});
+export type CourseStructure = z.infer<typeof CourseStructureSchema>;

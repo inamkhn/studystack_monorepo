@@ -3,8 +3,8 @@ import {
   Injectable,
   NotFoundException,
 } from "@nestjs/common";
-import type { CertificateCourseType } from "@prisma/client";
-import { Prisma } from "@prisma/client";
+import type { CertificateCourseType } from "../generated/prisma/client.js";
+import { Prisma } from "../generated/prisma/client.js";
 import { randomBytes } from "crypto";
 import { PrismaService } from "../prisma/prisma.service.js";
 

@@ -1,22 +1,67 @@
 import {
   BadRequestException,
+  ConflictException,
   ForbiddenException,
+  HttpException,
+  HttpStatus,
   Injectable,
   NotFoundException,
+  PayloadTooLargeException,
+  ServiceUnavailableException,
 } from "@nestjs/common";
 import { InjectQueue } from "@nestjs/bullmq";
-import { Goal, Level } from "@prisma/client";
-import { Prisma } from "@prisma/client";
+import { Goal, Level } from "../generated/prisma/client.js";
+import { Prisma } from "../generated/prisma/client.js";
 import { Queue } from "bullmq";
-import { mkdir, writeFile } from "fs/promises";
+import { createHash } from "node:crypto";
+import { createReadStream } from "node:fs";
+import { mkdir, rename, unlink } from "fs/promises";
 import * as path from "path";
 import { AiService } from "../ai/ai.service.js";
 import {
   INGESTION_QUEUE,
   JOB_PRIORITY,
   RESEARCH_QUEUE,
+  STRUCTURING_QUEUE,
 } from "../jobs/jobs.constants.js";
 import { PrismaService } from "../prisma/prisma.service.js";
+import { validateUploadFilePath, readFileHead } from "../common/utils/file-validation.js";
+import { detectLanguage } from "../common/utils/language-detection.js";
+import { setChunkScope, withChunkScope } from "../common/utils/chunk-scope.js";
+import {
+  deleteCourseAssets,
+  resolveStoredPath,
+  toStorageKey,
+  UPLOAD_DIR,
+} from "../common/utils/storage.js";
+
+// ── F1 §4.4: abuse controls (DB-backed — no Redis dependency) ──────────
+const MAX_UPLOADS_PER_HOUR = 10;
+const MAX_USER_STORAGE_BYTES = 500 * 1024 * 1024; // 500 MB
+
+// ── F1 §4.2: compensation for stranded courses ──────────────────────────
+const RECONCILE_STUCK_AFTER_MS = 30 * 60 * 1000;
+const FAILED_COURSE_CLEANUP_DAYS = 14;
+/** BullMQ job states that mean "a worker will handle this — leave it". */
+const LIVE_JOB_STATES = new Set([
+  "waiting",
+  "active",
+  "delayed",
+  "prioritized",
+  "waiting-children",
+  "paused",
+]);
+
+/** Streaming SHA-256 of a disk file — never buffers the upload in memory. */
+function hashFileSha256(filePath: string): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const hash = createHash("sha256");
+    const stream = createReadStream(filePath);
+    stream.on("data", (chunk) => hash.update(chunk));
+    stream.on("end", () => resolve(hash.digest("hex")));
+    stream.on("error", reject);
+  });
+}
 
 @Injectable()
 export class CourseService {
@@ -24,6 +69,7 @@ export class CourseService {
     private readonly prisma: PrismaService,
     @InjectQueue(INGESTION_QUEUE) private readonly ingestionQueue: Queue,
     @InjectQueue(RESEARCH_QUEUE) private readonly researchQueue: Queue,
+    @InjectQueue(STRUCTURING_QUEUE) private readonly structuringQueue: Queue,
     private readonly ai: AiService,
   ) {}
 
@@ -34,8 +80,38 @@ export class CourseService {
     file: Express.Multer.File,
     attestRights?: boolean,
   ) {
-    if (!file?.buffer?.length) {
+    if (!file?.path) {
       throw new BadRequestException("A file upload is required");
+    }
+
+    // F1 edge case: corrupted/disguised files are rejected up front with a
+    // clear error instead of creating a course that parks in `ingesting`.
+    // Path-based because uploads are disk-streamed (never in-memory).
+    const kind = await validateUploadFilePath(file.path, file.originalname);
+
+    // F1 §4.4: abuse controls run before any row exists — rate limit,
+    // storage quota, and duplicate detection (same content hash under this
+    // user = same ingestion cost paid twice).
+    await this.assertUploadAllowed(userId, file.size);
+    const contentHash = await hashFileSha256(file.path);
+    const duplicate = await this.prisma.sourceDocument.findFirst({
+      where: { contentHash, course: { ownerId: userId } },
+      select: { courseId: true },
+    });
+    if (duplicate) {
+      throw new ConflictException({
+        message: "This exact file has already been uploaded",
+        existingCourseId: duplicate.courseId,
+      });
+    }
+
+    // F1 §2.3: detect the source language so generated content stays in it.
+    // Plain text is readable now; PDF/DOCX need extraction text, which the
+    // AiModule pipeline will detect later (language stays null until then).
+    let language: string | null = null;
+    if (kind === "text") {
+      const head = await readFileHead(file.path, 65536);
+      language = detectLanguage(head.toString("utf8"));
     }
 
     const course = await this.prisma.course.create({
@@ -44,30 +120,43 @@ export class CourseService {
         sourceType: "upload",
         title: file.originalname,
         status: "ingesting",
+        ingestionStage: "queued",
+        language,
         // F1: optional early attestation at upload time.
         publishAttestationAt: attestRights ? new Date() : undefined,
       },
     });
 
-    // Persist locally until object storage (S3/R2) is wired — later step.
+    let filePath: string | null = null;
     try {
-      const uploadDir = path.join(process.cwd(), "uploads");
-      await mkdir(uploadDir, { recursive: true });
+      await mkdir(UPLOAD_DIR, { recursive: true });
       const safeName = file.originalname.replace(/[\\/:*?"<>|]/g, "_");
-      const filePath = path.join(uploadDir, `${course.id}-${safeName}`);
-      await writeFile(filePath, file.buffer);
+      filePath = path.join(UPLOAD_DIR, `${course.id}-${safeName}`);
+      // Promote the multer temp file to its permanent name — same volume, so
+      // this is a cheap rename, not a copy.
+      await rename(file.path, filePath);
 
       await this.prisma.sourceDocument.create({
         data: {
           courseId: course.id,
-          fileUrl: filePath,
+          // §4.5: stored as a key relative to UPLOAD_DIR (legacy absolute
+          // paths still resolve) — portable for the object-storage swap.
+          fileUrl: toStorageKey(filePath),
           fileType: path.extname(file.originalname) || null,
+          fileSizeBytes: file.size,
+          contentHash,
           // Safe default — a student upload is not a rights claim.
           licenseStatus: "user_uploaded_unknown",
         },
       });
     } catch (error) {
-      // Don't leave an orphaned ingesting course behind if persistence fails.
+      // Don't leave an orphaned ingesting course or file behind if
+      // persistence fails. After the rename, file.path is gone — clean up
+      // whichever path still exists (§4.3 orphan fix).
+      await unlink(file.path).catch(() => undefined);
+      if (filePath) {
+        await unlink(filePath).catch(() => undefined);
+      }
       await this.prisma.course
         .delete({ where: { id: course.id } })
         .catch(() => undefined);
@@ -75,13 +164,64 @@ export class CourseService {
     }
 
     // F1 resolution: new-course ingestion runs at the highest priority.
-    await this.ingestionQueue.add(
-      "ingest-course",
-      { courseId: course.id },
-      { priority: JOB_PRIORITY.newCourseIngestion, jobId: `ingest:${course.id}` },
-    );
+    try {
+      await this.ingestionQueue.add(
+        "ingest-course",
+        { courseId: course.id },
+        { priority: JOB_PRIORITY.newCourseIngestion, jobId: `ingest:${course.id}` },
+      );
+    } catch {
+      // F1 §4.2: Redis down at enqueue would leave a zombie `ingesting`
+      // course with no job and no retry. Roll everything back and surface a
+      // clear 503 so the client retries cleanly instead of polling forever.
+      await unlink(filePath!).catch(() => undefined);
+      await this.prisma.sourceDocument
+        .deleteMany({ where: { courseId: course.id } })
+        .catch(() => undefined);
+      await this.prisma.course
+        .delete({ where: { id: course.id } })
+        .catch(() => undefined);
+      throw new ServiceUnavailableException(
+        "Ingestion queue is unavailable — the upload was rolled back, please retry",
+      );
+    }
 
     return course;
+  }
+
+  /**
+   * F1 §4.4 — per-user upload rate limit + storage quota. DB-backed counts,
+   * so they survive restarts and work while Redis is down.
+   */
+  private async assertUploadAllowed(userId: string, incomingBytes: number) {
+    const hourAgo = new Date(Date.now() - 60 * 60 * 1000);
+    const [recentUploads, usage] = await Promise.all([
+      this.prisma.course.count({
+        where: {
+          ownerId: userId,
+          sourceType: "upload",
+          createdAt: { gt: hourAgo },
+        },
+      }),
+      this.prisma.sourceDocument.aggregate({
+        _sum: { fileSizeBytes: true },
+        where: { course: { ownerId: userId } },
+      }),
+    ]);
+
+    if (recentUploads >= MAX_UPLOADS_PER_HOUR) {
+      throw new HttpException(
+        `Upload limit reached (${MAX_UPLOADS_PER_HOUR} uploads/hour) — try again later`,
+        HttpStatus.TOO_MANY_REQUESTS,
+      );
+    }
+
+    const usedBytes = usage._sum.fileSizeBytes ?? 0;
+    if (usedBytes + incomingBytes > MAX_USER_STORAGE_BYTES) {
+      throw new PayloadTooLargeException(
+        `Storage quota exceeded (max ${MAX_USER_STORAGE_BYTES} bytes per user)`,
+      );
+    }
   }
 
   // ── F1: rights attestation (idempotent) ───────────────────────────────
@@ -106,7 +246,10 @@ export class CourseService {
 
     const [sourceDocuments, sourceChunks] = await Promise.all([
       this.prisma.sourceDocument.count({ where: { courseId } }),
-      this.prisma.sourceChunk.count({ where: { courseId } }),
+      // RLS scope: source_chunks access runs under app.current_course_id.
+      withChunkScope(this.prisma, courseId, (tx) =>
+        tx.sourceChunk.count({ where: { courseId } }),
+      ),
     ]);
 
     return {
@@ -114,9 +257,38 @@ export class CourseService {
       title: course.title,
       sourceType: course.sourceType,
       status: course.status,
+      // F1 failure contract — populated when status = failed so the client
+      // stops polling and can surface the reason.
+      ...(course.failureReason ? { failureReason: course.failureReason } : {}),
+      // F1 §2.3: detected source language (null = unknown / pending extraction).
+      language: course.language ?? null,
       updatedAt: course.updatedAt,
-      progress: { sourceDocuments, sourceChunks },
+      progress: {
+        // F1 §2.2: per-stage progress (queued → extracting → chunking →
+        // embedding) alongside the document/chunk counts.
+        stage: course.ingestionStage ?? null,
+        sourceDocuments,
+        sourceChunks,
+      },
     };
+  }
+
+  /**
+   * F1 failure contract: marks the course failed and stamps every source
+   * document's extractionStatus. Called by the ingestion worker when the
+   * uploaded file proves unreadable/corrupted.
+   */
+  async failCourseIngestion(courseId: string, reason: string): Promise<void> {
+    await this.prisma.$transaction([
+      this.prisma.course.update({
+        where: { id: courseId },
+        data: { status: "failed", failureReason: reason },
+      }),
+      this.prisma.sourceDocument.updateMany({
+        where: { courseId },
+        data: { extractionStatus: "failed" },
+      }),
+    ]);
   }
 
   // ── F2: topic-only path ───────────────────────────────────────────────
@@ -133,11 +305,21 @@ export class CourseService {
     });
 
     // F2: research step runs before converging into module generation.
-    await this.researchQueue.add(
-      "research-course",
-      { courseId: course.id },
-      { priority: JOB_PRIORITY.newCourseIngestion, jobId: `research:${course.id}` },
-    );
+    try {
+      await this.researchQueue.add(
+        "research-course",
+        { courseId: course.id },
+        { priority: JOB_PRIORITY.newCourseIngestion, jobId: `research:${course.id}` },
+      );
+    } catch {
+      // F1 §4.2: never strand a zombie course when the queue is down.
+      await this.prisma.course
+        .delete({ where: { id: course.id } })
+        .catch(() => undefined);
+      throw new ServiceUnavailableException(
+        "Research queue is unavailable — please retry",
+      );
+    }
 
     return course;
   }
@@ -145,11 +327,50 @@ export class CourseService {
   // ── F3: intake ────────────────────────────────────────────────────────
 
   async updateIntake(userId: string, courseId: string, goal: Goal, level: Level) {
-    await this.requireOwnedCourse(userId, courseId);
+    const course = await this.requireOwnedCourse(userId, courseId);
 
-    // Recording intake does NOT trigger structure generation itself — the
-    // internal completion check (intake recorded AND ingestion/research done)
-    // drives the structuring transition (endpoints doc, F3).
+    // F3 convergence: intake recorded AND ingestion done → structuring.
+    // Recording intake itself never triggers generation; this only advances
+    // a course whose ingestion already completed and was parked waiting for
+    // goal+level — the F4 structuring job then takes it to `ready`.
+    if (course.status === "intake_pending") {
+      const updated = await this.prisma.course.update({
+        where: { id: courseId },
+        data: {
+          goal,
+          level,
+          status: "structuring",
+          ingestionStage: "structuring",
+        },
+      });
+      try {
+        await this.structuringQueue.add(
+          "structure-course",
+          { courseId },
+          {
+            priority: JOB_PRIORITY.newCourseIngestion,
+            jobId: `structure:${courseId}`,
+            attempts: 2,
+            backoff: { type: "exponential", delay: 15_000 },
+          },
+        );
+      } catch {
+        // F1 §4.2: the queue went down after the status flip. Revert so the
+        // client can retry the same request; reconciliation also picks this
+        // up (intake_pending with goal+level → structuring enqueue).
+        await this.prisma.course
+          .update({
+            where: { id: courseId },
+            data: { status: "intake_pending", ingestionStage: null },
+          })
+          .catch(() => undefined);
+        throw new ServiceUnavailableException(
+          "Structuring queue is unavailable — intake was recorded, please retry",
+        );
+      }
+      return updated;
+    }
+
     return this.prisma.course.update({
       where: { id: courseId },
       data: { goal, level },
@@ -548,6 +769,203 @@ export class CourseService {
   }
 
   // ── helpers ───────────────────────────────────────────────────────────
+
+  // ── F1 §4.3: course deletion + file cleanup ─────────────────────────
+
+  /**
+   * F1 §4.3 — owner-only hard delete: every DB row plus the uploaded file
+   * and extracted figures on disk. Learner-facing dependents (forks,
+   * purchases, classrooms, certificates) block deletion instead of
+   * cascading into other people's data.
+   */
+  async deleteCourse(userId: string, courseId: string) {
+    await this.requireOwnedCourse(userId, courseId);
+    return this.destroyCourse(courseId);
+  }
+
+  private async destroyCourse(courseId: string) {
+    const [forks, purchases, classrooms, certificates] = await Promise.all([
+      this.prisma.courseFork.count({ where: { originalCourseId: courseId } }),
+      this.prisma.purchase.count({ where: { courseId } }),
+      this.prisma.classroom.count({ where: { courseId } }),
+      this.prisma.certificate.count({ where: { courseId } }),
+    ]);
+    if (forks > 0 || purchases > 0 || classrooms > 0 || certificates > 0) {
+      throw new ConflictException(
+        "Course has forks, purchases, classrooms, or issued certificates and cannot be deleted",
+      );
+    }
+
+    const moduleIds = (
+      await this.prisma.module.findMany({
+        where: { courseId },
+        select: { id: true },
+      })
+    ).map((m) => m.id);
+    const subtopicIds =
+      moduleIds.length > 0
+        ? (
+            await this.prisma.subtopic.findMany({
+              where: { moduleId: { in: moduleIds } },
+              select: { id: true },
+            })
+          ).map((s) => s.id)
+        : [];
+    const documents = await this.prisma.sourceDocument.findMany({
+      where: { courseId },
+      select: { fileUrl: true },
+    });
+
+    await this.prisma.$transaction(async (tx) => {
+      // RLS scope for the source_chunks delete below.
+      await setChunkScope(tx, courseId);
+      if (moduleIds.length > 0) {
+        await tx.quizAttempt.deleteMany({ where: { moduleId: { in: moduleIds } } });
+        await tx.moduleQuiz.deleteMany({ where: { moduleId: { in: moduleIds } } });
+      }
+      if (subtopicIds.length > 0) {
+        await tx.subtopicCompletion.deleteMany({ where: { subtopicId: { in: subtopicIds } } });
+        await tx.tutorialContent.deleteMany({ where: { subtopicId: { in: subtopicIds } } });
+        await tx.qnaMessage.deleteMany({ where: { subtopicId: { in: subtopicIds } } });
+        await tx.practiceProblem.deleteMany({ where: { subtopicId: { in: subtopicIds } } });
+        await tx.subtopicConcept.deleteMany({ where: { subtopicId: { in: subtopicIds } } });
+        await tx.subtopic.deleteMany({ where: { id: { in: subtopicIds } } });
+      }
+      if (moduleIds.length > 0) {
+        await tx.module.deleteMany({ where: { id: { in: moduleIds } } });
+      }
+      await tx.sourceChunk.deleteMany({ where: { courseId } });
+      await tx.sourceDocument.deleteMany({ where: { courseId } });
+      await tx.export.deleteMany({ where: { courseId } });
+      await tx.finalProject.deleteMany({ where: { courseId } });
+      await tx.courseReport.deleteMany({ where: { courseId } });
+      await tx.marketplaceReviewQueue.deleteMany({ where: { courseId } });
+      await tx.course.delete({ where: { id: courseId } });
+    });
+
+    // Best-effort file cleanup — rows are already gone, so a leftover file
+    // here must not fail the delete (the stale-file sweep covers it).
+    for (const doc of documents) {
+      if (doc.fileUrl) {
+        await unlink(resolveStoredPath(doc.fileUrl)).catch(() => undefined);
+      }
+    }
+    await deleteCourseAssets(courseId).catch(() => undefined);
+
+    return { id: courseId, deleted: true };
+  }
+
+  // ── F1 §4.2: compensation for stranded courses ───────────────────────
+
+  /**
+   * F1 §4.2 — find courses stranded without a live job and re-enqueue them:
+   * - ingesting/structuring courses stale past the threshold (worker crash,
+   *   exhausted retries, Redis outage mid-flight)
+   * - intake_pending courses with goal+level set (structuring enqueue failed
+   *   after the status flip)
+   *
+   * Safe to run repeatedly: jobs still live in their queue are skipped, and
+   * ingestion/structuring are idempotent by design. Re-enqueued jobs get a
+   * fresh jobId — the original id can linger in completed/failed state.
+   */
+  async reconcileStuckCourses() {
+    const threshold = new Date(Date.now() - RECONCILE_STUCK_AFTER_MS);
+
+    const stuck = await this.prisma.course.findMany({
+      where: {
+        status: { in: ["ingesting", "structuring"] },
+        updatedAt: { lt: threshold },
+      },
+      select: { id: true, status: true },
+    });
+    const parked = await this.prisma.course.findMany({
+      where: {
+        status: "intake_pending",
+        goal: { not: null },
+        level: { not: null },
+        updatedAt: { lt: threshold },
+      },
+      select: { id: true },
+    });
+
+    const enqueue = async (
+      queue: Queue,
+      name: string,
+      baseJobId: string,
+      courseId: string,
+    ): Promise<boolean> => {
+      try {
+        const existing = await queue.getJob(baseJobId);
+        if (existing && LIVE_JOB_STATES.has(await existing.getState())) {
+          return false; // still live — leave it alone
+        }
+        await queue.add(
+          name,
+          { courseId },
+          {
+            priority: JOB_PRIORITY.newCourseIngestion,
+            jobId: `${baseJobId}:rec-${Date.now()}`,
+            attempts: 2,
+            backoff: { type: "exponential", delay: 15_000 },
+          },
+        );
+        return true;
+      } catch {
+        return false; // Redis down — try again next cycle
+      }
+    };
+
+    let requeued = 0;
+    const skipped: string[] = [];
+
+    for (const course of stuck) {
+      const ok =
+        course.status === "ingesting"
+          ? await enqueue(this.ingestionQueue, "ingest-course", `ingest:${course.id}`, course.id)
+          : await enqueue(this.structuringQueue, "structure-course", `structure:${course.id}`, course.id);
+      if (ok) requeued += 1;
+      else skipped.push(course.id);
+    }
+    for (const course of parked) {
+      const ok = await enqueue(
+        this.structuringQueue,
+        "structure-course",
+        `structure:${course.id}`,
+        course.id,
+      );
+      if (ok) requeued += 1;
+      else skipped.push(course.id);
+    }
+
+    return { checked: stuck.length + parked.length, requeued, skipped };
+  }
+
+  /**
+   * F1 §4.3 — TTL sweep: hard-delete courses stuck in `failed` past the
+   * retention window, so corrupted uploads don't linger on disk forever.
+   */
+  async cleanupFailedCourses(
+    olderThanDays: number = FAILED_COURSE_CLEANUP_DAYS,
+  ) {
+    const cutoff = new Date(Date.now() - olderThanDays * 24 * 60 * 60 * 1000);
+    const failed = await this.prisma.course.findMany({
+      where: { status: "failed", updatedAt: { lt: cutoff } },
+      select: { id: true },
+    });
+
+    let removed = 0;
+    for (const course of failed) {
+      try {
+        await this.destroyCourse(course.id);
+        removed += 1;
+      } catch {
+        // Learner-facing dependents or a transient error — leave it for the
+        // next sweep.
+      }
+    }
+
+    return { found: failed.length, removed };
+  }
 
   /**
    * Public access assertion for other modules (AssessmentModule quiz/final

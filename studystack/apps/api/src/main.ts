@@ -1,7 +1,18 @@
+import { existsSync } from "node:fs";
 import { ValidationPipe } from "@nestjs/common";
 import { NestFactory } from "@nestjs/core";
 import { DocumentBuilder, SwaggerModule } from "@nestjs/swagger";
 import { AppModule } from "./app.module";
+
+// Env vars live in the monorepo-root .env (two levels up from apps/api).
+// Load before bootstrap so ConfigModule and the Prisma driver adapter both
+// see DATABASE_URL & co.
+for (const candidate of ["../../.env", ".env"]) {
+  if (existsSync(candidate)) {
+    process.loadEnvFile(candidate);
+    break;
+  }
+}
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);

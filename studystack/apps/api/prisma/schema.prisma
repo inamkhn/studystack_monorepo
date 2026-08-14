@@ -14,8 +14,13 @@
 // since changing dimension later means re-embedding + re-indexing everything.
 
 generator client {
-  provider        = "prisma-client-js"
+  provider        = "prisma-client"
+  output          = "../src/generated/prisma"
+  moduleFormat    = "cjs"
   previewFeatures = ["postgresqlExtensions"]
+  // Prisma 7: the legacy prisma-client-js generator emits into
+  // node_modules/.prisma, which pnpm's isolated layout cannot resolve —
+  // the new generator emits into the project instead.
 }
 
 datasource db {
@@ -180,6 +185,14 @@ model Course {
   topic      String?
   title      String
   status     CourseStatus     @default(intake_pending)
+  // F1 failure contract: human-readable reason when status = failed.
+  failureReason String?
+  // F1 progress reporting: current ingestion stage
+  // (queued → extracting → chunking → embedding) for the status endpoint.
+  ingestionStage String?
+  // F1 §2.3: detected source language (BCP-47 code, e.g. "en", "de", "zh").
+  // Generated content stays in the source's language by default.
+  language       String?
 
   goal           Goal?
   level          Level?
@@ -226,12 +239,17 @@ model SourceDocument {
   fileUrl          String?
   sourceUrl        String?
   fileType         String?
+  // F1: upload size in bytes, surfaced in ingestion progress.
+  fileSizeBytes    Int?
+  // F1 §4.4: SHA-256 of the uploaded bytes — duplicate-upload detection.
+  contentHash      String?
   extractionStatus String?
   licenseStatus    LicenseStatus @default(user_uploaded_unknown)
   uploadedAt       DateTime      @default(now())
 
   sourceChunks SourceChunk[]
 
+  @@index([contentHash])
   @@map("source_documents")
 }
 

@@ -6,7 +6,7 @@ import {
   UnauthorizedException,
 } from "@nestjs/common";
 import { Reflector } from "@nestjs/core";
-import type { Role } from "@prisma/client";
+import type { Role } from "../generated/prisma/client.js";
 import { ROLES_KEY } from "./roles.decorator.js";
 import type { JwtUser } from "./types.js";
 

@@ -4,7 +4,7 @@ import {
   Injectable,
   NotFoundException,
 } from "@nestjs/common";
-import type { Prisma } from "@prisma/client";
+import type { Prisma } from "../generated/prisma/client.js";
 import type { QuizQuestion } from "../ai/ai.service.js";
 import { AiService } from "../ai/ai.service.js";
 import { CourseService } from "../course/course.service.js";

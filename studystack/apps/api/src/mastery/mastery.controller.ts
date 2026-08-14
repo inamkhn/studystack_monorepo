@@ -1,6 +1,6 @@
 import { Controller, Get, Param, Query, UseGuards } from "@nestjs/common";
 import { ApiBearerAuth, ApiTags } from "@nestjs/swagger";
-import type { Level } from "@prisma/client";
+import type { Level } from "../generated/prisma/client.js";
 import { CurrentUser } from "../auth/current-user.decorator.js";
 import { JwtAuthGuard } from "../auth/jwt-auth.guard.js";
 import { ReviewContentService } from "./review-content.service.js";

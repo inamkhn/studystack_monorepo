@@ -3,6 +3,7 @@
 
 export const INGESTION_QUEUE = "ingestion";
 export const RESEARCH_QUEUE = "research";
+export const STRUCTURING_QUEUE = "structuring";
 export const MASTERY_DECAY_QUEUE = "mastery-decay";
 
 /**

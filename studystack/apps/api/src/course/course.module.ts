@@ -3,6 +3,7 @@ import { AiModule } from "../ai/ai.module.js";
 import { AuthModule } from "../auth/auth.module.js";
 import { JobsModule } from "../jobs/jobs.module.js";
 import { ConceptsModule } from "./concepts.module.js";
+import { AdminCourseMaintenanceController } from "./admin-course-maintenance.controller.js";
 import { CourseController } from "./course.controller.js";
 import { CourseService } from "./course.service.js";
 import { PublicCourseController } from "./public-course.controller.js";
@@ -16,6 +17,7 @@ import { TutorialController } from "./tutorial.controller.js";
     PublicCourseController,
     TutorialController,
     StudentController,
+    AdminCourseMaintenanceController,
   ],
   providers: [CourseService],
   exports: [CourseService],

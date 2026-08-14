@@ -4,7 +4,7 @@
 // current-user.decorator.ts.
 // ─────────────────────────────────────────────────────────────────────────
 
-import type { AgeBracket, Role, User } from "@prisma/client";
+import type { AgeBracket, Role, User } from "../generated/prisma/client.js";
 
 /** Public user profile — all fields except the password hash. */
 export type UserWithoutPassword = Omit<User, "passwordHash">;

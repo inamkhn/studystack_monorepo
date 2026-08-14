@@ -5,8 +5,8 @@ import {
   NotFoundException,
   NotImplementedException,
 } from "@nestjs/common";
-import type { Goal, Level } from "@prisma/client";
-import { Prisma } from "@prisma/client";
+import type { Goal, Level } from "../generated/prisma/client.js";
+import { Prisma } from "../generated/prisma/client.js";
 import { CourseService } from "../course/course.service.js";
 import { PrismaService } from "../prisma/prisma.service.js";
 

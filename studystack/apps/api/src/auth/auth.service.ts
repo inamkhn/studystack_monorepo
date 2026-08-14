@@ -5,13 +5,12 @@ import {
 } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { JwtService } from "@nestjs/jwt";
-import { AgeBracket, Prisma, User } from "@prisma/client";
+import { AgeBracket, Prisma, User } from "../generated/prisma/client.js";
 import * as bcrypt from "bcryptjs";
 import { randomBytes } from "crypto";
 import { PrismaService } from "../prisma/prisma.service.js";
 import { parseDurationToMs, parseDurationToSeconds } from "../common/utils/duration.js";
 import { JwtPayload, UserWithoutPassword } from "./types.js";
-import type { AgeBracketDto } from "./dto/age-bracket.dto.js";
 import type { LoginDto } from "./dto/login.dto.js";
 import type { RegisterDto } from "./dto/register.dto.js";
 import type { UpdateProfileDto } from "./dto/update-profile.dto.js";
@@ -159,8 +158,17 @@ export class AuthService {
     userId: string,
     dto: UpdateProfileDto,
   ): Promise<UserWithoutPassword> {
-    const data: { name?: string; explanationStyle?: typeof dto.explanationStyle } = {};
+    const data: {
+      name?: string;
+      ageBracket?: AgeBracket;
+      explanationStyle?: typeof dto.explanationStyle;
+    } = {};
     if (dto.name !== undefined) data.name = dto.name;
+    if (dto.birthDate !== undefined) {
+      // F6 gate: derive the bracket server-side from the birth date.
+      const age = this.calculateAge(new Date(dto.birthDate));
+      data.ageBracket = age >= 18 ? "adult" : "unknown";
+    }
     if (dto.explanationStyle !== undefined)
       data.explanationStyle = dto.explanationStyle;
 
@@ -171,24 +179,6 @@ export class AuthService {
 
     const { passwordHash: _, ...safeUser } = user;
     return safeUser;
-  }
-
-  // ── Age Bracket ─────────────────────────────────────────────────────────
-
-  async resolveAgeBracket(
-    userId: string,
-    dto: AgeBracketDto,
-  ): Promise<Pick<UserWithoutPassword, "ageBracket">> {
-    const age = this.calculateAge(new Date(dto.birthDate));
-
-    const bracket: AgeBracket = age >= 18 ? "adult" : "unknown";
-
-    const user = await this.prisma.user.update({
-      where: { id: userId },
-      data: { ageBracket: bracket },
-    });
-
-    return { ageBracket: user.ageBracket };
   }
 
   // ── Helpers ─────────────────────────────────────────────────────────────
