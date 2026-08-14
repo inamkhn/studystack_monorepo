@@ -7,7 +7,7 @@ allowBuilds:
   msgpackr-extract: true
   prisma: true
   protobufjs: true
-  tesseract.js: set this to true or false
+  tesseract.js: true
   unrs-resolver: true
 minimumReleaseAgeExclude:
   - '@next/env@16.3.0'
