@@ -4,7 +4,6 @@ import { Job, Queue } from "bullmq";
 import { readFile } from "fs/promises";
 import * as path from "path";
 import { readFileHead, sniffFileKind } from "../common/utils/file-validation.js";
-import { detectLanguage } from "../common/utils/language-detection.js";
 import { withChunkScope } from "../common/utils/chunk-scope.js";
 import { resolveStoredPath } from "../common/utils/storage.js";
 import {
@@ -145,10 +144,6 @@ export class IngestionProcessor extends WorkerHost {
         );
         return;
       }
-
-      // ── F1 §2.3: language from extracted text (covers PDF/DOCX, which
-      // the upload path couldn't read). Only fills when still unknown. ───
-      await this.detectCourseLanguage(courseId, allDrafts);
 
       // ── Stage 2: persist chunks (retry-safe: wipe stale rows first) ───
       await this.setStage(courseId, "chunking");
@@ -324,32 +319,6 @@ export class IngestionProcessor extends WorkerHost {
       }
     }
     return saved;
-  }
-
-  // ── language detection (F1 §2.3) ──────────────────────────────────────
-
-  private async detectCourseLanguage(
-    courseId: string,
-    drafts: ChunkDraft[],
-  ): Promise<void> {
-    const course = await this.prisma.course.findUnique({
-      where: { id: courseId },
-      select: { language: true },
-    });
-    if (course?.language) return; // already detected at upload (text files)
-
-    const sample = drafts
-      .filter((d) => !d.metadata.ocr) // OCR text is noisy — prefer digital
-      .map((d) => d.chunkText)
-      .join("\n")
-      .slice(0, 65536);
-
-    const language = detectLanguage(sample);
-    if (language) {
-      await this.prisma.course
-        .update({ where: { id: courseId }, data: { language } })
-        .catch(() => undefined);
-    }
   }
 
   // ── chunk persistence ─────────────────────────────────────────────────

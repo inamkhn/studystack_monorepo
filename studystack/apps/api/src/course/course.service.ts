@@ -25,8 +25,7 @@ import {
   STRUCTURING_QUEUE,
 } from "../jobs/jobs.constants.js";
 import { PrismaService } from "../prisma/prisma.service.js";
-import { validateUploadFilePath, readFileHead } from "../common/utils/file-validation.js";
-import { detectLanguage } from "../common/utils/language-detection.js";
+import { validateUploadFilePath } from "../common/utils/file-validation.js";
 import { setChunkScope, withChunkScope } from "../common/utils/chunk-scope.js";
 import {
   deleteCourseAssets,
@@ -87,7 +86,7 @@ export class CourseService {
     // F1 edge case: corrupted/disguised files are rejected up front with a
     // clear error instead of creating a course that parks in `ingesting`.
     // Path-based because uploads are disk-streamed (never in-memory).
-    const kind = await validateUploadFilePath(file.path, file.originalname);
+    await validateUploadFilePath(file.path, file.originalname);
 
     // F1 §4.4: abuse controls run before any row exists — rate limit,
     // storage quota, and duplicate detection (same content hash under this
@@ -105,15 +104,6 @@ export class CourseService {
       });
     }
 
-    // F1 §2.3: detect the source language so generated content stays in it.
-    // Plain text is readable now; PDF/DOCX need extraction text, which the
-    // AiModule pipeline will detect later (language stays null until then).
-    let language: string | null = null;
-    if (kind === "text") {
-      const head = await readFileHead(file.path, 65536);
-      language = detectLanguage(head.toString("utf8"));
-    }
-
     const course = await this.prisma.course.create({
       data: {
         ownerId: userId,
@@ -121,7 +111,6 @@ export class CourseService {
         title: file.originalname,
         status: "ingesting",
         ingestionStage: "queued",
-        language,
         // F1: optional early attestation at upload time.
         publishAttestationAt: attestRights ? new Date() : undefined,
       },
