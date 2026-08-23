@@ -503,6 +503,9 @@ model QnaMessage {
   embedding  Unsupported("vector(768)")?
   timestamp  DateTime @default(now())
 
+  // F10 semantic-cache lookup filters subtopicId + embedding similarity;
+  // the HNSW index on embedding alone does not serve the subtopic filter.
+  @@index([subtopicId])
   @@map("qna_messages")
 }
 
