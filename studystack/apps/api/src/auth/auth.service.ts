@@ -7,13 +7,29 @@ import { ConfigService } from "@nestjs/config";
 import { JwtService } from "@nestjs/jwt";
 import { AgeBracket, Prisma, User } from "../generated/prisma/client.js";
 import * as bcrypt from "bcryptjs";
-import { randomBytes } from "crypto";
+import { createHash, randomBytes } from "crypto";
 import { PrismaService } from "../prisma/prisma.service.js";
 import { parseDurationToMs, parseDurationToSeconds } from "../common/utils/duration.js";
 import { JwtPayload, UserWithoutPassword } from "./types.js";
 import type { LoginDto } from "./dto/login.dto.js";
 import type { RegisterDto } from "./dto/register.dto.js";
 import type { UpdateProfileDto } from "./dto/update-profile.dto.js";
+
+/**
+ * Precomputed bcrypt cost-12 hash, used to burn the same hashing work on
+ * the user-not-found login path so response timing doesn't reveal whether
+ * an email exists.
+ */
+const DUMMY_PASSWORD_HASH =
+  "$2a$12$MhKSxwDomtEUGdMJiJyuReF52EWGRpBaEuj6Ok4CCSHkVY.SG8QsO";
+
+/**
+ * Refresh tokens are stored as SHA-256 digests, not plaintext — a database
+ * leak exposes hashes, not directly usable sessions.
+ */
+function hashToken(token: string): string {
+  return createHash("sha256").update(token).digest("hex");
+}
 
 @Injectable()
 export class AuthService {
@@ -72,6 +88,9 @@ export class AuthService {
     });
 
     if (!user) {
+      // Burn the same bcrypt work as the found-user path so the timing
+      // difference doesn't leak whether the email is registered.
+      await bcrypt.compare(dto.password, DUMMY_PASSWORD_HASH);
       throw new UnauthorizedException("Invalid email or password");
     }
 
@@ -88,15 +107,25 @@ export class AuthService {
 
   // ── Refresh ─────────────────────────────────────────────────────────────
   // Uses atomic updateMany to check-and-revoke, preventing concurrent
-  // requests from reusing the same refresh token.
+  // requests from reusing the same refresh token. Presenting an already
+  // rotated token is treated as theft and revokes the whole token family.
 
   async refresh(refreshToken: string): Promise<{ accessToken: string; refreshToken: string }> {
     const stored = await this.prisma.refreshToken.findUnique({
-      where: { token: refreshToken },
+      where: { token: hashToken(refreshToken) },
     });
 
-    if (!stored || stored.revokedAt || stored.expiresAt < new Date()) {
+    if (!stored || stored.expiresAt < new Date()) {
       throw new UnauthorizedException("Invalid or expired refresh token");
+    }
+
+    if (stored.revokedAt) {
+      // Replay of an already-rotated token — the theft signal. Revoke every
+      // live token for this user. (Logout deletes rows instead of flagging,
+      // so a post-logout stale request lands in the not-found branch above
+      // and does NOT trigger this.)
+      await this.revokeAllUserTokens(stored.userId);
+      throw new UnauthorizedException("Refresh token already used");
     }
 
     // Atomic check-and-revoke: succeeds exactly once per token.
@@ -106,6 +135,8 @@ export class AuthService {
     });
 
     if (result.count === 0) {
+      // Lost a benign concurrent-rotation race (e.g. two tabs refreshing at
+      // once) — the other request legitimately consumed this token.
       throw new UnauthorizedException("Refresh token already used");
     }
 
@@ -126,17 +157,12 @@ export class AuthService {
   // ── Logout ──────────────────────────────────────────────────────────────
 
   async logout(refreshToken: string): Promise<void> {
-    // Idempotent — if the token isn't found or is already revoked, succeed silently
-    const stored = await this.prisma.refreshToken.findUnique({
-      where: { token: refreshToken },
+    // Idempotent — deleteMany never throws when nothing matches. Deletion
+    // (rather than a revokedAt flag) keeps post-logout replays out of the
+    // theft branch in refresh(), which treats flagged tokens as replay.
+    await this.prisma.refreshToken.deleteMany({
+      where: { token: hashToken(refreshToken) },
     });
-
-    if (stored && !stored.revokedAt) {
-      await this.prisma.refreshToken.update({
-        where: { id: stored.id },
-        data: { revokedAt: new Date() },
-      });
-    }
   }
 
   // ── Profile ─────────────────────────────────────────────────────────────
@@ -201,13 +227,20 @@ export class AuthService {
 
     await this.prisma.refreshToken.create({
       data: {
-        token,
+        token: hashToken(token),
         userId,
         expiresAt: new Date(Date.now() + ttlMs),
       },
     });
 
     return token;
+  }
+
+  private async revokeAllUserTokens(userId: string): Promise<void> {
+    await this.prisma.refreshToken.updateMany({
+      where: { userId, revokedAt: null },
+      data: { revokedAt: new Date() },
+    });
   }
 
   private calculateAge(birthDate: Date): number {

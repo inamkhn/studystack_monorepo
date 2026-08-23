@@ -1,6 +1,7 @@
 import { existsSync } from "node:fs";
 import { ValidationPipe } from "@nestjs/common";
 import { NestFactory } from "@nestjs/core";
+import type { NestExpressApplication } from "@nestjs/platform-express";
 import { DocumentBuilder, SwaggerModule } from "@nestjs/swagger";
 import { AppModule } from "./app.module";
 
@@ -15,7 +16,7 @@ for (const candidate of ["../../.env", ".env"]) {
 }
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create<NestExpressApplication>(AppModule);
 
   app.useGlobalPipes(
     new ValidationPipe({
@@ -34,6 +35,14 @@ async function bootstrap() {
       ? { origin: corsOrigin.split(",").map((o) => o.trim()) }
       : undefined,
   );
+
+  // Auth rate limiting keys off req.ip. Honor X-Forwarded-For only when
+  // TRUST_PROXY is explicitly set — trusting it unconditionally would let
+  // clients spoof their IP and dodge the throttles.
+  const trustProxy = process.env.TRUST_PROXY;
+  if (trustProxy) {
+    app.set("trust proxy", Number(trustProxy) || 1);
+  }
 
   // OpenAPI spec served at /docs — the source for packages/api-client codegen.
   const swaggerConfig = new DocumentBuilder()

@@ -170,6 +170,9 @@ model RefreshToken {
   revokedAt DateTime?
   createdAt DateTime  @default(now())
 
+  // Family revocation (replay detection) and expired-token cleanup both
+  // query by user.
+  @@index([userId])
   @@map("refresh_tokens")
 }
 
