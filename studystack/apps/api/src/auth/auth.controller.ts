@@ -10,9 +10,12 @@ import {
 } from "@nestjs/common";
 import { ApiBearerAuth, ApiTags } from "@nestjs/swagger";
 import { AuthService } from "./auth.service.js";
+import { ChangePasswordDto } from "./dto/change-password.dto.js";
+import { ForgotPasswordDto } from "./dto/forgot-password.dto.js";
 import { LoginDto } from "./dto/login.dto.js";
 import { RefreshTokenDto } from "./dto/refresh-token.dto.js";
 import { RegisterDto } from "./dto/register.dto.js";
+import { ResetPasswordDto } from "./dto/reset-password.dto.js";
 import { UpdateProfileDto } from "./dto/update-profile.dto.js";
 import { JwtAuthGuard } from "./jwt-auth.guard.js";
 import { CurrentUser } from "./current-user.decorator.js";
@@ -54,6 +57,33 @@ export class AuthController {
   @Throttle({ default: { limit: 10, ttl: 60_000 } })
   async logout(@Body() dto: RefreshTokenDto): Promise<void> {
     await this.authService.logout(dto.refreshToken);
+  }
+
+  @Post("forgot-password")
+  @HttpCode(HttpStatus.OK)
+  @Throttle({ default: { limit: 3, ttl: 60_000 } })
+  async forgotPassword(@Body() dto: ForgotPasswordDto): Promise<{ message: string }> {
+    await this.authService.forgotPassword(dto);
+    return { message: "If an account exists, a reset link was sent" };
+  }
+
+  @Post("reset-password")
+  @HttpCode(HttpStatus.OK)
+  @Throttle({ default: { limit: 5, ttl: 60_000 } })
+  async resetPassword(@Body() dto: ResetPasswordDto): Promise<{ message: string }> {
+    await this.authService.resetPassword(dto);
+    return { message: "Password reset successfully" };
+  }
+
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @Patch("change-password")
+  @Throttle({ default: { limit: 5, ttl: 60_000 } })
+  async changePassword(
+    @CurrentUser("id") userId: string,
+    @Body() dto: ChangePasswordDto,
+  ): Promise<{ accessToken: string; refreshToken: string }> {
+    return this.authService.changePassword(userId, dto);
   }
 
   @ApiBearerAuth()

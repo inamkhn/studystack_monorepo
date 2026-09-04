@@ -6,6 +6,7 @@ import { ThrottlerModule } from "@nestjs/throttler";
 import { ThrottlerStorageRedisService } from "@nest-lab/throttler-storage-redis";
 import { AuthController } from "./auth.controller.js";
 import { AuthService } from "./auth.service.js";
+import { MailModule } from "../mail/mail.module.js";
 import { JwtAuthGuard } from "./jwt-auth.guard.js";
 import { JwtStrategy } from "./jwt.strategy.js";
 import { RolesGuard } from "./roles.guard.js";
@@ -13,6 +14,7 @@ import { parseDurationToSeconds } from "../common/utils/duration.js";
 
 @Module({
   imports: [
+    MailModule,
     PassportModule.register({ defaultStrategy: "jwt" }),
     JwtModule.registerAsync({
       inject: [ConfigService],

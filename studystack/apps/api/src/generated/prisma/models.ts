@@ -10,6 +10,7 @@
  */
 export type * from './models/User.js'
 export type * from './models/RefreshToken.js'
+export type * from './models/PasswordResetToken.js'
 export type * from './models/Course.js'
 export type * from './models/SourceDocument.js'
 export type * from './models/SourceChunk.js'

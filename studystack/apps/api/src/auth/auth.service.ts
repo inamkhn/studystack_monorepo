@@ -9,8 +9,12 @@ import { AgeBracket, Prisma, User } from "../generated/prisma/client.js";
 import * as bcrypt from "bcryptjs";
 import { createHash, randomBytes } from "crypto";
 import { PrismaService } from "../prisma/prisma.service.js";
+import { MailService } from "../mail/mail.service.js";
 import { parseDurationToMs, parseDurationToSeconds } from "../common/utils/duration.js";
 import { JwtPayload, UserWithoutPassword } from "./types.js";
+import type { ChangePasswordDto } from "./dto/change-password.dto.js";
+import type { ForgotPasswordDto } from "./dto/forgot-password.dto.js";
+import type { ResetPasswordDto } from "./dto/reset-password.dto.js";
 import type { LoginDto } from "./dto/login.dto.js";
 import type { RegisterDto } from "./dto/register.dto.js";
 import type { UpdateProfileDto } from "./dto/update-profile.dto.js";
@@ -37,6 +41,7 @@ export class AuthService {
     private readonly prisma: PrismaService,
     private readonly jwt: JwtService,
     private readonly config: ConfigService,
+    private readonly mail: MailService,
   ) {}
 
   // ── Register ────────────────────────────────────────────────────────────
@@ -162,6 +167,105 @@ export class AuthService {
     // theft branch in refresh(), which treats flagged tokens as replay.
     await this.prisma.refreshToken.deleteMany({
       where: { token: hashToken(refreshToken) },
+    });
+  }
+
+  // ── Change password (authenticated) ───────────────────────────────────
+
+  async changePassword(
+    userId: string,
+    dto: ChangePasswordDto,
+  ): Promise<{ accessToken: string; refreshToken: string }> {
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+    });
+    if (!user) {
+      throw new UnauthorizedException("User no longer exists");
+    }
+
+    const valid = await bcrypt.compare(dto.currentPassword, user.passwordHash);
+    if (!valid) {
+      throw new UnauthorizedException("Current password is incorrect");
+    }
+
+    const passwordHash = await bcrypt.hash(dto.newPassword, 12);
+    await this.prisma.user.update({
+      where: { id: userId },
+      data: { passwordHash },
+    });
+
+    await this.revokeAllUserTokens(userId);
+    const accessToken = this.signAccessToken(user);
+    const refreshToken = await this.createRefreshToken(userId);
+    return { accessToken, refreshToken };
+  }
+
+  // ── Forgot / reset password (unauthenticated) ───────────────────────────
+  // Forgot always succeeds silently so response timing/content does not
+  // reveal whether an email is registered.
+
+  async forgotPassword(dto: ForgotPasswordDto): Promise<void> {
+    const user = await this.prisma.user.findUnique({
+      where: { email: dto.email.toLowerCase() },
+    });
+    if (!user) {
+      return;
+    }
+
+    await this.prisma.passwordResetToken.deleteMany({
+      where: { userId: user.id, usedAt: null },
+    });
+
+    const token = randomBytes(32).toString("hex");
+    const ttlMs = parseDurationToMs(
+      this.config.get<string>("PASSWORD_RESET_TTL", "30m")!,
+    );
+    await this.prisma.passwordResetToken.create({
+      data: {
+        userId: user.id,
+        tokenHash: hashToken(token),
+        expiresAt: new Date(Date.now() + ttlMs),
+      },
+    });
+
+    const base = this.config
+      .get<string>("WEB_URL", "http://localhost:3000")!
+      .replace(/\/$/, "");
+    await this.mail.sendPasswordReset(
+      user.email,
+      `${base}/reset-password?token=${token}`,
+    );
+  }
+
+  async resetPassword(dto: ResetPasswordDto): Promise<void> {
+    const stored = await this.prisma.passwordResetToken.findUnique({
+      where: { tokenHash: hashToken(dto.token) },
+    });
+
+    if (!stored || stored.expiresAt < new Date() || stored.usedAt) {
+      throw new UnauthorizedException("Invalid or expired reset token");
+    }
+
+    const claimed = await this.prisma.passwordResetToken.updateMany({
+      where: { id: stored.id, usedAt: null },
+      data: { usedAt: new Date() },
+    });
+    if (claimed.count === 0) {
+      throw new UnauthorizedException("Invalid or expired reset token");
+    }
+
+    const passwordHash = await bcrypt.hash(dto.newPassword, 12);
+    await this.prisma.user.update({
+      where: { id: stored.userId },
+      data: { passwordHash },
+    });
+
+    await this.revokeAllUserTokens(stored.userId);
+    await this.prisma.passwordResetToken.deleteMany({
+      where: {
+        userId: stored.userId,
+        OR: [{ usedAt: { not: null } }, { expiresAt: { lt: new Date() } }],
+      },
     });
   }
 

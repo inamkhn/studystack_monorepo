@@ -230,6 +230,7 @@ export type UserWhereInput = {
   classroomsTaught?: Prisma.ClassroomListRelationFilter
   classroomsEnrolled?: Prisma.ClassroomStudentListRelationFilter
   refreshTokens?: Prisma.RefreshTokenListRelationFilter
+  passwordResetTokens?: Prisma.PasswordResetTokenListRelationFilter
 }
 
 export type UserOrderByWithRelationInput = {
@@ -258,6 +259,7 @@ export type UserOrderByWithRelationInput = {
   classroomsTaught?: Prisma.ClassroomOrderByRelationAggregateInput
   classroomsEnrolled?: Prisma.ClassroomStudentOrderByRelationAggregateInput
   refreshTokens?: Prisma.RefreshTokenOrderByRelationAggregateInput
+  passwordResetTokens?: Prisma.PasswordResetTokenOrderByRelationAggregateInput
 }
 
 export type UserWhereUniqueInput = Prisma.AtLeast<{
@@ -289,6 +291,7 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   classroomsTaught?: Prisma.ClassroomListRelationFilter
   classroomsEnrolled?: Prisma.ClassroomStudentListRelationFilter
   refreshTokens?: Prisma.RefreshTokenListRelationFilter
+  passwordResetTokens?: Prisma.PasswordResetTokenListRelationFilter
 }, "id" | "email">
 
 export type UserOrderByWithAggregationInput = {
@@ -347,6 +350,7 @@ export type UserCreateInput = {
   classroomsTaught?: Prisma.ClassroomCreateNestedManyWithoutTeacherInput
   classroomsEnrolled?: Prisma.ClassroomStudentCreateNestedManyWithoutStudentInput
   refreshTokens?: Prisma.RefreshTokenCreateNestedManyWithoutUserInput
+  passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateInput = {
@@ -375,6 +379,7 @@ export type UserUncheckedCreateInput = {
   classroomsTaught?: Prisma.ClassroomUncheckedCreateNestedManyWithoutTeacherInput
   classroomsEnrolled?: Prisma.ClassroomStudentUncheckedCreateNestedManyWithoutStudentInput
   refreshTokens?: Prisma.RefreshTokenUncheckedCreateNestedManyWithoutUserInput
+  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserUpdateInput = {
@@ -403,6 +408,7 @@ export type UserUpdateInput = {
   classroomsTaught?: Prisma.ClassroomUpdateManyWithoutTeacherNestedInput
   classroomsEnrolled?: Prisma.ClassroomStudentUpdateManyWithoutStudentNestedInput
   refreshTokens?: Prisma.RefreshTokenUpdateManyWithoutUserNestedInput
+  passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateInput = {
@@ -431,6 +437,7 @@ export type UserUncheckedUpdateInput = {
   classroomsTaught?: Prisma.ClassroomUncheckedUpdateManyWithoutTeacherNestedInput
   classroomsEnrolled?: Prisma.ClassroomStudentUncheckedUpdateManyWithoutStudentNestedInput
   refreshTokens?: Prisma.RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
+  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateManyInput = {
@@ -547,6 +554,20 @@ export type UserUpdateOneRequiredWithoutRefreshTokensNestedInput = {
   upsert?: Prisma.UserUpsertWithoutRefreshTokensInput
   connect?: Prisma.UserWhereUniqueInput
   update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutRefreshTokensInput, Prisma.UserUpdateWithoutRefreshTokensInput>, Prisma.UserUncheckedUpdateWithoutRefreshTokensInput>
+}
+
+export type UserCreateNestedOneWithoutPasswordResetTokensInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutPasswordResetTokensInput, Prisma.UserUncheckedCreateWithoutPasswordResetTokensInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutPasswordResetTokensInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneRequiredWithoutPasswordResetTokensNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutPasswordResetTokensInput, Prisma.UserUncheckedCreateWithoutPasswordResetTokensInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutPasswordResetTokensInput
+  upsert?: Prisma.UserUpsertWithoutPasswordResetTokensInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutPasswordResetTokensInput, Prisma.UserUpdateWithoutPasswordResetTokensInput>, Prisma.UserUncheckedUpdateWithoutPasswordResetTokensInput>
 }
 
 export type UserCreateNestedOneWithoutCoursesOwnedInput = {
@@ -788,6 +809,7 @@ export type UserCreateWithoutRefreshTokensInput = {
   assignedMarketplaceReviews?: Prisma.MarketplaceReviewQueueCreateNestedManyWithoutAssignedReviewerInput
   classroomsTaught?: Prisma.ClassroomCreateNestedManyWithoutTeacherInput
   classroomsEnrolled?: Prisma.ClassroomStudentCreateNestedManyWithoutStudentInput
+  passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutRefreshTokensInput = {
@@ -815,6 +837,7 @@ export type UserUncheckedCreateWithoutRefreshTokensInput = {
   assignedMarketplaceReviews?: Prisma.MarketplaceReviewQueueUncheckedCreateNestedManyWithoutAssignedReviewerInput
   classroomsTaught?: Prisma.ClassroomUncheckedCreateNestedManyWithoutTeacherInput
   classroomsEnrolled?: Prisma.ClassroomStudentUncheckedCreateNestedManyWithoutStudentInput
+  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutRefreshTokensInput = {
@@ -858,6 +881,7 @@ export type UserUpdateWithoutRefreshTokensInput = {
   assignedMarketplaceReviews?: Prisma.MarketplaceReviewQueueUpdateManyWithoutAssignedReviewerNestedInput
   classroomsTaught?: Prisma.ClassroomUpdateManyWithoutTeacherNestedInput
   classroomsEnrolled?: Prisma.ClassroomStudentUpdateManyWithoutStudentNestedInput
+  passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutRefreshTokensInput = {
@@ -885,6 +909,135 @@ export type UserUncheckedUpdateWithoutRefreshTokensInput = {
   assignedMarketplaceReviews?: Prisma.MarketplaceReviewQueueUncheckedUpdateManyWithoutAssignedReviewerNestedInput
   classroomsTaught?: Prisma.ClassroomUncheckedUpdateManyWithoutTeacherNestedInput
   classroomsEnrolled?: Prisma.ClassroomStudentUncheckedUpdateManyWithoutStudentNestedInput
+  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
+}
+
+export type UserCreateWithoutPasswordResetTokensInput = {
+  id?: string
+  email: string
+  passwordHash: string
+  name: string
+  role?: $Enums.Role
+  ageBracket?: $Enums.AgeBracket
+  explanationStyle?: $Enums.ExplanationStyle | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  coursesOwned?: Prisma.CourseCreateNestedManyWithoutOwnerInput
+  resolvedReviewsAdmin?: Prisma.ConceptReviewCandidateCreateNestedManyWithoutResolvedByInput
+  courseForks?: Prisma.CourseForkCreateNestedManyWithoutStudentInput
+  courseReports?: Prisma.CourseReportCreateNestedManyWithoutReporterInput
+  quizAttempts?: Prisma.QuizAttemptCreateNestedManyWithoutStudentInput
+  masteryScores?: Prisma.MasteryScoreCreateNestedManyWithoutStudentInput
+  subtopicCompletions?: Prisma.SubtopicCompletionCreateNestedManyWithoutStudentInput
+  moduleQuizzes?: Prisma.ModuleQuizCreateNestedManyWithoutStudentInput
+  qnaMessages?: Prisma.QnaMessageCreateNestedManyWithoutStudentInput
+  certificates?: Prisma.CertificateCreateNestedManyWithoutStudentInput
+  purchases?: Prisma.PurchaseCreateNestedManyWithoutBuyerInput
+  marketplaceCourses?: Prisma.MarketplaceReviewQueueCreateNestedManyWithoutCreatorInput
+  assignedMarketplaceReviews?: Prisma.MarketplaceReviewQueueCreateNestedManyWithoutAssignedReviewerInput
+  classroomsTaught?: Prisma.ClassroomCreateNestedManyWithoutTeacherInput
+  classroomsEnrolled?: Prisma.ClassroomStudentCreateNestedManyWithoutStudentInput
+  refreshTokens?: Prisma.RefreshTokenCreateNestedManyWithoutUserInput
+}
+
+export type UserUncheckedCreateWithoutPasswordResetTokensInput = {
+  id?: string
+  email: string
+  passwordHash: string
+  name: string
+  role?: $Enums.Role
+  ageBracket?: $Enums.AgeBracket
+  explanationStyle?: $Enums.ExplanationStyle | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  coursesOwned?: Prisma.CourseUncheckedCreateNestedManyWithoutOwnerInput
+  resolvedReviewsAdmin?: Prisma.ConceptReviewCandidateUncheckedCreateNestedManyWithoutResolvedByInput
+  courseForks?: Prisma.CourseForkUncheckedCreateNestedManyWithoutStudentInput
+  courseReports?: Prisma.CourseReportUncheckedCreateNestedManyWithoutReporterInput
+  quizAttempts?: Prisma.QuizAttemptUncheckedCreateNestedManyWithoutStudentInput
+  masteryScores?: Prisma.MasteryScoreUncheckedCreateNestedManyWithoutStudentInput
+  subtopicCompletions?: Prisma.SubtopicCompletionUncheckedCreateNestedManyWithoutStudentInput
+  moduleQuizzes?: Prisma.ModuleQuizUncheckedCreateNestedManyWithoutStudentInput
+  qnaMessages?: Prisma.QnaMessageUncheckedCreateNestedManyWithoutStudentInput
+  certificates?: Prisma.CertificateUncheckedCreateNestedManyWithoutStudentInput
+  purchases?: Prisma.PurchaseUncheckedCreateNestedManyWithoutBuyerInput
+  marketplaceCourses?: Prisma.MarketplaceReviewQueueUncheckedCreateNestedManyWithoutCreatorInput
+  assignedMarketplaceReviews?: Prisma.MarketplaceReviewQueueUncheckedCreateNestedManyWithoutAssignedReviewerInput
+  classroomsTaught?: Prisma.ClassroomUncheckedCreateNestedManyWithoutTeacherInput
+  classroomsEnrolled?: Prisma.ClassroomStudentUncheckedCreateNestedManyWithoutStudentInput
+  refreshTokens?: Prisma.RefreshTokenUncheckedCreateNestedManyWithoutUserInput
+}
+
+export type UserCreateOrConnectWithoutPasswordResetTokensInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutPasswordResetTokensInput, Prisma.UserUncheckedCreateWithoutPasswordResetTokensInput>
+}
+
+export type UserUpsertWithoutPasswordResetTokensInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutPasswordResetTokensInput, Prisma.UserUncheckedUpdateWithoutPasswordResetTokensInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutPasswordResetTokensInput, Prisma.UserUncheckedCreateWithoutPasswordResetTokensInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutPasswordResetTokensInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutPasswordResetTokensInput, Prisma.UserUncheckedUpdateWithoutPasswordResetTokensInput>
+}
+
+export type UserUpdateWithoutPasswordResetTokensInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  ageBracket?: Prisma.EnumAgeBracketFieldUpdateOperationsInput | $Enums.AgeBracket
+  explanationStyle?: Prisma.NullableEnumExplanationStyleFieldUpdateOperationsInput | $Enums.ExplanationStyle | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  coursesOwned?: Prisma.CourseUpdateManyWithoutOwnerNestedInput
+  resolvedReviewsAdmin?: Prisma.ConceptReviewCandidateUpdateManyWithoutResolvedByNestedInput
+  courseForks?: Prisma.CourseForkUpdateManyWithoutStudentNestedInput
+  courseReports?: Prisma.CourseReportUpdateManyWithoutReporterNestedInput
+  quizAttempts?: Prisma.QuizAttemptUpdateManyWithoutStudentNestedInput
+  masteryScores?: Prisma.MasteryScoreUpdateManyWithoutStudentNestedInput
+  subtopicCompletions?: Prisma.SubtopicCompletionUpdateManyWithoutStudentNestedInput
+  moduleQuizzes?: Prisma.ModuleQuizUpdateManyWithoutStudentNestedInput
+  qnaMessages?: Prisma.QnaMessageUpdateManyWithoutStudentNestedInput
+  certificates?: Prisma.CertificateUpdateManyWithoutStudentNestedInput
+  purchases?: Prisma.PurchaseUpdateManyWithoutBuyerNestedInput
+  marketplaceCourses?: Prisma.MarketplaceReviewQueueUpdateManyWithoutCreatorNestedInput
+  assignedMarketplaceReviews?: Prisma.MarketplaceReviewQueueUpdateManyWithoutAssignedReviewerNestedInput
+  classroomsTaught?: Prisma.ClassroomUpdateManyWithoutTeacherNestedInput
+  classroomsEnrolled?: Prisma.ClassroomStudentUpdateManyWithoutStudentNestedInput
+  refreshTokens?: Prisma.RefreshTokenUpdateManyWithoutUserNestedInput
+}
+
+export type UserUncheckedUpdateWithoutPasswordResetTokensInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  ageBracket?: Prisma.EnumAgeBracketFieldUpdateOperationsInput | $Enums.AgeBracket
+  explanationStyle?: Prisma.NullableEnumExplanationStyleFieldUpdateOperationsInput | $Enums.ExplanationStyle | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  coursesOwned?: Prisma.CourseUncheckedUpdateManyWithoutOwnerNestedInput
+  resolvedReviewsAdmin?: Prisma.ConceptReviewCandidateUncheckedUpdateManyWithoutResolvedByNestedInput
+  courseForks?: Prisma.CourseForkUncheckedUpdateManyWithoutStudentNestedInput
+  courseReports?: Prisma.CourseReportUncheckedUpdateManyWithoutReporterNestedInput
+  quizAttempts?: Prisma.QuizAttemptUncheckedUpdateManyWithoutStudentNestedInput
+  masteryScores?: Prisma.MasteryScoreUncheckedUpdateManyWithoutStudentNestedInput
+  subtopicCompletions?: Prisma.SubtopicCompletionUncheckedUpdateManyWithoutStudentNestedInput
+  moduleQuizzes?: Prisma.ModuleQuizUncheckedUpdateManyWithoutStudentNestedInput
+  qnaMessages?: Prisma.QnaMessageUncheckedUpdateManyWithoutStudentNestedInput
+  certificates?: Prisma.CertificateUncheckedUpdateManyWithoutStudentNestedInput
+  purchases?: Prisma.PurchaseUncheckedUpdateManyWithoutBuyerNestedInput
+  marketplaceCourses?: Prisma.MarketplaceReviewQueueUncheckedUpdateManyWithoutCreatorNestedInput
+  assignedMarketplaceReviews?: Prisma.MarketplaceReviewQueueUncheckedUpdateManyWithoutAssignedReviewerNestedInput
+  classroomsTaught?: Prisma.ClassroomUncheckedUpdateManyWithoutTeacherNestedInput
+  classroomsEnrolled?: Prisma.ClassroomStudentUncheckedUpdateManyWithoutStudentNestedInput
+  refreshTokens?: Prisma.RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutCoursesOwnedInput = {
@@ -912,6 +1065,7 @@ export type UserCreateWithoutCoursesOwnedInput = {
   classroomsTaught?: Prisma.ClassroomCreateNestedManyWithoutTeacherInput
   classroomsEnrolled?: Prisma.ClassroomStudentCreateNestedManyWithoutStudentInput
   refreshTokens?: Prisma.RefreshTokenCreateNestedManyWithoutUserInput
+  passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutCoursesOwnedInput = {
@@ -939,6 +1093,7 @@ export type UserUncheckedCreateWithoutCoursesOwnedInput = {
   classroomsTaught?: Prisma.ClassroomUncheckedCreateNestedManyWithoutTeacherInput
   classroomsEnrolled?: Prisma.ClassroomStudentUncheckedCreateNestedManyWithoutStudentInput
   refreshTokens?: Prisma.RefreshTokenUncheckedCreateNestedManyWithoutUserInput
+  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutCoursesOwnedInput = {
@@ -982,6 +1137,7 @@ export type UserUpdateWithoutCoursesOwnedInput = {
   classroomsTaught?: Prisma.ClassroomUpdateManyWithoutTeacherNestedInput
   classroomsEnrolled?: Prisma.ClassroomStudentUpdateManyWithoutStudentNestedInput
   refreshTokens?: Prisma.RefreshTokenUpdateManyWithoutUserNestedInput
+  passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutCoursesOwnedInput = {
@@ -1009,6 +1165,7 @@ export type UserUncheckedUpdateWithoutCoursesOwnedInput = {
   classroomsTaught?: Prisma.ClassroomUncheckedUpdateManyWithoutTeacherNestedInput
   classroomsEnrolled?: Prisma.ClassroomStudentUncheckedUpdateManyWithoutStudentNestedInput
   refreshTokens?: Prisma.RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
+  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutResolvedReviewsAdminInput = {
@@ -1036,6 +1193,7 @@ export type UserCreateWithoutResolvedReviewsAdminInput = {
   classroomsTaught?: Prisma.ClassroomCreateNestedManyWithoutTeacherInput
   classroomsEnrolled?: Prisma.ClassroomStudentCreateNestedManyWithoutStudentInput
   refreshTokens?: Prisma.RefreshTokenCreateNestedManyWithoutUserInput
+  passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutResolvedReviewsAdminInput = {
@@ -1063,6 +1221,7 @@ export type UserUncheckedCreateWithoutResolvedReviewsAdminInput = {
   classroomsTaught?: Prisma.ClassroomUncheckedCreateNestedManyWithoutTeacherInput
   classroomsEnrolled?: Prisma.ClassroomStudentUncheckedCreateNestedManyWithoutStudentInput
   refreshTokens?: Prisma.RefreshTokenUncheckedCreateNestedManyWithoutUserInput
+  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutResolvedReviewsAdminInput = {
@@ -1106,6 +1265,7 @@ export type UserUpdateWithoutResolvedReviewsAdminInput = {
   classroomsTaught?: Prisma.ClassroomUpdateManyWithoutTeacherNestedInput
   classroomsEnrolled?: Prisma.ClassroomStudentUpdateManyWithoutStudentNestedInput
   refreshTokens?: Prisma.RefreshTokenUpdateManyWithoutUserNestedInput
+  passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutResolvedReviewsAdminInput = {
@@ -1133,6 +1293,7 @@ export type UserUncheckedUpdateWithoutResolvedReviewsAdminInput = {
   classroomsTaught?: Prisma.ClassroomUncheckedUpdateManyWithoutTeacherNestedInput
   classroomsEnrolled?: Prisma.ClassroomStudentUncheckedUpdateManyWithoutStudentNestedInput
   refreshTokens?: Prisma.RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
+  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutCourseForksInput = {
@@ -1160,6 +1321,7 @@ export type UserCreateWithoutCourseForksInput = {
   classroomsTaught?: Prisma.ClassroomCreateNestedManyWithoutTeacherInput
   classroomsEnrolled?: Prisma.ClassroomStudentCreateNestedManyWithoutStudentInput
   refreshTokens?: Prisma.RefreshTokenCreateNestedManyWithoutUserInput
+  passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutCourseForksInput = {
@@ -1187,6 +1349,7 @@ export type UserUncheckedCreateWithoutCourseForksInput = {
   classroomsTaught?: Prisma.ClassroomUncheckedCreateNestedManyWithoutTeacherInput
   classroomsEnrolled?: Prisma.ClassroomStudentUncheckedCreateNestedManyWithoutStudentInput
   refreshTokens?: Prisma.RefreshTokenUncheckedCreateNestedManyWithoutUserInput
+  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutCourseForksInput = {
@@ -1230,6 +1393,7 @@ export type UserUpdateWithoutCourseForksInput = {
   classroomsTaught?: Prisma.ClassroomUpdateManyWithoutTeacherNestedInput
   classroomsEnrolled?: Prisma.ClassroomStudentUpdateManyWithoutStudentNestedInput
   refreshTokens?: Prisma.RefreshTokenUpdateManyWithoutUserNestedInput
+  passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutCourseForksInput = {
@@ -1257,6 +1421,7 @@ export type UserUncheckedUpdateWithoutCourseForksInput = {
   classroomsTaught?: Prisma.ClassroomUncheckedUpdateManyWithoutTeacherNestedInput
   classroomsEnrolled?: Prisma.ClassroomStudentUncheckedUpdateManyWithoutStudentNestedInput
   refreshTokens?: Prisma.RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
+  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutCourseReportsInput = {
@@ -1284,6 +1449,7 @@ export type UserCreateWithoutCourseReportsInput = {
   classroomsTaught?: Prisma.ClassroomCreateNestedManyWithoutTeacherInput
   classroomsEnrolled?: Prisma.ClassroomStudentCreateNestedManyWithoutStudentInput
   refreshTokens?: Prisma.RefreshTokenCreateNestedManyWithoutUserInput
+  passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutCourseReportsInput = {
@@ -1311,6 +1477,7 @@ export type UserUncheckedCreateWithoutCourseReportsInput = {
   classroomsTaught?: Prisma.ClassroomUncheckedCreateNestedManyWithoutTeacherInput
   classroomsEnrolled?: Prisma.ClassroomStudentUncheckedCreateNestedManyWithoutStudentInput
   refreshTokens?: Prisma.RefreshTokenUncheckedCreateNestedManyWithoutUserInput
+  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutCourseReportsInput = {
@@ -1354,6 +1521,7 @@ export type UserUpdateWithoutCourseReportsInput = {
   classroomsTaught?: Prisma.ClassroomUpdateManyWithoutTeacherNestedInput
   classroomsEnrolled?: Prisma.ClassroomStudentUpdateManyWithoutStudentNestedInput
   refreshTokens?: Prisma.RefreshTokenUpdateManyWithoutUserNestedInput
+  passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutCourseReportsInput = {
@@ -1381,6 +1549,7 @@ export type UserUncheckedUpdateWithoutCourseReportsInput = {
   classroomsTaught?: Prisma.ClassroomUncheckedUpdateManyWithoutTeacherNestedInput
   classroomsEnrolled?: Prisma.ClassroomStudentUncheckedUpdateManyWithoutStudentNestedInput
   refreshTokens?: Prisma.RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
+  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutQuizAttemptsInput = {
@@ -1408,6 +1577,7 @@ export type UserCreateWithoutQuizAttemptsInput = {
   classroomsTaught?: Prisma.ClassroomCreateNestedManyWithoutTeacherInput
   classroomsEnrolled?: Prisma.ClassroomStudentCreateNestedManyWithoutStudentInput
   refreshTokens?: Prisma.RefreshTokenCreateNestedManyWithoutUserInput
+  passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutQuizAttemptsInput = {
@@ -1435,6 +1605,7 @@ export type UserUncheckedCreateWithoutQuizAttemptsInput = {
   classroomsTaught?: Prisma.ClassroomUncheckedCreateNestedManyWithoutTeacherInput
   classroomsEnrolled?: Prisma.ClassroomStudentUncheckedCreateNestedManyWithoutStudentInput
   refreshTokens?: Prisma.RefreshTokenUncheckedCreateNestedManyWithoutUserInput
+  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutQuizAttemptsInput = {
@@ -1478,6 +1649,7 @@ export type UserUpdateWithoutQuizAttemptsInput = {
   classroomsTaught?: Prisma.ClassroomUpdateManyWithoutTeacherNestedInput
   classroomsEnrolled?: Prisma.ClassroomStudentUpdateManyWithoutStudentNestedInput
   refreshTokens?: Prisma.RefreshTokenUpdateManyWithoutUserNestedInput
+  passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutQuizAttemptsInput = {
@@ -1505,6 +1677,7 @@ export type UserUncheckedUpdateWithoutQuizAttemptsInput = {
   classroomsTaught?: Prisma.ClassroomUncheckedUpdateManyWithoutTeacherNestedInput
   classroomsEnrolled?: Prisma.ClassroomStudentUncheckedUpdateManyWithoutStudentNestedInput
   refreshTokens?: Prisma.RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
+  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutMasteryScoresInput = {
@@ -1532,6 +1705,7 @@ export type UserCreateWithoutMasteryScoresInput = {
   classroomsTaught?: Prisma.ClassroomCreateNestedManyWithoutTeacherInput
   classroomsEnrolled?: Prisma.ClassroomStudentCreateNestedManyWithoutStudentInput
   refreshTokens?: Prisma.RefreshTokenCreateNestedManyWithoutUserInput
+  passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutMasteryScoresInput = {
@@ -1559,6 +1733,7 @@ export type UserUncheckedCreateWithoutMasteryScoresInput = {
   classroomsTaught?: Prisma.ClassroomUncheckedCreateNestedManyWithoutTeacherInput
   classroomsEnrolled?: Prisma.ClassroomStudentUncheckedCreateNestedManyWithoutStudentInput
   refreshTokens?: Prisma.RefreshTokenUncheckedCreateNestedManyWithoutUserInput
+  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutMasteryScoresInput = {
@@ -1602,6 +1777,7 @@ export type UserUpdateWithoutMasteryScoresInput = {
   classroomsTaught?: Prisma.ClassroomUpdateManyWithoutTeacherNestedInput
   classroomsEnrolled?: Prisma.ClassroomStudentUpdateManyWithoutStudentNestedInput
   refreshTokens?: Prisma.RefreshTokenUpdateManyWithoutUserNestedInput
+  passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutMasteryScoresInput = {
@@ -1629,6 +1805,7 @@ export type UserUncheckedUpdateWithoutMasteryScoresInput = {
   classroomsTaught?: Prisma.ClassroomUncheckedUpdateManyWithoutTeacherNestedInput
   classroomsEnrolled?: Prisma.ClassroomStudentUncheckedUpdateManyWithoutStudentNestedInput
   refreshTokens?: Prisma.RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
+  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutQnaMessagesInput = {
@@ -1656,6 +1833,7 @@ export type UserCreateWithoutQnaMessagesInput = {
   classroomsTaught?: Prisma.ClassroomCreateNestedManyWithoutTeacherInput
   classroomsEnrolled?: Prisma.ClassroomStudentCreateNestedManyWithoutStudentInput
   refreshTokens?: Prisma.RefreshTokenCreateNestedManyWithoutUserInput
+  passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutQnaMessagesInput = {
@@ -1683,6 +1861,7 @@ export type UserUncheckedCreateWithoutQnaMessagesInput = {
   classroomsTaught?: Prisma.ClassroomUncheckedCreateNestedManyWithoutTeacherInput
   classroomsEnrolled?: Prisma.ClassroomStudentUncheckedCreateNestedManyWithoutStudentInput
   refreshTokens?: Prisma.RefreshTokenUncheckedCreateNestedManyWithoutUserInput
+  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutQnaMessagesInput = {
@@ -1726,6 +1905,7 @@ export type UserUpdateWithoutQnaMessagesInput = {
   classroomsTaught?: Prisma.ClassroomUpdateManyWithoutTeacherNestedInput
   classroomsEnrolled?: Prisma.ClassroomStudentUpdateManyWithoutStudentNestedInput
   refreshTokens?: Prisma.RefreshTokenUpdateManyWithoutUserNestedInput
+  passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutQnaMessagesInput = {
@@ -1753,6 +1933,7 @@ export type UserUncheckedUpdateWithoutQnaMessagesInput = {
   classroomsTaught?: Prisma.ClassroomUncheckedUpdateManyWithoutTeacherNestedInput
   classroomsEnrolled?: Prisma.ClassroomStudentUncheckedUpdateManyWithoutStudentNestedInput
   refreshTokens?: Prisma.RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
+  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutCertificatesInput = {
@@ -1780,6 +1961,7 @@ export type UserCreateWithoutCertificatesInput = {
   classroomsTaught?: Prisma.ClassroomCreateNestedManyWithoutTeacherInput
   classroomsEnrolled?: Prisma.ClassroomStudentCreateNestedManyWithoutStudentInput
   refreshTokens?: Prisma.RefreshTokenCreateNestedManyWithoutUserInput
+  passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutCertificatesInput = {
@@ -1807,6 +1989,7 @@ export type UserUncheckedCreateWithoutCertificatesInput = {
   classroomsTaught?: Prisma.ClassroomUncheckedCreateNestedManyWithoutTeacherInput
   classroomsEnrolled?: Prisma.ClassroomStudentUncheckedCreateNestedManyWithoutStudentInput
   refreshTokens?: Prisma.RefreshTokenUncheckedCreateNestedManyWithoutUserInput
+  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutCertificatesInput = {
@@ -1850,6 +2033,7 @@ export type UserUpdateWithoutCertificatesInput = {
   classroomsTaught?: Prisma.ClassroomUpdateManyWithoutTeacherNestedInput
   classroomsEnrolled?: Prisma.ClassroomStudentUpdateManyWithoutStudentNestedInput
   refreshTokens?: Prisma.RefreshTokenUpdateManyWithoutUserNestedInput
+  passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutCertificatesInput = {
@@ -1877,6 +2061,7 @@ export type UserUncheckedUpdateWithoutCertificatesInput = {
   classroomsTaught?: Prisma.ClassroomUncheckedUpdateManyWithoutTeacherNestedInput
   classroomsEnrolled?: Prisma.ClassroomStudentUncheckedUpdateManyWithoutStudentNestedInput
   refreshTokens?: Prisma.RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
+  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutPurchasesInput = {
@@ -1904,6 +2089,7 @@ export type UserCreateWithoutPurchasesInput = {
   classroomsTaught?: Prisma.ClassroomCreateNestedManyWithoutTeacherInput
   classroomsEnrolled?: Prisma.ClassroomStudentCreateNestedManyWithoutStudentInput
   refreshTokens?: Prisma.RefreshTokenCreateNestedManyWithoutUserInput
+  passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutPurchasesInput = {
@@ -1931,6 +2117,7 @@ export type UserUncheckedCreateWithoutPurchasesInput = {
   classroomsTaught?: Prisma.ClassroomUncheckedCreateNestedManyWithoutTeacherInput
   classroomsEnrolled?: Prisma.ClassroomStudentUncheckedCreateNestedManyWithoutStudentInput
   refreshTokens?: Prisma.RefreshTokenUncheckedCreateNestedManyWithoutUserInput
+  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutPurchasesInput = {
@@ -1974,6 +2161,7 @@ export type UserUpdateWithoutPurchasesInput = {
   classroomsTaught?: Prisma.ClassroomUpdateManyWithoutTeacherNestedInput
   classroomsEnrolled?: Prisma.ClassroomStudentUpdateManyWithoutStudentNestedInput
   refreshTokens?: Prisma.RefreshTokenUpdateManyWithoutUserNestedInput
+  passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutPurchasesInput = {
@@ -2001,6 +2189,7 @@ export type UserUncheckedUpdateWithoutPurchasesInput = {
   classroomsTaught?: Prisma.ClassroomUncheckedUpdateManyWithoutTeacherNestedInput
   classroomsEnrolled?: Prisma.ClassroomStudentUncheckedUpdateManyWithoutStudentNestedInput
   refreshTokens?: Prisma.RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
+  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutMarketplaceCoursesInput = {
@@ -2028,6 +2217,7 @@ export type UserCreateWithoutMarketplaceCoursesInput = {
   classroomsTaught?: Prisma.ClassroomCreateNestedManyWithoutTeacherInput
   classroomsEnrolled?: Prisma.ClassroomStudentCreateNestedManyWithoutStudentInput
   refreshTokens?: Prisma.RefreshTokenCreateNestedManyWithoutUserInput
+  passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutMarketplaceCoursesInput = {
@@ -2055,6 +2245,7 @@ export type UserUncheckedCreateWithoutMarketplaceCoursesInput = {
   classroomsTaught?: Prisma.ClassroomUncheckedCreateNestedManyWithoutTeacherInput
   classroomsEnrolled?: Prisma.ClassroomStudentUncheckedCreateNestedManyWithoutStudentInput
   refreshTokens?: Prisma.RefreshTokenUncheckedCreateNestedManyWithoutUserInput
+  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutMarketplaceCoursesInput = {
@@ -2087,6 +2278,7 @@ export type UserCreateWithoutAssignedMarketplaceReviewsInput = {
   classroomsTaught?: Prisma.ClassroomCreateNestedManyWithoutTeacherInput
   classroomsEnrolled?: Prisma.ClassroomStudentCreateNestedManyWithoutStudentInput
   refreshTokens?: Prisma.RefreshTokenCreateNestedManyWithoutUserInput
+  passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutAssignedMarketplaceReviewsInput = {
@@ -2114,6 +2306,7 @@ export type UserUncheckedCreateWithoutAssignedMarketplaceReviewsInput = {
   classroomsTaught?: Prisma.ClassroomUncheckedCreateNestedManyWithoutTeacherInput
   classroomsEnrolled?: Prisma.ClassroomStudentUncheckedCreateNestedManyWithoutStudentInput
   refreshTokens?: Prisma.RefreshTokenUncheckedCreateNestedManyWithoutUserInput
+  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutAssignedMarketplaceReviewsInput = {
@@ -2157,6 +2350,7 @@ export type UserUpdateWithoutMarketplaceCoursesInput = {
   classroomsTaught?: Prisma.ClassroomUpdateManyWithoutTeacherNestedInput
   classroomsEnrolled?: Prisma.ClassroomStudentUpdateManyWithoutStudentNestedInput
   refreshTokens?: Prisma.RefreshTokenUpdateManyWithoutUserNestedInput
+  passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutMarketplaceCoursesInput = {
@@ -2184,6 +2378,7 @@ export type UserUncheckedUpdateWithoutMarketplaceCoursesInput = {
   classroomsTaught?: Prisma.ClassroomUncheckedUpdateManyWithoutTeacherNestedInput
   classroomsEnrolled?: Prisma.ClassroomStudentUncheckedUpdateManyWithoutStudentNestedInput
   refreshTokens?: Prisma.RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
+  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserUpsertWithoutAssignedMarketplaceReviewsInput = {
@@ -2222,6 +2417,7 @@ export type UserUpdateWithoutAssignedMarketplaceReviewsInput = {
   classroomsTaught?: Prisma.ClassroomUpdateManyWithoutTeacherNestedInput
   classroomsEnrolled?: Prisma.ClassroomStudentUpdateManyWithoutStudentNestedInput
   refreshTokens?: Prisma.RefreshTokenUpdateManyWithoutUserNestedInput
+  passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutAssignedMarketplaceReviewsInput = {
@@ -2249,6 +2445,7 @@ export type UserUncheckedUpdateWithoutAssignedMarketplaceReviewsInput = {
   classroomsTaught?: Prisma.ClassroomUncheckedUpdateManyWithoutTeacherNestedInput
   classroomsEnrolled?: Prisma.ClassroomStudentUncheckedUpdateManyWithoutStudentNestedInput
   refreshTokens?: Prisma.RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
+  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutClassroomsTaughtInput = {
@@ -2276,6 +2473,7 @@ export type UserCreateWithoutClassroomsTaughtInput = {
   assignedMarketplaceReviews?: Prisma.MarketplaceReviewQueueCreateNestedManyWithoutAssignedReviewerInput
   classroomsEnrolled?: Prisma.ClassroomStudentCreateNestedManyWithoutStudentInput
   refreshTokens?: Prisma.RefreshTokenCreateNestedManyWithoutUserInput
+  passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutClassroomsTaughtInput = {
@@ -2303,6 +2501,7 @@ export type UserUncheckedCreateWithoutClassroomsTaughtInput = {
   assignedMarketplaceReviews?: Prisma.MarketplaceReviewQueueUncheckedCreateNestedManyWithoutAssignedReviewerInput
   classroomsEnrolled?: Prisma.ClassroomStudentUncheckedCreateNestedManyWithoutStudentInput
   refreshTokens?: Prisma.RefreshTokenUncheckedCreateNestedManyWithoutUserInput
+  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutClassroomsTaughtInput = {
@@ -2346,6 +2545,7 @@ export type UserUpdateWithoutClassroomsTaughtInput = {
   assignedMarketplaceReviews?: Prisma.MarketplaceReviewQueueUpdateManyWithoutAssignedReviewerNestedInput
   classroomsEnrolled?: Prisma.ClassroomStudentUpdateManyWithoutStudentNestedInput
   refreshTokens?: Prisma.RefreshTokenUpdateManyWithoutUserNestedInput
+  passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutClassroomsTaughtInput = {
@@ -2373,6 +2573,7 @@ export type UserUncheckedUpdateWithoutClassroomsTaughtInput = {
   assignedMarketplaceReviews?: Prisma.MarketplaceReviewQueueUncheckedUpdateManyWithoutAssignedReviewerNestedInput
   classroomsEnrolled?: Prisma.ClassroomStudentUncheckedUpdateManyWithoutStudentNestedInput
   refreshTokens?: Prisma.RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
+  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutClassroomsEnrolledInput = {
@@ -2400,6 +2601,7 @@ export type UserCreateWithoutClassroomsEnrolledInput = {
   assignedMarketplaceReviews?: Prisma.MarketplaceReviewQueueCreateNestedManyWithoutAssignedReviewerInput
   classroomsTaught?: Prisma.ClassroomCreateNestedManyWithoutTeacherInput
   refreshTokens?: Prisma.RefreshTokenCreateNestedManyWithoutUserInput
+  passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutClassroomsEnrolledInput = {
@@ -2427,6 +2629,7 @@ export type UserUncheckedCreateWithoutClassroomsEnrolledInput = {
   assignedMarketplaceReviews?: Prisma.MarketplaceReviewQueueUncheckedCreateNestedManyWithoutAssignedReviewerInput
   classroomsTaught?: Prisma.ClassroomUncheckedCreateNestedManyWithoutTeacherInput
   refreshTokens?: Prisma.RefreshTokenUncheckedCreateNestedManyWithoutUserInput
+  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutClassroomsEnrolledInput = {
@@ -2470,6 +2673,7 @@ export type UserUpdateWithoutClassroomsEnrolledInput = {
   assignedMarketplaceReviews?: Prisma.MarketplaceReviewQueueUpdateManyWithoutAssignedReviewerNestedInput
   classroomsTaught?: Prisma.ClassroomUpdateManyWithoutTeacherNestedInput
   refreshTokens?: Prisma.RefreshTokenUpdateManyWithoutUserNestedInput
+  passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutClassroomsEnrolledInput = {
@@ -2497,6 +2701,7 @@ export type UserUncheckedUpdateWithoutClassroomsEnrolledInput = {
   assignedMarketplaceReviews?: Prisma.MarketplaceReviewQueueUncheckedUpdateManyWithoutAssignedReviewerNestedInput
   classroomsTaught?: Prisma.ClassroomUncheckedUpdateManyWithoutTeacherNestedInput
   refreshTokens?: Prisma.RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
+  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutSubtopicCompletionsInput = {
@@ -2524,6 +2729,7 @@ export type UserCreateWithoutSubtopicCompletionsInput = {
   classroomsTaught?: Prisma.ClassroomCreateNestedManyWithoutTeacherInput
   classroomsEnrolled?: Prisma.ClassroomStudentCreateNestedManyWithoutStudentInput
   refreshTokens?: Prisma.RefreshTokenCreateNestedManyWithoutUserInput
+  passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutSubtopicCompletionsInput = {
@@ -2551,6 +2757,7 @@ export type UserUncheckedCreateWithoutSubtopicCompletionsInput = {
   classroomsTaught?: Prisma.ClassroomUncheckedCreateNestedManyWithoutTeacherInput
   classroomsEnrolled?: Prisma.ClassroomStudentUncheckedCreateNestedManyWithoutStudentInput
   refreshTokens?: Prisma.RefreshTokenUncheckedCreateNestedManyWithoutUserInput
+  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutSubtopicCompletionsInput = {
@@ -2594,6 +2801,7 @@ export type UserUpdateWithoutSubtopicCompletionsInput = {
   classroomsTaught?: Prisma.ClassroomUpdateManyWithoutTeacherNestedInput
   classroomsEnrolled?: Prisma.ClassroomStudentUpdateManyWithoutStudentNestedInput
   refreshTokens?: Prisma.RefreshTokenUpdateManyWithoutUserNestedInput
+  passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutSubtopicCompletionsInput = {
@@ -2621,6 +2829,7 @@ export type UserUncheckedUpdateWithoutSubtopicCompletionsInput = {
   classroomsTaught?: Prisma.ClassroomUncheckedUpdateManyWithoutTeacherNestedInput
   classroomsEnrolled?: Prisma.ClassroomStudentUncheckedUpdateManyWithoutStudentNestedInput
   refreshTokens?: Prisma.RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
+  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutModuleQuizzesInput = {
@@ -2648,6 +2857,7 @@ export type UserCreateWithoutModuleQuizzesInput = {
   classroomsTaught?: Prisma.ClassroomCreateNestedManyWithoutTeacherInput
   classroomsEnrolled?: Prisma.ClassroomStudentCreateNestedManyWithoutStudentInput
   refreshTokens?: Prisma.RefreshTokenCreateNestedManyWithoutUserInput
+  passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutModuleQuizzesInput = {
@@ -2675,6 +2885,7 @@ export type UserUncheckedCreateWithoutModuleQuizzesInput = {
   classroomsTaught?: Prisma.ClassroomUncheckedCreateNestedManyWithoutTeacherInput
   classroomsEnrolled?: Prisma.ClassroomStudentUncheckedCreateNestedManyWithoutStudentInput
   refreshTokens?: Prisma.RefreshTokenUncheckedCreateNestedManyWithoutUserInput
+  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutModuleQuizzesInput = {
@@ -2718,6 +2929,7 @@ export type UserUpdateWithoutModuleQuizzesInput = {
   classroomsTaught?: Prisma.ClassroomUpdateManyWithoutTeacherNestedInput
   classroomsEnrolled?: Prisma.ClassroomStudentUpdateManyWithoutStudentNestedInput
   refreshTokens?: Prisma.RefreshTokenUpdateManyWithoutUserNestedInput
+  passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutModuleQuizzesInput = {
@@ -2745,6 +2957,7 @@ export type UserUncheckedUpdateWithoutModuleQuizzesInput = {
   classroomsTaught?: Prisma.ClassroomUncheckedUpdateManyWithoutTeacherNestedInput
   classroomsEnrolled?: Prisma.ClassroomStudentUncheckedUpdateManyWithoutStudentNestedInput
   refreshTokens?: Prisma.RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
+  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
 }
 
 
@@ -2769,6 +2982,7 @@ export type UserCountOutputType = {
   classroomsTaught: number
   classroomsEnrolled: number
   refreshTokens: number
+  passwordResetTokens: number
 }
 
 export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -2788,6 +3002,7 @@ export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.I
   classroomsTaught?: boolean | UserCountOutputTypeCountClassroomsTaughtArgs
   classroomsEnrolled?: boolean | UserCountOutputTypeCountClassroomsEnrolledArgs
   refreshTokens?: boolean | UserCountOutputTypeCountRefreshTokensArgs
+  passwordResetTokens?: boolean | UserCountOutputTypeCountPasswordResetTokensArgs
 }
 
 /**
@@ -2912,6 +3127,13 @@ export type UserCountOutputTypeCountRefreshTokensArgs<ExtArgs extends runtime.Ty
   where?: Prisma.RefreshTokenWhereInput
 }
 
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountPasswordResetTokensArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.PasswordResetTokenWhereInput
+}
+
 
 export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -2939,6 +3161,7 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   classroomsTaught?: boolean | Prisma.User$classroomsTaughtArgs<ExtArgs>
   classroomsEnrolled?: boolean | Prisma.User$classroomsEnrolledArgs<ExtArgs>
   refreshTokens?: boolean | Prisma.User$refreshTokensArgs<ExtArgs>
+  passwordResetTokens?: boolean | Prisma.User$passwordResetTokensArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["user"]>
 
@@ -2996,6 +3219,7 @@ export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   classroomsTaught?: boolean | Prisma.User$classroomsTaughtArgs<ExtArgs>
   classroomsEnrolled?: boolean | Prisma.User$classroomsEnrolledArgs<ExtArgs>
   refreshTokens?: boolean | Prisma.User$refreshTokensArgs<ExtArgs>
+  passwordResetTokens?: boolean | Prisma.User$passwordResetTokensArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type UserIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -3020,6 +3244,7 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     classroomsTaught: Prisma.$ClassroomPayload<ExtArgs>[]
     classroomsEnrolled: Prisma.$ClassroomStudentPayload<ExtArgs>[]
     refreshTokens: Prisma.$RefreshTokenPayload<ExtArgs>[]
+    passwordResetTokens: Prisma.$PasswordResetTokenPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -3441,6 +3666,7 @@ export interface Prisma__UserClient<T, Null = never, ExtArgs extends runtime.Typ
   classroomsTaught<T extends Prisma.User$classroomsTaughtArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$classroomsTaughtArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ClassroomPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   classroomsEnrolled<T extends Prisma.User$classroomsEnrolledArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$classroomsEnrolledArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ClassroomStudentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   refreshTokens<T extends Prisma.User$refreshTokensArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$refreshTokensArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$RefreshTokenPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  passwordResetTokens<T extends Prisma.User$passwordResetTokensArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$passwordResetTokensArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PasswordResetTokenPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -4253,6 +4479,30 @@ export type User$refreshTokensArgs<ExtArgs extends runtime.Types.Extensions.Inte
   take?: number
   skip?: number
   distinct?: Prisma.RefreshTokenScalarFieldEnum | Prisma.RefreshTokenScalarFieldEnum[]
+}
+
+/**
+ * User.passwordResetTokens
+ */
+export type User$passwordResetTokensArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the PasswordResetToken
+   */
+  select?: Prisma.PasswordResetTokenSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the PasswordResetToken
+   */
+  omit?: Prisma.PasswordResetTokenOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.PasswordResetTokenInclude<ExtArgs> | null
+  where?: Prisma.PasswordResetTokenWhereInput
+  orderBy?: Prisma.PasswordResetTokenOrderByWithRelationInput | Prisma.PasswordResetTokenOrderByWithRelationInput[]
+  cursor?: Prisma.PasswordResetTokenWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.PasswordResetTokenScalarFieldEnum | Prisma.PasswordResetTokenScalarFieldEnum[]
 }
 
 /**
