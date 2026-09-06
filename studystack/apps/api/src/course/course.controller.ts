@@ -26,6 +26,7 @@ import { ExamDateDto } from "./dto/exam-date.dto.js";
 import { GoalDto } from "./dto/goal.dto.js";
 import { IntakeDto } from "./dto/intake.dto.js";
 import { LevelDto } from "./dto/level.dto.js";
+import { PresignUploadDto } from "./dto/presign-upload.dto.js";
 import { ReportDto } from "./dto/report.dto.js";
 import { TopicCourseDto } from "./dto/topic-course.dto.js";
 import { UploadCourseDto } from "./dto/upload-course.dto.js";
@@ -38,7 +39,6 @@ export class CourseController {
   constructor(private readonly courseService: CourseService) {}
 
   // ── F1: upload path ────────────────────────────────────────────────────
-
   @Post("upload")
   @UseInterceptors(
     FileInterceptor("file", {
@@ -75,6 +75,30 @@ export class CourseController {
     @Param("id") courseId: string,
   ) {
     return this.courseService.attestRights(userId, courseId);
+  }
+
+  // ── F1: S3 presigned upload (browser PUTs direct to AWS) ──────────────
+  @Post("uploads/presign")
+  @HttpCode(HttpStatus.CREATED)
+  async presignUpload(
+    @CurrentUser("id") userId: string,
+    @Body() dto: PresignUploadDto,
+  ) {
+    return this.courseService.presignUpload(userId, {
+      filename: dto.filename,
+      contentType: dto.contentType,
+      sizeBytes: dto.sizeBytes,
+      attestRights: dto.attestRights,
+    });
+  }
+
+  @Post("uploads/:id/confirm")
+  @HttpCode(HttpStatus.OK)
+  async confirmUpload(
+    @CurrentUser("id") userId: string,
+    @Param("id") courseId: string,
+  ) {
+    return this.courseService.confirmUpload(userId, courseId);
   }
 
   @Get(":id/ingestion-status")

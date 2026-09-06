@@ -18,6 +18,7 @@ import { createReadStream } from "node:fs";
 import { mkdir, rename, unlink } from "fs/promises";
 import * as path from "path";
 import { AiService } from "../ai/ai.service.js";
+import { StorageService } from "../storage/storage.service.js";
 import {
   INGESTION_QUEUE,
   JOB_PRIORITY,
@@ -28,8 +29,6 @@ import { PrismaService } from "../prisma/prisma.service.js";
 import { validateUploadFilePath } from "../common/utils/file-validation.js";
 import { setChunkScope, withChunkScope } from "../common/utils/chunk-scope.js";
 import {
-  deleteCourseAssets,
-  resolveStoredPath,
   toStorageKey,
   UPLOAD_DIR,
 } from "../common/utils/storage.js";
@@ -70,6 +69,7 @@ export class CourseService {
     @InjectQueue(RESEARCH_QUEUE) private readonly researchQueue: Queue,
     @InjectQueue(STRUCTURING_QUEUE) private readonly structuringQueue: Queue,
     private readonly ai: AiService,
+    private readonly storage: StorageService,
   ) {}
 
   // ── F1: upload path ────────────────────────────────────────────────────
@@ -176,6 +176,142 @@ export class CourseService {
     }
 
     return course;
+  }
+
+  // ── F1: S3 presigned upload (browser PUTs direct to AWS, virtual-hosted) ─
+  // Legacy multipart POST /courses/upload keeps working (local disk + small
+  // files). This flow reserves the course row first so quota/dedupe still
+  // run before any bytes move, then confirm() verifies content + enqueues.
+
+  async presignUpload(
+    userId: string,
+    opts: {
+      filename: string;
+      contentType: string;
+      sizeBytes: number;
+      attestRights?: boolean;
+    },
+  ) {
+    if (this.storage.getDriver() !== "s3") {
+      throw new ServiceUnavailableException(
+        "Presigned uploads require STORAGE_DRIVER=s3 — use multipart POST /courses/upload",
+      );
+    }
+
+    const ext = path.extname(opts.filename ?? "").toLowerCase();
+    if (![".pdf", ".docx", ".txt", ".md"].includes(ext)) {
+      throw new BadRequestException(
+        "Only PDF, DOCX, and plain-text (.txt / .md) files are supported",
+      );
+    }
+
+    await this.assertUploadAllowed(userId, opts.sizeBytes);
+
+    const course = await this.prisma.course.create({
+      data: {
+        ownerId: userId,
+        sourceType: "upload",
+        title: opts.filename,
+        status: "ingesting",
+        ingestionStage: "awaiting-upload",
+        publishAttestationAt: opts.attestRights ? new Date() : undefined,
+      },
+    });
+
+    const safeName = opts.filename.replace(/[\\/:*?"<>|]/g, "_");
+    const key = `${course.id}-${safeName}`;
+
+    try {
+      await this.prisma.sourceDocument.create({
+        data: {
+          courseId: course.id,
+          fileUrl: key,
+          fileType: ext || null,
+          fileSizeBytes: opts.sizeBytes,
+          licenseStatus: "user_uploaded_unknown",
+          extractionStatus: "awaiting-upload",
+        },
+      });
+      const { url, expiresIn } = await this.storage.presignPut(
+        key,
+        opts.contentType,
+      );
+      return { courseId: course.id, key, uploadUrl: url, expiresIn };
+    } catch (error) {
+      await this.prisma.sourceDocument
+        .deleteMany({ where: { courseId: course.id } })
+        .catch(() => undefined);
+      await this.prisma.course
+        .delete({ where: { id: course.id } })
+        .catch(() => undefined);
+      throw error;
+    }
+  }
+
+  async confirmUpload(userId: string, courseId: string) {
+    const course = await this.requireOwnedCourse(userId, courseId);
+    if (
+      course.status === "ingesting" &&
+      course.ingestionStage !== "awaiting-upload"
+    ) {
+      return course; // idempotent — already confirmed/queued
+    }
+
+    const document = await this.prisma.sourceDocument.findFirst({
+      where: { courseId },
+    });
+    if (!document?.fileUrl) {
+      throw new BadRequestException("No pending upload for this course");
+    }
+
+    const size = await this.storage.headSize(document.fileUrl);
+    if (!size) {
+      throw new BadRequestException(
+        "Uploaded file not found in storage — re-upload via a fresh presigned URL",
+      );
+    }
+
+    const head = await this.storage.getHeadBytes(document.fileUrl, 8192);
+    const { sniffFileKind } = await import(
+      "../common/utils/file-validation.js"
+    );
+    const ext = path.extname(course.title ?? "").toLowerCase();
+    const claimed =
+      ext === ".pdf"
+        ? "pdf"
+        : ext === ".docx"
+          ? "docx"
+          : ext === ".txt" || ext === ".md"
+            ? "text"
+            : null;
+    if (!claimed || sniffFileKind(head) !== claimed) {
+      throw new BadRequestException(
+        `File content does not match its "${ext}" extension — the upload appears corrupted or mislabelled`,
+      );
+    }
+
+    await this.prisma.sourceDocument.updateMany({
+      where: { courseId },
+      data: { extractionStatus: null, fileSizeBytes: size },
+    });
+    const updated = await this.prisma.course.update({
+      where: { id: courseId },
+      data: { status: "ingesting", ingestionStage: "queued" },
+    });
+
+    try {
+      await this.ingestionQueue.add(
+        "ingest-course",
+        { courseId },
+        { priority: JOB_PRIORITY.newCourseIngestion, jobId: `ingest:${courseId}` },
+      );
+    } catch {
+      throw new ServiceUnavailableException(
+        "Ingestion queue is unavailable — upload confirmed, retry confirmation shortly",
+      );
+    }
+
+    return updated;
   }
 
   /**
@@ -834,12 +970,13 @@ export class CourseService {
 
     // Best-effort file cleanup — rows are already gone, so a leftover file
     // here must not fail the delete (the stale-file sweep covers it).
+    // Storage-backed: works for local disk and S3 (virtual-hosted keys).
     for (const doc of documents) {
       if (doc.fileUrl) {
-        await unlink(resolveStoredPath(doc.fileUrl)).catch(() => undefined);
+        await this.storage.deleteKey(doc.fileUrl).catch(() => undefined);
       }
     }
-    await deleteCourseAssets(courseId).catch(() => undefined);
+    await this.storage.deletePrefix(`assets/${courseId}`).catch(() => undefined);
 
     return { id: courseId, deleted: true };
   }

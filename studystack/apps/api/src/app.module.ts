@@ -12,11 +12,13 @@ import { QnaModule } from "./qna/qna.module";
 import { AiModule } from "./ai/ai.module";
 import { AuthModule } from "./auth/auth.module";
 import { JobsModule } from "./jobs/jobs.module";
+import { StorageModule } from "./storage/storage.module";
 
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
     PrismaModule,
+    StorageModule,
     AuthModule,
     CourseModule,
     AssessmentModule,

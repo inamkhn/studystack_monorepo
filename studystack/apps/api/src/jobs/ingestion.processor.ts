@@ -1,14 +1,12 @@
 import { Logger } from "@nestjs/common";
 import { InjectQueue, Processor, WorkerHost } from "@nestjs/bullmq";
 import { Job, Queue } from "bullmq";
-import { readFile } from "fs/promises";
 import * as path from "path";
-import { readFileHead, sniffFileKind } from "../common/utils/file-validation.js";
+import { sniffFileKind } from "../common/utils/file-validation.js";
 import { withChunkScope } from "../common/utils/chunk-scope.js";
-import { resolveStoredPath } from "../common/utils/storage.js";
+import { StorageService } from "../storage/storage.service.js";
 import {
   buildChunks,
-  createCourseAssetSaver,
   extractDocxSections,
   extractPdfSections,
   extractTextSections,
@@ -46,6 +44,7 @@ export class IngestionProcessor extends WorkerHost {
   constructor(
     private readonly prisma: PrismaService,
     @InjectQueue(STRUCTURING_QUEUE) private readonly structuringQueue: Queue,
+    private readonly storage: StorageService,
   ) {
     super();
   }
@@ -68,20 +67,20 @@ export class IngestionProcessor extends WorkerHost {
 
       // Phase C — figures are stored per course and wiped on re-run so a
       // retried ingestion never leaves stale or duplicate assets.
-      const assets = createCourseAssetSaver(courseId);
-      await assets.wipe();
+      // Storage-backed (local disk or S3) via StorageService.
+      await this.storage.deletePrefix(`assets/${courseId}`);
 
       for (let docIndex = 0; docIndex < documents.length; docIndex++) {
         const document = documents[docIndex];
-        // fileUrl is a storage key relative to UPLOAD_DIR (legacy absolute
-        // paths still resolve — see common/utils/storage.ts).
-        const filePath = resolveStoredPath(document.fileUrl!);
-        await this.verifyDocument(document.id, filePath);
+        // fileUrl is a storage key (legacy absolute paths still resolve
+        // in local mode — see common/utils/storage.ts).
+        const storageKey = document.fileUrl!;
+        await this.verifyDocument(document.id, storageKey);
         await this.setDocumentStatus(document.id, "extracting");
 
         let result: ExtractionResult;
         try {
-          result = await this.extractDocument(filePath);
+          result = await this.extractDocument(document, storageKey);
         } catch (error) {
           // One unreadable document must not sink the whole course when
           // other documents extract fine — mark it failed and continue.
@@ -105,7 +104,7 @@ export class IngestionProcessor extends WorkerHost {
         // (by section index when the extractor attributed one, else by
         // page for PDFs). Failures are per-image, never per-document.
         const saved = await this.persistDocumentImages(
-          assets,
+          courseId,
           document.id,
           result,
         );
@@ -245,10 +244,10 @@ export class IngestionProcessor extends WorkerHost {
   // ── extraction ────────────────────────────────────────────────────────
 
   /** Throws when the uploaded file is missing, empty, or unrecognizable. */
-  private async verifyDocument(documentId: string, filePath: string) {
+  private async verifyDocument(documentId: string, storageKey: string) {
     let head: Buffer;
     try {
-      head = await readFileHead(filePath, 8192);
+      head = await this.storage.getHeadBytes(storageKey, 8192);
     } catch {
       throw new Error(
         `Uploaded file is missing or unreadable (document ${documentId})`,
@@ -261,9 +260,12 @@ export class IngestionProcessor extends WorkerHost {
     }
   }
 
-  private async extractDocument(filePath: string): Promise<ExtractionResult> {
-    const buffer = await readFile(filePath);
-    const kind = path.extname(filePath).toLowerCase();
+  private async extractDocument(
+    document: { fileType: string | null; fileUrl: string | null },
+    storageKey: string,
+  ): Promise<ExtractionResult> {
+    const buffer = await this.storage.getObjectBytes(storageKey);
+    const kind = (document.fileType ?? path.extname(storageKey)).toLowerCase();
 
     switch (kind) {
       case ".pdf":
@@ -280,12 +282,13 @@ export class IngestionProcessor extends WorkerHost {
   // ── figure persistence (Phase C) ─────────────────────────────────────
 
   /**
-   * Saves a document's extracted figures to disk and returns their paths
-   * with attribution info. A figure that fails to save is skipped with a
-   * warning — the text of the document is never lost over an image.
+   * Saves a document's extracted figures via StorageService and returns
+   * their keys with attribution info. A figure that fails to save is
+   * skipped with a warning — the text of the document is never lost over
+   * an image.
    */
   private async persistDocumentImages(
-    assets: ReturnType<typeof createCourseAssetSaver>,
+    courseId: string,
     documentId: string,
     result: ExtractionResult,
   ): Promise<{
@@ -304,9 +307,9 @@ export class IngestionProcessor extends WorkerHost {
       const ext = image.format === "jpeg" ? "jpg" : "png";
       const name = `${documentId.slice(0, 8)}-${i}.${ext}`;
       try {
-        const filePath = await assets.save(name, image.data);
+        const key = await this.storage.putAsset(courseId, name, image.data);
         saved.push({
-          path: filePath,
+          path: key,
           pageRef: image.pageRef,
           sectionIndex: image.sectionIndex,
         });
