@@ -204,8 +204,8 @@ export class IngestionProcessor extends WorkerHost {
       );
     } catch (error) {
       // Extraction-level failure (corruption etc.) — fail the course, no
-      // retry. Mirrors CourseService.failCourseIngestion (not imported to
-      // avoid a JobsModule ↔ CourseModule cycle).
+      // retry. Mirrors CourseMaintenanceService.failCourseIngestion (not
+      // imported to avoid a JobsModule ↔ CourseModule cycle).
       const reason =
         error instanceof Error ? error.message : "Source file unreadable";
       this.logger.error(`ingestion failed for course ${courseId}: ${reason}`);

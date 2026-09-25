@@ -1,26 +1,225 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+/* ──────────────────────────────────────────────────────────────────────────
+   Luminous Academia — design tokens (apps/web/design.md)
+   Prose palette is source of truth; token names follow M3-style roles so
+   components read semantically (bg-primary, text-ink-subtle, border-line).
+   Dark-only system — the previous prefers-color-scheme block is removed.
+   ──────────────────────────────────────────────────────────────────────── */
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  /* Canvas & ink */
+  --color-canvas: #0b0f19;
+  --color-surface: #111827;
+  --color-surface-raised: #1e293b;
+  --color-ink: #f8fafc;
+  --color-ink-muted: #e2e8f0;
+  --color-ink-subtle: #94a3b8;
+  --color-line: rgb(255 255 255 / 0.08);
+
+  /* Cognitive accents */
+  --color-primary: #6366f1; /* Electric Indigo — action, generative states */
+  --color-primary-deep: #4f46e5;
+  --color-on-primary: #ffffff;
+  --color-mastery: #10b981; /* Kinetic Emerald — retention, verified states */
+  --color-telemetry: #38bdf8; /* Cyan Flux — live processing, confidence   */
+  --color-danger: #ef4444;
+
+  /* Fonts — wired to next/font variables in layout.tsx */
+  --font-display: var(--font-jakarta), ui-sans-serif, system-ui, sans-serif;
+  --font-body: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-jb-mono), ui-monospace, "SF Mono", monospace;
+
+  /* Shape — 8pt-adjacent radius ladder from design.md §Shapes */
+  --radius-component: 0.5rem; /* inputs, buttons, badges */
+  --radius-card: 1rem; /* cards, learning modules       */
+  --radius-frame: 1.5rem; /* hero frames, display panels  */
+
+  /* Type scale — design.md §typography (display & labels carry their family) */
+  --text-display-hero: 64px;
+  --text-display-hero--font-family: var(--font-display);
+  --text-display-hero--font-weight: 800;
+  --text-display-hero--line-height: 72px;
+  --text-display-hero--letter-spacing: -0.03em;
+  --text-display-hero-mobile: 38px;
+  --text-display-hero-mobile--font-family: var(--font-display);
+  --text-display-hero-mobile--font-weight: 800;
+  --text-display-hero-mobile--line-height: 44px;
+  --text-display-hero-mobile--letter-spacing: -0.025em;
+
+  --text-headline-xl: 48px;
+  --text-headline-xl--font-family: var(--font-display);
+  --text-headline-xl--font-weight: 700;
+  --text-headline-xl--line-height: 56px;
+  --text-headline-xl--letter-spacing: -0.025em;
+  --text-headline-xl-mobile: 32px;
+  --text-headline-xl-mobile--font-family: var(--font-display);
+  --text-headline-xl-mobile--font-weight: 700;
+  --text-headline-xl-mobile--line-height: 38px;
+  --text-headline-xl-mobile--letter-spacing: -0.02em;
+
+  --text-headline-lg: 32px;
+  --text-headline-lg--font-family: var(--font-display);
+  --text-headline-lg--font-weight: 600;
+  --text-headline-lg--line-height: 40px;
+  --text-headline-lg--letter-spacing: -0.02em;
+  --text-headline-lg-mobile: 24px;
+  --text-headline-lg-mobile--font-family: var(--font-display);
+  --text-headline-lg-mobile--font-weight: 600;
+  --text-headline-lg-mobile--line-height: 32px;
+  --text-headline-lg-mobile--letter-spacing: -0.015em;
+
+  --text-headline-md: 24px;
+  --text-headline-md--font-family: var(--font-display);
+  --text-headline-md--font-weight: 600;
+  --text-headline-md--line-height: 32px;
+  --text-headline-md--letter-spacing: -0.015em;
+  --text-headline-sm: 20px;
+  --text-headline-sm--font-family: var(--font-display);
+  --text-headline-sm--font-weight: 600;
+  --text-headline-sm--line-height: 28px;
+  --text-headline-sm--letter-spacing: -0.01em;
+
+  --text-body-xl: 18px;
+  --text-body-xl--font-family: var(--font-body);
+  --text-body-xl--line-height: 28px;
+  --text-body-lg: 16px;
+  --text-body-lg--font-family: var(--font-body);
+  --text-body-lg--line-height: 26px;
+  --text-body-md: 14px;
+  --text-body-md--font-family: var(--font-body);
+  --text-body-md--line-height: 22px;
+  --text-body-sm: 12px;
+  --text-body-sm--font-family: var(--font-body);
+  --text-body-sm--line-height: 18px;
+
+  --text-label-lg: 14px;
+  --text-label-lg--font-family: var(--font-mono);
+  --text-label-lg--font-weight: 500;
+  --text-label-lg--line-height: 20px;
+  --text-label-lg--letter-spacing: 0.02em;
+  --text-label-md: 12px;
+  --text-label-md--font-family: var(--font-mono);
+  --text-label-md--font-weight: 500;
+  --text-label-md--line-height: 16px;
+  --text-label-md--letter-spacing: 0.04em;
+  --text-label-sm: 10px;
+  --text-label-sm--font-family: var(--font-mono);
+  --text-label-sm--font-weight: 600;
+  --text-label-sm--line-height: 14px;
+  --text-label-sm--letter-spacing: 0.06em;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    background: var(--color-canvas);
+    color: var(--color-ink);
+    font-family: var(--font-body);
+  }
+
+  ::selection {
+    background: rgb(99 102 241 / 0.35);
+    color: var(--color-ink);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+    border-radius: 0.25rem;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+/* ── Elevation levels — design.md §Elevation & Depth ──────────────────── */
+
+/* Level 1: subsurface cards (nav, footer, quiet panels) */
+@utility glass-1 {
+  background-color: rgb(17 24 39 / 0.7);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgb(255 255 255 / 0.08);
+}
+
+/* Level 2: interactive floating modules & modals */
+@utility glass-2 {
+  background-color: rgb(30 41 59 / 0.65);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgb(99 102 241 / 0.25);
+  box-shadow:
+    inset 0 1px 0 0 rgb(255 255 255 / 0.15),
+    0 20px 40px -15px rgb(0 0 0 / 0.6);
+}
+
+/* Level 3: focused / active cognitive node aura */
+@utility node-glow {
+  box-shadow:
+    0 0 25px -4px rgb(99 102 241 / 0.4),
+    inset 0 0 12px 0 rgb(99 102 241 / 0.15);
+}
+
+/* Ambient indigo focal glow (design specifies 600px blur; 80px on a large
+   radial renders identically at a fraction of the GPU cost) */
+@utility aurora {
+  background: radial-gradient(
+    closest-side,
+    rgb(99 102 241 / 0.16),
+    rgb(99 102 241 / 0)
+  );
+  filter: blur(80px);
+}
+
+/* Level 0 structural texture: 24px fine mesh */
+@utility bg-grid {
+  background-image:
+    linear-gradient(to right, rgb(255 255 255 / 0.03) 1px, transparent 1px),
+    linear-gradient(to bottom, rgb(255 255 255 / 0.03) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+/* ── Shared primitives ────────────────────────────────────────────────── */
+
+/* Page container — 1280px canvas, responsive margins (1.25 / 2 / 3rem) */
+@utility layout {
+  margin-inline: auto;
+  width: 100%;
+  max-width: 1280px;
+  padding-inline: 1.25rem;
+
+  @media (min-width: 768px) {
+    padding-inline: 2rem;
+  }
+
+  @media (min-width: 1024px) {
+    padding-inline: 3rem;
+  }
+}
+
+/* Mastery telemetry bar — emerald → cyan gradient feather on a ghost track */
+@utility track {
+  background: rgb(255 255 255 / 0.06);
+}
+@utility mastery-fill {
+  background: linear-gradient(90deg, var(--color-mastery), var(--color-telemetry));
+}
+
+/* kbd-style shortcut badge */
+@utility kbd {
+  display: inline-flex;
+  height: 1.5rem;
+  min-width: 1.5rem;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-component);
+  border: 1px solid rgb(255 255 255 / 0.12);
+  background: rgb(255 255 255 / 0.05);
+  padding-inline: 0.375rem;
+  font-family: var(--font-mono);
+  font-size: var(--text-label-sm);
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  color: var(--color-ink-subtle);
 }

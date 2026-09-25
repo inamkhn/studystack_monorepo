@@ -1,25 +1,15 @@
 import { Module } from "@nestjs/common";
-import { AiModule } from "../ai/ai.module.js";
 import { AuthModule } from "../auth/auth.module.js";
 import { JobsModule } from "../jobs/jobs.module.js";
-import { ConceptsModule } from "./concepts.module.js";
 import { AdminCourseMaintenanceController } from "./admin-course-maintenance.controller.js";
 import { CourseController } from "./course.controller.js";
+import { CourseMaintenanceService } from "./course-maintenance.service.js";
 import { CourseService } from "./course.service.js";
-import { PublicCourseController } from "./public-course.controller.js";
-import { StudentController } from "./student.controller.js";
-import { TutorialController } from "./tutorial.controller.js";
 
 @Module({
-  imports: [AuthModule, JobsModule, AiModule, ConceptsModule],
-  controllers: [
-    CourseController,
-    PublicCourseController,
-    TutorialController,
-    StudentController,
-    AdminCourseMaintenanceController,
-  ],
-  providers: [CourseService],
+  imports: [AuthModule, JobsModule],
+  controllers: [CourseController, AdminCourseMaintenanceController],
+  providers: [CourseService, CourseMaintenanceService],
   exports: [CourseService],
 })
 export class CourseModule {}

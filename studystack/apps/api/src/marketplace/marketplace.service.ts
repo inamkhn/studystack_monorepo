@@ -8,6 +8,7 @@ import {
 import type { Goal, Level } from "../generated/prisma/client.js";
 import { Prisma } from "../generated/prisma/client.js";
 import { CourseService } from "../course/course.service.js";
+import { ProvenanceGateService } from "../sharing/provenance-gate.service.js";
 import { PrismaService } from "../prisma/prisma.service.js";
 
 /**
@@ -23,6 +24,7 @@ export class MarketplaceService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly courseService: CourseService,
+    private readonly provenanceGate: ProvenanceGateService,
   ) {}
 
   // ── submit for review ─────────────────────────────────────────────────
@@ -63,7 +65,7 @@ export class MarketplaceService {
     }
 
     // Reuse the same provenance gate as publish — shared internal logic.
-    const gate = await this.courseService.runProvenanceGate(courseId);
+    const gate = await this.provenanceGate.runProvenanceGate(courseId);
     if (!gate.passed) {
       throw new BadRequestException(
         `Cannot submit to marketplace: copyright is unclear for ${gate.offendingSubtopicIds.length} subtopic(s). ` +

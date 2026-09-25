@@ -9,7 +9,7 @@ import {
 import { ApiBearerAuth, ApiTags } from "@nestjs/swagger";
 import { CurrentUser } from "../auth/current-user.decorator.js";
 import { JwtAuthGuard } from "../auth/jwt-auth.guard.js";
-import { PublicQueryDto } from "../course/dto/public-query.dto.js";
+import { PublicQueryDto } from "../sharing/dto/public-query.dto.js";
 import { MarketplaceService } from "./marketplace.service.js";
 
 @ApiTags("marketplace")

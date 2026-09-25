@@ -21,13 +21,13 @@ import * as path from "path";
 import { CurrentUser } from "../auth/current-user.decorator.js";
 import { JwtAuthGuard } from "../auth/jwt-auth.guard.js";
 import { UPLOAD_DIR } from "../common/utils/storage.js";
+import { CourseMaintenanceService } from "./course-maintenance.service.js";
 import { CourseService } from "./course.service.js";
 import { ExamDateDto } from "./dto/exam-date.dto.js";
 import { GoalDto } from "./dto/goal.dto.js";
 import { IntakeDto } from "./dto/intake.dto.js";
 import { LevelDto } from "./dto/level.dto.js";
 import { PresignUploadDto } from "./dto/presign-upload.dto.js";
-import { ReportDto } from "./dto/report.dto.js";
 import { TopicCourseDto } from "./dto/topic-course.dto.js";
 import { UploadCourseDto } from "./dto/upload-course.dto.js";
 
@@ -36,7 +36,10 @@ import { UploadCourseDto } from "./dto/upload-course.dto.js";
 @UseGuards(JwtAuthGuard)
 @Controller("courses")
 export class CourseController {
-  constructor(private readonly courseService: CourseService) {}
+  constructor(
+    private readonly courseService: CourseService,
+    private readonly courseMaintenanceService: CourseMaintenanceService,
+  ) {}
 
   // ── F1: upload path ────────────────────────────────────────────────────
   @Post("upload")
@@ -117,7 +120,7 @@ export class CourseController {
     @CurrentUser("id") userId: string,
     @Param("id") courseId: string,
   ) {
-    return this.courseService.deleteCourse(userId, courseId);
+    return this.courseMaintenanceService.deleteCourse(userId, courseId);
   }
 
   // ── F2: topic-only path ────────────────────────────────────────────────
@@ -179,47 +182,6 @@ export class CourseController {
     return this.courseService.getStructure(userId, courseId);
   }
 
-  // ── F15: concept links for one subtopic ────────────────────────────────
-
-  @Get(":id/subtopics/:subtopicId/concept-links")
-  async getConceptLinks(
-    @CurrentUser("id") userId: string,
-    @Param("id") courseId: string,
-    @Param("subtopicId") subtopicId: string,
-  ) {
-    return this.courseService.getConceptLinks(userId, courseId, subtopicId);
-  }
-
-  // ── F14: publish course (provenance gate) ────────────────────────────
-
-  @Post(":id/publish")
-  async publishCourse(
-    @CurrentUser("id") userId: string,
-    @Param("id") courseId: string,
-  ) {
-    return this.courseService.publishCourse(userId, courseId);
-  }
-
-  // ── F14: fork a public course ────────────────────────────────────────
-
-  @Post(":id/fork")
-  @HttpCode(HttpStatus.CREATED)
-  async forkCourse(
-    @CurrentUser("id") userId: string,
-    @Param("id") courseId: string,
-  ) {
-    return this.courseService.forkCourse(userId, courseId);
-  }
-
-  // ── F14: report a course ─────────────────────────────────────────────
-
-  @Post(":id/report")
-  @HttpCode(HttpStatus.CREATED)
-  async reportCourse(
-    @CurrentUser("id") userId: string,
-    @Param("id") courseId: string,
-    @Body() dto: ReportDto,
-  ) {
-    return this.courseService.reportCourse(userId, courseId, dto.reason);
-  }
+  // F14 publish/fork/report moved to SharingModule (share.controller.ts) —
+  // same routes, single-responsibility split.
 }
