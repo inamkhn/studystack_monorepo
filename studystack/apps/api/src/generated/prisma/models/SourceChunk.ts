@@ -20,8 +20,18 @@ export type SourceChunkModel = runtime.Types.Result.DefaultSelection<Prisma.$Sou
 
 export type AggregateSourceChunk = {
   _count: SourceChunkCountAggregateOutputType | null
+  _avg: SourceChunkAvgAggregateOutputType | null
+  _sum: SourceChunkSumAggregateOutputType | null
   _min: SourceChunkMinAggregateOutputType | null
   _max: SourceChunkMaxAggregateOutputType | null
+}
+
+export type SourceChunkAvgAggregateOutputType = {
+  chunkOrdinal: number | null
+}
+
+export type SourceChunkSumAggregateOutputType = {
+  chunkOrdinal: number | null
 }
 
 export type SourceChunkMinAggregateOutputType = {
@@ -31,6 +41,9 @@ export type SourceChunkMinAggregateOutputType = {
   chunkText: string | null
   needsResearchFill: boolean | null
   createdAt: Date | null
+  chunkOrdinal: number | null
+  contentHash: string | null
+  pipelineVersion: string | null
 }
 
 export type SourceChunkMaxAggregateOutputType = {
@@ -40,6 +53,9 @@ export type SourceChunkMaxAggregateOutputType = {
   chunkText: string | null
   needsResearchFill: boolean | null
   createdAt: Date | null
+  chunkOrdinal: number | null
+  contentHash: string | null
+  pipelineVersion: string | null
 }
 
 export type SourceChunkCountAggregateOutputType = {
@@ -50,9 +66,20 @@ export type SourceChunkCountAggregateOutputType = {
   metadata: number
   needsResearchFill: number
   createdAt: number
+  chunkOrdinal: number
+  contentHash: number
+  pipelineVersion: number
   _all: number
 }
 
+
+export type SourceChunkAvgAggregateInputType = {
+  chunkOrdinal?: true
+}
+
+export type SourceChunkSumAggregateInputType = {
+  chunkOrdinal?: true
+}
 
 export type SourceChunkMinAggregateInputType = {
   id?: true
@@ -61,6 +88,9 @@ export type SourceChunkMinAggregateInputType = {
   chunkText?: true
   needsResearchFill?: true
   createdAt?: true
+  chunkOrdinal?: true
+  contentHash?: true
+  pipelineVersion?: true
 }
 
 export type SourceChunkMaxAggregateInputType = {
@@ -70,6 +100,9 @@ export type SourceChunkMaxAggregateInputType = {
   chunkText?: true
   needsResearchFill?: true
   createdAt?: true
+  chunkOrdinal?: true
+  contentHash?: true
+  pipelineVersion?: true
 }
 
 export type SourceChunkCountAggregateInputType = {
@@ -80,6 +113,9 @@ export type SourceChunkCountAggregateInputType = {
   metadata?: true
   needsResearchFill?: true
   createdAt?: true
+  chunkOrdinal?: true
+  contentHash?: true
+  pipelineVersion?: true
   _all?: true
 }
 
@@ -121,6 +157,18 @@ export type SourceChunkAggregateArgs<ExtArgs extends runtime.Types.Extensions.In
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
    * 
+   * Select which fields to average
+  **/
+  _avg?: SourceChunkAvgAggregateInputType
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+   * 
+   * Select which fields to sum
+  **/
+  _sum?: SourceChunkSumAggregateInputType
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+   * 
    * Select which fields to find the minimum value
   **/
   _min?: SourceChunkMinAggregateInputType
@@ -151,6 +199,8 @@ export type SourceChunkGroupByArgs<ExtArgs extends runtime.Types.Extensions.Inte
   take?: number
   skip?: number
   _count?: SourceChunkCountAggregateInputType | true
+  _avg?: SourceChunkAvgAggregateInputType
+  _sum?: SourceChunkSumAggregateInputType
   _min?: SourceChunkMinAggregateInputType
   _max?: SourceChunkMaxAggregateInputType
 }
@@ -163,7 +213,12 @@ export type SourceChunkGroupByOutputType = {
   metadata: runtime.JsonValue
   needsResearchFill: boolean
   createdAt: Date
+  chunkOrdinal: number | null
+  contentHash: string | null
+  pipelineVersion: string | null
   _count: SourceChunkCountAggregateOutputType | null
+  _avg: SourceChunkAvgAggregateOutputType | null
+  _sum: SourceChunkSumAggregateOutputType | null
   _min: SourceChunkMinAggregateOutputType | null
   _max: SourceChunkMaxAggregateOutputType | null
 }
@@ -194,6 +249,9 @@ export type SourceChunkWhereInput = {
   metadata?: Prisma.JsonFilter<"SourceChunk">
   needsResearchFill?: Prisma.BoolFilter<"SourceChunk"> | boolean
   createdAt?: Prisma.DateTimeFilter<"SourceChunk"> | Date | string
+  chunkOrdinal?: Prisma.IntNullableFilter<"SourceChunk"> | number | null
+  contentHash?: Prisma.StringNullableFilter<"SourceChunk"> | string | null
+  pipelineVersion?: Prisma.StringNullableFilter<"SourceChunk"> | string | null
   sourceDocument?: Prisma.XOR<Prisma.SourceDocumentScalarRelationFilter, Prisma.SourceDocumentWhereInput>
   course?: Prisma.XOR<Prisma.CourseScalarRelationFilter, Prisma.CourseWhereInput>
 }
@@ -206,12 +264,16 @@ export type SourceChunkOrderByWithRelationInput = {
   metadata?: Prisma.SortOrder
   needsResearchFill?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  chunkOrdinal?: Prisma.SortOrderInput | Prisma.SortOrder
+  contentHash?: Prisma.SortOrderInput | Prisma.SortOrder
+  pipelineVersion?: Prisma.SortOrderInput | Prisma.SortOrder
   sourceDocument?: Prisma.SourceDocumentOrderByWithRelationInput
   course?: Prisma.CourseOrderByWithRelationInput
 }
 
 export type SourceChunkWhereUniqueInput = Prisma.AtLeast<{
   id?: string
+  sourceDocumentId_chunkOrdinal?: Prisma.SourceChunkSourceDocumentIdChunkOrdinalCompoundUniqueInput
   AND?: Prisma.SourceChunkWhereInput | Prisma.SourceChunkWhereInput[]
   OR?: Prisma.SourceChunkWhereInput[]
   NOT?: Prisma.SourceChunkWhereInput | Prisma.SourceChunkWhereInput[]
@@ -221,9 +283,12 @@ export type SourceChunkWhereUniqueInput = Prisma.AtLeast<{
   metadata?: Prisma.JsonFilter<"SourceChunk">
   needsResearchFill?: Prisma.BoolFilter<"SourceChunk"> | boolean
   createdAt?: Prisma.DateTimeFilter<"SourceChunk"> | Date | string
+  chunkOrdinal?: Prisma.IntNullableFilter<"SourceChunk"> | number | null
+  contentHash?: Prisma.StringNullableFilter<"SourceChunk"> | string | null
+  pipelineVersion?: Prisma.StringNullableFilter<"SourceChunk"> | string | null
   sourceDocument?: Prisma.XOR<Prisma.SourceDocumentScalarRelationFilter, Prisma.SourceDocumentWhereInput>
   course?: Prisma.XOR<Prisma.CourseScalarRelationFilter, Prisma.CourseWhereInput>
-}, "id">
+}, "id" | "sourceDocumentId_chunkOrdinal">
 
 export type SourceChunkOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
@@ -233,9 +298,14 @@ export type SourceChunkOrderByWithAggregationInput = {
   metadata?: Prisma.SortOrder
   needsResearchFill?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  chunkOrdinal?: Prisma.SortOrderInput | Prisma.SortOrder
+  contentHash?: Prisma.SortOrderInput | Prisma.SortOrder
+  pipelineVersion?: Prisma.SortOrderInput | Prisma.SortOrder
   _count?: Prisma.SourceChunkCountOrderByAggregateInput
+  _avg?: Prisma.SourceChunkAvgOrderByAggregateInput
   _max?: Prisma.SourceChunkMaxOrderByAggregateInput
   _min?: Prisma.SourceChunkMinOrderByAggregateInput
+  _sum?: Prisma.SourceChunkSumOrderByAggregateInput
 }
 
 export type SourceChunkScalarWhereWithAggregatesInput = {
@@ -249,6 +319,9 @@ export type SourceChunkScalarWhereWithAggregatesInput = {
   metadata?: Prisma.JsonWithAggregatesFilter<"SourceChunk">
   needsResearchFill?: Prisma.BoolWithAggregatesFilter<"SourceChunk"> | boolean
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"SourceChunk"> | Date | string
+  chunkOrdinal?: Prisma.IntNullableWithAggregatesFilter<"SourceChunk"> | number | null
+  contentHash?: Prisma.StringNullableWithAggregatesFilter<"SourceChunk"> | string | null
+  pipelineVersion?: Prisma.StringNullableWithAggregatesFilter<"SourceChunk"> | string | null
 }
 
 export type SourceChunkCreateInput = {
@@ -257,6 +330,9 @@ export type SourceChunkCreateInput = {
   metadata: Prisma.JsonNullValueInput | runtime.InputJsonValue
   needsResearchFill?: boolean
   createdAt?: Date | string
+  chunkOrdinal?: number | null
+  contentHash?: string | null
+  pipelineVersion?: string | null
   sourceDocument: Prisma.SourceDocumentCreateNestedOneWithoutSourceChunksInput
   course: Prisma.CourseCreateNestedOneWithoutSourceChunksInput
 }
@@ -269,6 +345,9 @@ export type SourceChunkUncheckedCreateInput = {
   metadata: Prisma.JsonNullValueInput | runtime.InputJsonValue
   needsResearchFill?: boolean
   createdAt?: Date | string
+  chunkOrdinal?: number | null
+  contentHash?: string | null
+  pipelineVersion?: string | null
 }
 
 export type SourceChunkUpdateInput = {
@@ -277,6 +356,9 @@ export type SourceChunkUpdateInput = {
   metadata?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   needsResearchFill?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  chunkOrdinal?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  contentHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pipelineVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceDocument?: Prisma.SourceDocumentUpdateOneRequiredWithoutSourceChunksNestedInput
   course?: Prisma.CourseUpdateOneRequiredWithoutSourceChunksNestedInput
 }
@@ -289,6 +371,9 @@ export type SourceChunkUncheckedUpdateInput = {
   metadata?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   needsResearchFill?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  chunkOrdinal?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  contentHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pipelineVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type SourceChunkCreateManyInput = {
@@ -299,6 +384,9 @@ export type SourceChunkCreateManyInput = {
   metadata: Prisma.JsonNullValueInput | runtime.InputJsonValue
   needsResearchFill?: boolean
   createdAt?: Date | string
+  chunkOrdinal?: number | null
+  contentHash?: string | null
+  pipelineVersion?: string | null
 }
 
 export type SourceChunkUpdateManyMutationInput = {
@@ -307,6 +395,9 @@ export type SourceChunkUpdateManyMutationInput = {
   metadata?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   needsResearchFill?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  chunkOrdinal?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  contentHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pipelineVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type SourceChunkUncheckedUpdateManyInput = {
@@ -317,6 +408,9 @@ export type SourceChunkUncheckedUpdateManyInput = {
   metadata?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   needsResearchFill?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  chunkOrdinal?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  contentHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pipelineVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type SourceChunkListRelationFilter = {
@@ -329,6 +423,11 @@ export type SourceChunkOrderByRelationAggregateInput = {
   _count?: Prisma.SortOrder
 }
 
+export type SourceChunkSourceDocumentIdChunkOrdinalCompoundUniqueInput = {
+  sourceDocumentId: string
+  chunkOrdinal: number
+}
+
 export type SourceChunkCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   sourceDocumentId?: Prisma.SortOrder
@@ -337,6 +436,13 @@ export type SourceChunkCountOrderByAggregateInput = {
   metadata?: Prisma.SortOrder
   needsResearchFill?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  chunkOrdinal?: Prisma.SortOrder
+  contentHash?: Prisma.SortOrder
+  pipelineVersion?: Prisma.SortOrder
+}
+
+export type SourceChunkAvgOrderByAggregateInput = {
+  chunkOrdinal?: Prisma.SortOrder
 }
 
 export type SourceChunkMaxOrderByAggregateInput = {
@@ -346,6 +452,9 @@ export type SourceChunkMaxOrderByAggregateInput = {
   chunkText?: Prisma.SortOrder
   needsResearchFill?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  chunkOrdinal?: Prisma.SortOrder
+  contentHash?: Prisma.SortOrder
+  pipelineVersion?: Prisma.SortOrder
 }
 
 export type SourceChunkMinOrderByAggregateInput = {
@@ -355,6 +464,13 @@ export type SourceChunkMinOrderByAggregateInput = {
   chunkText?: Prisma.SortOrder
   needsResearchFill?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  chunkOrdinal?: Prisma.SortOrder
+  contentHash?: Prisma.SortOrder
+  pipelineVersion?: Prisma.SortOrder
+}
+
+export type SourceChunkSumOrderByAggregateInput = {
+  chunkOrdinal?: Prisma.SortOrder
 }
 
 export type SourceChunkCreateNestedManyWithoutCourseInput = {
@@ -451,6 +567,9 @@ export type SourceChunkCreateWithoutCourseInput = {
   metadata: Prisma.JsonNullValueInput | runtime.InputJsonValue
   needsResearchFill?: boolean
   createdAt?: Date | string
+  chunkOrdinal?: number | null
+  contentHash?: string | null
+  pipelineVersion?: string | null
   sourceDocument: Prisma.SourceDocumentCreateNestedOneWithoutSourceChunksInput
 }
 
@@ -461,6 +580,9 @@ export type SourceChunkUncheckedCreateWithoutCourseInput = {
   metadata: Prisma.JsonNullValueInput | runtime.InputJsonValue
   needsResearchFill?: boolean
   createdAt?: Date | string
+  chunkOrdinal?: number | null
+  contentHash?: string | null
+  pipelineVersion?: string | null
 }
 
 export type SourceChunkCreateOrConnectWithoutCourseInput = {
@@ -500,6 +622,9 @@ export type SourceChunkScalarWhereInput = {
   metadata?: Prisma.JsonFilter<"SourceChunk">
   needsResearchFill?: Prisma.BoolFilter<"SourceChunk"> | boolean
   createdAt?: Prisma.DateTimeFilter<"SourceChunk"> | Date | string
+  chunkOrdinal?: Prisma.IntNullableFilter<"SourceChunk"> | number | null
+  contentHash?: Prisma.StringNullableFilter<"SourceChunk"> | string | null
+  pipelineVersion?: Prisma.StringNullableFilter<"SourceChunk"> | string | null
 }
 
 export type SourceChunkCreateWithoutSourceDocumentInput = {
@@ -508,6 +633,9 @@ export type SourceChunkCreateWithoutSourceDocumentInput = {
   metadata: Prisma.JsonNullValueInput | runtime.InputJsonValue
   needsResearchFill?: boolean
   createdAt?: Date | string
+  chunkOrdinal?: number | null
+  contentHash?: string | null
+  pipelineVersion?: string | null
   course: Prisma.CourseCreateNestedOneWithoutSourceChunksInput
 }
 
@@ -518,6 +646,9 @@ export type SourceChunkUncheckedCreateWithoutSourceDocumentInput = {
   metadata: Prisma.JsonNullValueInput | runtime.InputJsonValue
   needsResearchFill?: boolean
   createdAt?: Date | string
+  chunkOrdinal?: number | null
+  contentHash?: string | null
+  pipelineVersion?: string | null
 }
 
 export type SourceChunkCreateOrConnectWithoutSourceDocumentInput = {
@@ -553,6 +684,9 @@ export type SourceChunkCreateManyCourseInput = {
   metadata: Prisma.JsonNullValueInput | runtime.InputJsonValue
   needsResearchFill?: boolean
   createdAt?: Date | string
+  chunkOrdinal?: number | null
+  contentHash?: string | null
+  pipelineVersion?: string | null
 }
 
 export type SourceChunkUpdateWithoutCourseInput = {
@@ -561,6 +695,9 @@ export type SourceChunkUpdateWithoutCourseInput = {
   metadata?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   needsResearchFill?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  chunkOrdinal?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  contentHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pipelineVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceDocument?: Prisma.SourceDocumentUpdateOneRequiredWithoutSourceChunksNestedInput
 }
 
@@ -571,6 +708,9 @@ export type SourceChunkUncheckedUpdateWithoutCourseInput = {
   metadata?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   needsResearchFill?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  chunkOrdinal?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  contentHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pipelineVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type SourceChunkUncheckedUpdateManyWithoutCourseInput = {
@@ -580,6 +720,9 @@ export type SourceChunkUncheckedUpdateManyWithoutCourseInput = {
   metadata?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   needsResearchFill?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  chunkOrdinal?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  contentHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pipelineVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type SourceChunkCreateManySourceDocumentInput = {
@@ -589,6 +732,9 @@ export type SourceChunkCreateManySourceDocumentInput = {
   metadata: Prisma.JsonNullValueInput | runtime.InputJsonValue
   needsResearchFill?: boolean
   createdAt?: Date | string
+  chunkOrdinal?: number | null
+  contentHash?: string | null
+  pipelineVersion?: string | null
 }
 
 export type SourceChunkUpdateWithoutSourceDocumentInput = {
@@ -597,6 +743,9 @@ export type SourceChunkUpdateWithoutSourceDocumentInput = {
   metadata?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   needsResearchFill?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  chunkOrdinal?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  contentHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pipelineVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   course?: Prisma.CourseUpdateOneRequiredWithoutSourceChunksNestedInput
 }
 
@@ -607,6 +756,9 @@ export type SourceChunkUncheckedUpdateWithoutSourceDocumentInput = {
   metadata?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   needsResearchFill?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  chunkOrdinal?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  contentHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pipelineVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type SourceChunkUncheckedUpdateManyWithoutSourceDocumentInput = {
@@ -616,6 +768,9 @@ export type SourceChunkUncheckedUpdateManyWithoutSourceDocumentInput = {
   metadata?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   needsResearchFill?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  chunkOrdinal?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  contentHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pipelineVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 
@@ -628,6 +783,9 @@ export type SourceChunkSelect<ExtArgs extends runtime.Types.Extensions.InternalA
   metadata?: boolean
   needsResearchFill?: boolean
   createdAt?: boolean
+  chunkOrdinal?: boolean
+  contentHash?: boolean
+  pipelineVersion?: boolean
   sourceDocument?: boolean | Prisma.SourceDocumentDefaultArgs<ExtArgs>
   course?: boolean | Prisma.CourseDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["sourceChunk"]>
@@ -640,6 +798,9 @@ export type SourceChunkSelectCreateManyAndReturn<ExtArgs extends runtime.Types.E
   metadata?: boolean
   needsResearchFill?: boolean
   createdAt?: boolean
+  chunkOrdinal?: boolean
+  contentHash?: boolean
+  pipelineVersion?: boolean
   sourceDocument?: boolean | Prisma.SourceDocumentDefaultArgs<ExtArgs>
   course?: boolean | Prisma.CourseDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["sourceChunk"]>
@@ -652,6 +813,9 @@ export type SourceChunkSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.E
   metadata?: boolean
   needsResearchFill?: boolean
   createdAt?: boolean
+  chunkOrdinal?: boolean
+  contentHash?: boolean
+  pipelineVersion?: boolean
   sourceDocument?: boolean | Prisma.SourceDocumentDefaultArgs<ExtArgs>
   course?: boolean | Prisma.CourseDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["sourceChunk"]>
@@ -664,9 +828,12 @@ export type SourceChunkSelectScalar = {
   metadata?: boolean
   needsResearchFill?: boolean
   createdAt?: boolean
+  chunkOrdinal?: boolean
+  contentHash?: boolean
+  pipelineVersion?: boolean
 }
 
-export type SourceChunkOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "sourceDocumentId" | "courseId" | "chunkText" | "metadata" | "needsResearchFill" | "createdAt", ExtArgs["result"]["sourceChunk"]>
+export type SourceChunkOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "sourceDocumentId" | "courseId" | "chunkText" | "metadata" | "needsResearchFill" | "createdAt" | "chunkOrdinal" | "contentHash" | "pipelineVersion", ExtArgs["result"]["sourceChunk"]>
 export type SourceChunkInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   sourceDocument?: boolean | Prisma.SourceDocumentDefaultArgs<ExtArgs>
   course?: boolean | Prisma.CourseDefaultArgs<ExtArgs>
@@ -694,6 +861,9 @@ export type $SourceChunkPayload<ExtArgs extends runtime.Types.Extensions.Interna
     metadata: runtime.JsonValue
     needsResearchFill: boolean
     createdAt: Date
+    chunkOrdinal: number | null
+    contentHash: string | null
+    pipelineVersion: string | null
   }, ExtArgs["result"]["sourceChunk"]>
   composites: {}
 }
@@ -1126,6 +1296,9 @@ export interface SourceChunkFieldRefs {
   readonly metadata: Prisma.FieldRef<"SourceChunk", 'Json'>
   readonly needsResearchFill: Prisma.FieldRef<"SourceChunk", 'Boolean'>
   readonly createdAt: Prisma.FieldRef<"SourceChunk", 'DateTime'>
+  readonly chunkOrdinal: Prisma.FieldRef<"SourceChunk", 'Int'>
+  readonly contentHash: Prisma.FieldRef<"SourceChunk", 'String'>
+  readonly pipelineVersion: Prisma.FieldRef<"SourceChunk", 'String'>
 }
     
 

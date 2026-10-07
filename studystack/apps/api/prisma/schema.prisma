@@ -126,6 +126,57 @@ enum MarketplaceReviewStatus {
   rejected
 }
 
+// F1 upload-path (design doc §8): document pipeline state as a closed enum —
+// free-text variants ("processing", "extraction") must not leak into prod.
+// awaiting_upload is the upload-lifecycle pre-state (presign reserved the
+// row before the bytes landed), not a pipeline stage. 'done' is retired →
+// ready.
+enum ExtractionStatus {
+  awaiting_upload
+  queued
+  validating
+  extracting
+  ocr
+  segmenting
+  chunking
+  embedding
+  research_fill
+  ready
+  failed
+}
+
+// F1 (design doc §9): operational record of one ingestion attempt — retry
+// history, stage checkpoints, pipeline/parser/OCR/embedding versions.
+enum IngestionRunStatus {
+  running
+  completed
+  failed
+  cancelled
+}
+
+enum IngestionStage {
+  queued
+  validating
+  extracting
+  ocr
+  segmenting
+  chunking
+  embedding
+  research_fill
+  convergence
+  completed
+  failed
+}
+
+// F1 (design doc §19): extracted figures are first-class so later diagram
+// reuse can reference stable asset IDs.
+enum SourceAssetKind {
+  image
+  diagram
+  table
+  other
+}
+
 // ─────────────────────────────────────────────────────────────────────────
 // Auth
 // ─────────────────────────────────────────────────────────────────────────
@@ -232,6 +283,8 @@ model Course {
 
   sourceDocuments SourceDocument[]
   sourceChunks    SourceChunk[]
+  sourceAssets    SourceAsset[]
+  ingestionRuns   IngestionRun[]
   modules         Module[]
   courseForks        CourseFork[]
   courseReports      CourseReport[]
@@ -260,11 +313,22 @@ model SourceDocument {
   fileSizeBytes    Int?
   // F1 §4.4: SHA-256 of the uploaded bytes — duplicate-upload detection.
   contentHash      String?
-  extractionStatus String?
-  licenseStatus    LicenseStatus @default(user_uploaded_unknown)
-  uploadedAt       DateTime      @default(now())
+  // F1 (doc §14/§43): total pages seen at extraction (PDF; 1 for pageless
+  // formats). Stamped by the worker; null until extraction ran.
+  pageCount        Int?
+  // F1 (doc §8): pipeline state — closed enum, see ExtractionStatus.
+  extractionStatus ExtractionStatus?
+  // F1 (doc §36): stable error code + message when extraction failed, so
+  // the client can branch on cause (e.g. FILE_PASSWORD_PROTECTED) instead
+  // of parsing prose. Written by the ingestion worker's failure paths.
+  extractionErrorCode    String?
+  extractionErrorMessage String?
+  licenseStatus    LicenseStatus  @default(user_uploaded_unknown)
+  uploadedAt       DateTime       @default(now())
 
   sourceChunks SourceChunk[]
+  sourceAssets SourceAsset[]
+  ingestionRuns IngestionRun[]
 
   @@index([contentHash])
   @@map("source_documents")
@@ -276,14 +340,97 @@ model SourceChunk {
   sourceDocument   SourceDocument @relation(fields: [sourceDocumentId], references: [id])
   courseId         String
   course           Course         @relation(fields: [courseId], references: [id])
-  chunkText        String
-  metadata         Json
+  chunkText         String
+  metadata          Json
   needsResearchFill Boolean       @default(false)
-  embedding        Unsupported("vector(768)")?
-  createdAt        DateTime       @default(now())
+  embedding         Unsupported("vector(768)")?
+  createdAt         DateTime      @default(now())
+  // F1 (doc §22): deterministic-reprocess identity. chunkOrdinal is the
+  // position within its source document; contentHash is SHA-256 of
+  // chunkText; pipelineVersion records which pipeline produced the row.
+  // Null on rows written before Phase 1 — backfilled on the next re-run.
+  chunkOrdinal    Int?
+  contentHash     String?
+  pipelineVersion String?
 
   @@index([courseId])
+  @@unique([sourceDocumentId, chunkOrdinal])
   @@map("source_chunks")
+}
+
+// F1 (doc §9): one row per ingestion attempt — operational history for
+// retries, failures, worker restarts, and pipeline upgrades. The current
+// worker runs one job per course across all its documents, so
+// sourceDocumentId is null for course-wide runs; per-document runs (page
+// batches, doc §26) set it once implemented. Rows are written by the
+// ingestion worker (Phase 2).
+model IngestionRun {
+  id               String             @id @default(uuid())
+  courseId         String
+  course           Course             @relation(fields: [courseId], references: [id])
+  sourceDocumentId String?
+  sourceDocument   SourceDocument?    @relation(fields: [sourceDocumentId], references: [id])
+
+  status           IngestionRunStatus @default(running)
+  stage            IngestionStage     @default(queued)
+  progress         Int                @default(0)
+  // F1 (doc §26/§38): durable extraction checkpoint — pages of this
+  // document already extracted+persisted. A resumed run continues from
+  // here instead of restarting at page 1.
+  pagesProcessed   Int                @default(0)
+
+  pipelineVersion  String
+  parserVersion    String?
+  ocrVersion       String?
+  embeddingModel   String?
+
+  attempt          Int                @default(1)
+  errorCode        String?
+  errorMessage     String?
+
+  // F1 (doc §41/§42): per-run operational summary — extraction/persist/
+  // embed durations, pages/ocr pages, chunks/assets written. Cumulative
+  // across a run's continuation jobs (merged on each checkpoint), so the
+  // whole document's cost is queryable for observability without logs.
+  metrics          Json?
+
+  startedAt        DateTime?
+  completedAt      DateTime?
+  createdAt        DateTime           @default(now())
+
+  @@index([courseId])
+  @@index([sourceDocumentId])
+  @@map("ingestion_runs")
+}
+
+// F1 (doc §19): images/diagrams pulled out of uploads. Bytes live in
+// private object storage (storageKey); Postgres keeps the reference plus
+// metadata — never the binary. Stable ids come from the row itself so
+// downstream content can cite the original visual material when OCR did
+// not fully recover notation. Rows are written by the ingestion worker
+// (Phase 2); until then figures remain path strings in chunk metadata.
+model SourceAsset {
+  id               String          @id @default(uuid())
+  courseId         String
+  course           Course          @relation(fields: [courseId], references: [id])
+  sourceDocumentId String
+  sourceDocument   SourceDocument  @relation(fields: [sourceDocumentId], references: [id])
+
+  storageKey       String
+  mimeType         String
+  width            Int?
+  height           Int?
+
+  pageNumber       Int?
+  sectionRef       String?
+
+  kind             SourceAssetKind @default(image)
+
+  createdAt        DateTime        @default(now())
+
+  @@index([courseId])
+  @@index([sourceDocumentId])
+  @@map("source_assets")
 }
 
 // ─────────────────────────────────────────────────────────────────────────

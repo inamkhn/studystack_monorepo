@@ -16,6 +16,7 @@ import { AiModule } from "./ai/ai.module";
 import { AuthModule } from "./auth/auth.module";
 import { JobsModule } from "./jobs/jobs.module";
 import { StorageModule } from "./storage/storage.module";
+import { ObservabilityModule } from "./observability/observability.module";
 
 @Module({
   imports: [
@@ -36,6 +37,7 @@ import { StorageModule } from "./storage/storage.module";
     QnaModule,
     AiModule,
     JobsModule,
+    ObservabilityModule,
   ],
 })
 export class AppModule {}

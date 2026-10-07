@@ -403,6 +403,8 @@ export const ModelName = {
   Course: 'Course',
   SourceDocument: 'SourceDocument',
   SourceChunk: 'SourceChunk',
+  IngestionRun: 'IngestionRun',
+  SourceAsset: 'SourceAsset',
   Module: 'Module',
   Subtopic: 'Subtopic',
   Concept: 'Concept',
@@ -440,7 +442,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "refreshToken" | "passwordResetToken" | "course" | "sourceDocument" | "sourceChunk" | "module" | "subtopic" | "concept" | "subtopicConcept" | "conceptReviewCandidate" | "tutorialContent" | "courseFork" | "courseReport" | "quizAttempt" | "masteryScore" | "conceptReviewContent" | "practiceProblem" | "qnaMessage" | "export" | "certificate" | "purchase" | "marketplaceReviewQueue" | "classroom" | "classroomStudent" | "subtopicCompletion" | "moduleQuiz" | "finalProject"
+    modelProps: "user" | "refreshToken" | "passwordResetToken" | "course" | "sourceDocument" | "sourceChunk" | "ingestionRun" | "sourceAsset" | "module" | "subtopic" | "concept" | "subtopicConcept" | "conceptReviewCandidate" | "tutorialContent" | "courseFork" | "courseReport" | "quizAttempt" | "masteryScore" | "conceptReviewContent" | "practiceProblem" | "qnaMessage" | "export" | "certificate" | "purchase" | "marketplaceReviewQueue" | "classroom" | "classroomStudent" | "subtopicCompletion" | "moduleQuiz" | "finalProject"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -885,6 +887,154 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.SourceChunkCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.SourceChunkCountAggregateOutputType> | number
+        }
+      }
+    }
+    IngestionRun: {
+      payload: Prisma.$IngestionRunPayload<ExtArgs>
+      fields: Prisma.IngestionRunFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.IngestionRunFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$IngestionRunPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.IngestionRunFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$IngestionRunPayload>
+        }
+        findFirst: {
+          args: Prisma.IngestionRunFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$IngestionRunPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.IngestionRunFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$IngestionRunPayload>
+        }
+        findMany: {
+          args: Prisma.IngestionRunFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$IngestionRunPayload>[]
+        }
+        create: {
+          args: Prisma.IngestionRunCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$IngestionRunPayload>
+        }
+        createMany: {
+          args: Prisma.IngestionRunCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.IngestionRunCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$IngestionRunPayload>[]
+        }
+        delete: {
+          args: Prisma.IngestionRunDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$IngestionRunPayload>
+        }
+        update: {
+          args: Prisma.IngestionRunUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$IngestionRunPayload>
+        }
+        deleteMany: {
+          args: Prisma.IngestionRunDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.IngestionRunUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.IngestionRunUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$IngestionRunPayload>[]
+        }
+        upsert: {
+          args: Prisma.IngestionRunUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$IngestionRunPayload>
+        }
+        aggregate: {
+          args: Prisma.IngestionRunAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateIngestionRun>
+        }
+        groupBy: {
+          args: Prisma.IngestionRunGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.IngestionRunGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.IngestionRunCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.IngestionRunCountAggregateOutputType> | number
+        }
+      }
+    }
+    SourceAsset: {
+      payload: Prisma.$SourceAssetPayload<ExtArgs>
+      fields: Prisma.SourceAssetFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.SourceAssetFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SourceAssetPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.SourceAssetFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SourceAssetPayload>
+        }
+        findFirst: {
+          args: Prisma.SourceAssetFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SourceAssetPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.SourceAssetFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SourceAssetPayload>
+        }
+        findMany: {
+          args: Prisma.SourceAssetFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SourceAssetPayload>[]
+        }
+        create: {
+          args: Prisma.SourceAssetCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SourceAssetPayload>
+        }
+        createMany: {
+          args: Prisma.SourceAssetCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.SourceAssetCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SourceAssetPayload>[]
+        }
+        delete: {
+          args: Prisma.SourceAssetDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SourceAssetPayload>
+        }
+        update: {
+          args: Prisma.SourceAssetUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SourceAssetPayload>
+        }
+        deleteMany: {
+          args: Prisma.SourceAssetDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.SourceAssetUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.SourceAssetUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SourceAssetPayload>[]
+        }
+        upsert: {
+          args: Prisma.SourceAssetUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SourceAssetPayload>
+        }
+        aggregate: {
+          args: Prisma.SourceAssetAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateSourceAsset>
+        }
+        groupBy: {
+          args: Prisma.SourceAssetGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.SourceAssetGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.SourceAssetCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.SourceAssetCountAggregateOutputType> | number
         }
       }
     }
@@ -2632,7 +2782,10 @@ export const SourceDocumentScalarFieldEnum = {
   fileType: 'fileType',
   fileSizeBytes: 'fileSizeBytes',
   contentHash: 'contentHash',
+  pageCount: 'pageCount',
   extractionStatus: 'extractionStatus',
+  extractionErrorCode: 'extractionErrorCode',
+  extractionErrorMessage: 'extractionErrorMessage',
   licenseStatus: 'licenseStatus',
   uploadedAt: 'uploadedAt'
 } as const
@@ -2647,10 +2800,54 @@ export const SourceChunkScalarFieldEnum = {
   chunkText: 'chunkText',
   metadata: 'metadata',
   needsResearchFill: 'needsResearchFill',
-  createdAt: 'createdAt'
+  createdAt: 'createdAt',
+  chunkOrdinal: 'chunkOrdinal',
+  contentHash: 'contentHash',
+  pipelineVersion: 'pipelineVersion'
 } as const
 
 export type SourceChunkScalarFieldEnum = (typeof SourceChunkScalarFieldEnum)[keyof typeof SourceChunkScalarFieldEnum]
+
+
+export const IngestionRunScalarFieldEnum = {
+  id: 'id',
+  courseId: 'courseId',
+  sourceDocumentId: 'sourceDocumentId',
+  status: 'status',
+  stage: 'stage',
+  progress: 'progress',
+  pagesProcessed: 'pagesProcessed',
+  pipelineVersion: 'pipelineVersion',
+  parserVersion: 'parserVersion',
+  ocrVersion: 'ocrVersion',
+  embeddingModel: 'embeddingModel',
+  attempt: 'attempt',
+  errorCode: 'errorCode',
+  errorMessage: 'errorMessage',
+  metrics: 'metrics',
+  startedAt: 'startedAt',
+  completedAt: 'completedAt',
+  createdAt: 'createdAt'
+} as const
+
+export type IngestionRunScalarFieldEnum = (typeof IngestionRunScalarFieldEnum)[keyof typeof IngestionRunScalarFieldEnum]
+
+
+export const SourceAssetScalarFieldEnum = {
+  id: 'id',
+  courseId: 'courseId',
+  sourceDocumentId: 'sourceDocumentId',
+  storageKey: 'storageKey',
+  mimeType: 'mimeType',
+  width: 'width',
+  height: 'height',
+  pageNumber: 'pageNumber',
+  sectionRef: 'sectionRef',
+  kind: 'kind',
+  createdAt: 'createdAt'
+} as const
+
+export type SourceAssetScalarFieldEnum = (typeof SourceAssetScalarFieldEnum)[keyof typeof SourceAssetScalarFieldEnum]
 
 
 export const ModuleScalarFieldEnum = {
@@ -3139,6 +3336,20 @@ export type ListIntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel,
 
 
 /**
+ * Reference to a field of type 'ExtractionStatus'
+ */
+export type EnumExtractionStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ExtractionStatus'>
+    
+
+
+/**
+ * Reference to a field of type 'ExtractionStatus[]'
+ */
+export type ListEnumExtractionStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ExtractionStatus[]'>
+    
+
+
+/**
  * Reference to a field of type 'LicenseStatus'
  */
 export type EnumLicenseStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'LicenseStatus'>
@@ -3170,6 +3381,48 @@ export type EnumQueryModeFieldRefInput<$PrismaModel> = FieldRefInputType<$Prisma
  * Reference to a field of type 'Boolean'
  */
 export type BooleanFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Boolean'>
+    
+
+
+/**
+ * Reference to a field of type 'IngestionRunStatus'
+ */
+export type EnumIngestionRunStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'IngestionRunStatus'>
+    
+
+
+/**
+ * Reference to a field of type 'IngestionRunStatus[]'
+ */
+export type ListEnumIngestionRunStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'IngestionRunStatus[]'>
+    
+
+
+/**
+ * Reference to a field of type 'IngestionStage'
+ */
+export type EnumIngestionStageFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'IngestionStage'>
+    
+
+
+/**
+ * Reference to a field of type 'IngestionStage[]'
+ */
+export type ListEnumIngestionStageFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'IngestionStage[]'>
+    
+
+
+/**
+ * Reference to a field of type 'SourceAssetKind'
+ */
+export type EnumSourceAssetKindFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'SourceAssetKind'>
+    
+
+
+/**
+ * Reference to a field of type 'SourceAssetKind[]'
+ */
+export type ListEnumSourceAssetKindFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'SourceAssetKind[]'>
     
 
 
@@ -3413,6 +3666,8 @@ export type GlobalOmitConfig = {
   course?: Prisma.CourseOmit
   sourceDocument?: Prisma.SourceDocumentOmit
   sourceChunk?: Prisma.SourceChunkOmit
+  ingestionRun?: Prisma.IngestionRunOmit
+  sourceAsset?: Prisma.SourceAssetOmit
   module?: Prisma.ModuleOmit
   subtopic?: Prisma.SubtopicOmit
   concept?: Prisma.ConceptOmit

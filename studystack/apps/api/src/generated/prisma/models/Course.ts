@@ -375,6 +375,8 @@ export type CourseWhereInput = {
   owner?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
   sourceDocuments?: Prisma.SourceDocumentListRelationFilter
   sourceChunks?: Prisma.SourceChunkListRelationFilter
+  sourceAssets?: Prisma.SourceAssetListRelationFilter
+  ingestionRuns?: Prisma.IngestionRunListRelationFilter
   modules?: Prisma.ModuleListRelationFilter
   courseForks?: Prisma.CourseForkListRelationFilter
   courseReports?: Prisma.CourseReportListRelationFilter
@@ -414,6 +416,8 @@ export type CourseOrderByWithRelationInput = {
   owner?: Prisma.UserOrderByWithRelationInput
   sourceDocuments?: Prisma.SourceDocumentOrderByRelationAggregateInput
   sourceChunks?: Prisma.SourceChunkOrderByRelationAggregateInput
+  sourceAssets?: Prisma.SourceAssetOrderByRelationAggregateInput
+  ingestionRuns?: Prisma.IngestionRunOrderByRelationAggregateInput
   modules?: Prisma.ModuleOrderByRelationAggregateInput
   courseForks?: Prisma.CourseForkOrderByRelationAggregateInput
   courseReports?: Prisma.CourseReportOrderByRelationAggregateInput
@@ -456,6 +460,8 @@ export type CourseWhereUniqueInput = Prisma.AtLeast<{
   owner?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
   sourceDocuments?: Prisma.SourceDocumentListRelationFilter
   sourceChunks?: Prisma.SourceChunkListRelationFilter
+  sourceAssets?: Prisma.SourceAssetListRelationFilter
+  ingestionRuns?: Prisma.IngestionRunListRelationFilter
   modules?: Prisma.ModuleListRelationFilter
   courseForks?: Prisma.CourseForkListRelationFilter
   courseReports?: Prisma.CourseReportListRelationFilter
@@ -556,6 +562,8 @@ export type CourseCreateInput = {
   owner: Prisma.UserCreateNestedOneWithoutCoursesOwnedInput
   sourceDocuments?: Prisma.SourceDocumentCreateNestedManyWithoutCourseInput
   sourceChunks?: Prisma.SourceChunkCreateNestedManyWithoutCourseInput
+  sourceAssets?: Prisma.SourceAssetCreateNestedManyWithoutCourseInput
+  ingestionRuns?: Prisma.IngestionRunCreateNestedManyWithoutCourseInput
   modules?: Prisma.ModuleCreateNestedManyWithoutCourseInput
   courseForks?: Prisma.CourseForkCreateNestedManyWithoutOriginalCourseInput
   courseReports?: Prisma.CourseReportCreateNestedManyWithoutCourseInput
@@ -594,6 +602,8 @@ export type CourseUncheckedCreateInput = {
   updatedAt?: Date | string
   sourceDocuments?: Prisma.SourceDocumentUncheckedCreateNestedManyWithoutCourseInput
   sourceChunks?: Prisma.SourceChunkUncheckedCreateNestedManyWithoutCourseInput
+  sourceAssets?: Prisma.SourceAssetUncheckedCreateNestedManyWithoutCourseInput
+  ingestionRuns?: Prisma.IngestionRunUncheckedCreateNestedManyWithoutCourseInput
   modules?: Prisma.ModuleUncheckedCreateNestedManyWithoutCourseInput
   courseForks?: Prisma.CourseForkUncheckedCreateNestedManyWithoutOriginalCourseInput
   courseReports?: Prisma.CourseReportUncheckedCreateNestedManyWithoutCourseInput
@@ -632,6 +642,8 @@ export type CourseUpdateInput = {
   owner?: Prisma.UserUpdateOneRequiredWithoutCoursesOwnedNestedInput
   sourceDocuments?: Prisma.SourceDocumentUpdateManyWithoutCourseNestedInput
   sourceChunks?: Prisma.SourceChunkUpdateManyWithoutCourseNestedInput
+  sourceAssets?: Prisma.SourceAssetUpdateManyWithoutCourseNestedInput
+  ingestionRuns?: Prisma.IngestionRunUpdateManyWithoutCourseNestedInput
   modules?: Prisma.ModuleUpdateManyWithoutCourseNestedInput
   courseForks?: Prisma.CourseForkUpdateManyWithoutOriginalCourseNestedInput
   courseReports?: Prisma.CourseReportUpdateManyWithoutCourseNestedInput
@@ -670,6 +682,8 @@ export type CourseUncheckedUpdateInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   sourceDocuments?: Prisma.SourceDocumentUncheckedUpdateManyWithoutCourseNestedInput
   sourceChunks?: Prisma.SourceChunkUncheckedUpdateManyWithoutCourseNestedInput
+  sourceAssets?: Prisma.SourceAssetUncheckedUpdateManyWithoutCourseNestedInput
+  ingestionRuns?: Prisma.IngestionRunUncheckedUpdateManyWithoutCourseNestedInput
   modules?: Prisma.ModuleUncheckedUpdateManyWithoutCourseNestedInput
   courseForks?: Prisma.CourseForkUncheckedUpdateManyWithoutOriginalCourseNestedInput
   courseReports?: Prisma.CourseReportUncheckedUpdateManyWithoutCourseNestedInput
@@ -969,6 +983,34 @@ export type CourseUpdateOneRequiredWithoutSourceChunksNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.CourseUpdateToOneWithWhereWithoutSourceChunksInput, Prisma.CourseUpdateWithoutSourceChunksInput>, Prisma.CourseUncheckedUpdateWithoutSourceChunksInput>
 }
 
+export type CourseCreateNestedOneWithoutIngestionRunsInput = {
+  create?: Prisma.XOR<Prisma.CourseCreateWithoutIngestionRunsInput, Prisma.CourseUncheckedCreateWithoutIngestionRunsInput>
+  connectOrCreate?: Prisma.CourseCreateOrConnectWithoutIngestionRunsInput
+  connect?: Prisma.CourseWhereUniqueInput
+}
+
+export type CourseUpdateOneRequiredWithoutIngestionRunsNestedInput = {
+  create?: Prisma.XOR<Prisma.CourseCreateWithoutIngestionRunsInput, Prisma.CourseUncheckedCreateWithoutIngestionRunsInput>
+  connectOrCreate?: Prisma.CourseCreateOrConnectWithoutIngestionRunsInput
+  upsert?: Prisma.CourseUpsertWithoutIngestionRunsInput
+  connect?: Prisma.CourseWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.CourseUpdateToOneWithWhereWithoutIngestionRunsInput, Prisma.CourseUpdateWithoutIngestionRunsInput>, Prisma.CourseUncheckedUpdateWithoutIngestionRunsInput>
+}
+
+export type CourseCreateNestedOneWithoutSourceAssetsInput = {
+  create?: Prisma.XOR<Prisma.CourseCreateWithoutSourceAssetsInput, Prisma.CourseUncheckedCreateWithoutSourceAssetsInput>
+  connectOrCreate?: Prisma.CourseCreateOrConnectWithoutSourceAssetsInput
+  connect?: Prisma.CourseWhereUniqueInput
+}
+
+export type CourseUpdateOneRequiredWithoutSourceAssetsNestedInput = {
+  create?: Prisma.XOR<Prisma.CourseCreateWithoutSourceAssetsInput, Prisma.CourseUncheckedCreateWithoutSourceAssetsInput>
+  connectOrCreate?: Prisma.CourseCreateOrConnectWithoutSourceAssetsInput
+  upsert?: Prisma.CourseUpsertWithoutSourceAssetsInput
+  connect?: Prisma.CourseWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.CourseUpdateToOneWithWhereWithoutSourceAssetsInput, Prisma.CourseUpdateWithoutSourceAssetsInput>, Prisma.CourseUncheckedUpdateWithoutSourceAssetsInput>
+}
+
 export type CourseCreateNestedOneWithoutModulesInput = {
   create?: Prisma.XOR<Prisma.CourseCreateWithoutModulesInput, Prisma.CourseUncheckedCreateWithoutModulesInput>
   connectOrCreate?: Prisma.CourseCreateOrConnectWithoutModulesInput
@@ -1121,6 +1163,8 @@ export type CourseCreateWithoutOwnerInput = {
   updatedAt?: Date | string
   sourceDocuments?: Prisma.SourceDocumentCreateNestedManyWithoutCourseInput
   sourceChunks?: Prisma.SourceChunkCreateNestedManyWithoutCourseInput
+  sourceAssets?: Prisma.SourceAssetCreateNestedManyWithoutCourseInput
+  ingestionRuns?: Prisma.IngestionRunCreateNestedManyWithoutCourseInput
   modules?: Prisma.ModuleCreateNestedManyWithoutCourseInput
   courseForks?: Prisma.CourseForkCreateNestedManyWithoutOriginalCourseInput
   courseReports?: Prisma.CourseReportCreateNestedManyWithoutCourseInput
@@ -1158,6 +1202,8 @@ export type CourseUncheckedCreateWithoutOwnerInput = {
   updatedAt?: Date | string
   sourceDocuments?: Prisma.SourceDocumentUncheckedCreateNestedManyWithoutCourseInput
   sourceChunks?: Prisma.SourceChunkUncheckedCreateNestedManyWithoutCourseInput
+  sourceAssets?: Prisma.SourceAssetUncheckedCreateNestedManyWithoutCourseInput
+  ingestionRuns?: Prisma.IngestionRunUncheckedCreateNestedManyWithoutCourseInput
   modules?: Prisma.ModuleUncheckedCreateNestedManyWithoutCourseInput
   courseForks?: Prisma.CourseForkUncheckedCreateNestedManyWithoutOriginalCourseInput
   courseReports?: Prisma.CourseReportUncheckedCreateNestedManyWithoutCourseInput
@@ -1251,6 +1297,8 @@ export type CourseCreateWithoutSourceDocumentsInput = {
   updatedAt?: Date | string
   owner: Prisma.UserCreateNestedOneWithoutCoursesOwnedInput
   sourceChunks?: Prisma.SourceChunkCreateNestedManyWithoutCourseInput
+  sourceAssets?: Prisma.SourceAssetCreateNestedManyWithoutCourseInput
+  ingestionRuns?: Prisma.IngestionRunCreateNestedManyWithoutCourseInput
   modules?: Prisma.ModuleCreateNestedManyWithoutCourseInput
   courseForks?: Prisma.CourseForkCreateNestedManyWithoutOriginalCourseInput
   courseReports?: Prisma.CourseReportCreateNestedManyWithoutCourseInput
@@ -1288,6 +1336,8 @@ export type CourseUncheckedCreateWithoutSourceDocumentsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   sourceChunks?: Prisma.SourceChunkUncheckedCreateNestedManyWithoutCourseInput
+  sourceAssets?: Prisma.SourceAssetUncheckedCreateNestedManyWithoutCourseInput
+  ingestionRuns?: Prisma.IngestionRunUncheckedCreateNestedManyWithoutCourseInput
   modules?: Prisma.ModuleUncheckedCreateNestedManyWithoutCourseInput
   courseForks?: Prisma.CourseForkUncheckedCreateNestedManyWithoutOriginalCourseInput
   courseReports?: Prisma.CourseReportUncheckedCreateNestedManyWithoutCourseInput
@@ -1341,6 +1391,8 @@ export type CourseUpdateWithoutSourceDocumentsInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   owner?: Prisma.UserUpdateOneRequiredWithoutCoursesOwnedNestedInput
   sourceChunks?: Prisma.SourceChunkUpdateManyWithoutCourseNestedInput
+  sourceAssets?: Prisma.SourceAssetUpdateManyWithoutCourseNestedInput
+  ingestionRuns?: Prisma.IngestionRunUpdateManyWithoutCourseNestedInput
   modules?: Prisma.ModuleUpdateManyWithoutCourseNestedInput
   courseForks?: Prisma.CourseForkUpdateManyWithoutOriginalCourseNestedInput
   courseReports?: Prisma.CourseReportUpdateManyWithoutCourseNestedInput
@@ -1378,6 +1430,8 @@ export type CourseUncheckedUpdateWithoutSourceDocumentsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   sourceChunks?: Prisma.SourceChunkUncheckedUpdateManyWithoutCourseNestedInput
+  sourceAssets?: Prisma.SourceAssetUncheckedUpdateManyWithoutCourseNestedInput
+  ingestionRuns?: Prisma.IngestionRunUncheckedUpdateManyWithoutCourseNestedInput
   modules?: Prisma.ModuleUncheckedUpdateManyWithoutCourseNestedInput
   courseForks?: Prisma.CourseForkUncheckedUpdateManyWithoutOriginalCourseNestedInput
   courseReports?: Prisma.CourseReportUncheckedUpdateManyWithoutCourseNestedInput
@@ -1415,6 +1469,8 @@ export type CourseCreateWithoutSourceChunksInput = {
   updatedAt?: Date | string
   owner: Prisma.UserCreateNestedOneWithoutCoursesOwnedInput
   sourceDocuments?: Prisma.SourceDocumentCreateNestedManyWithoutCourseInput
+  sourceAssets?: Prisma.SourceAssetCreateNestedManyWithoutCourseInput
+  ingestionRuns?: Prisma.IngestionRunCreateNestedManyWithoutCourseInput
   modules?: Prisma.ModuleCreateNestedManyWithoutCourseInput
   courseForks?: Prisma.CourseForkCreateNestedManyWithoutOriginalCourseInput
   courseReports?: Prisma.CourseReportCreateNestedManyWithoutCourseInput
@@ -1452,6 +1508,8 @@ export type CourseUncheckedCreateWithoutSourceChunksInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   sourceDocuments?: Prisma.SourceDocumentUncheckedCreateNestedManyWithoutCourseInput
+  sourceAssets?: Prisma.SourceAssetUncheckedCreateNestedManyWithoutCourseInput
+  ingestionRuns?: Prisma.IngestionRunUncheckedCreateNestedManyWithoutCourseInput
   modules?: Prisma.ModuleUncheckedCreateNestedManyWithoutCourseInput
   courseForks?: Prisma.CourseForkUncheckedCreateNestedManyWithoutOriginalCourseInput
   courseReports?: Prisma.CourseReportUncheckedCreateNestedManyWithoutCourseInput
@@ -1505,6 +1563,8 @@ export type CourseUpdateWithoutSourceChunksInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   owner?: Prisma.UserUpdateOneRequiredWithoutCoursesOwnedNestedInput
   sourceDocuments?: Prisma.SourceDocumentUpdateManyWithoutCourseNestedInput
+  sourceAssets?: Prisma.SourceAssetUpdateManyWithoutCourseNestedInput
+  ingestionRuns?: Prisma.IngestionRunUpdateManyWithoutCourseNestedInput
   modules?: Prisma.ModuleUpdateManyWithoutCourseNestedInput
   courseForks?: Prisma.CourseForkUpdateManyWithoutOriginalCourseNestedInput
   courseReports?: Prisma.CourseReportUpdateManyWithoutCourseNestedInput
@@ -1542,6 +1602,352 @@ export type CourseUncheckedUpdateWithoutSourceChunksInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   sourceDocuments?: Prisma.SourceDocumentUncheckedUpdateManyWithoutCourseNestedInput
+  sourceAssets?: Prisma.SourceAssetUncheckedUpdateManyWithoutCourseNestedInput
+  ingestionRuns?: Prisma.IngestionRunUncheckedUpdateManyWithoutCourseNestedInput
+  modules?: Prisma.ModuleUncheckedUpdateManyWithoutCourseNestedInput
+  courseForks?: Prisma.CourseForkUncheckedUpdateManyWithoutOriginalCourseNestedInput
+  courseReports?: Prisma.CourseReportUncheckedUpdateManyWithoutCourseNestedInput
+  certificates?: Prisma.CertificateUncheckedUpdateManyWithoutCourseNestedInput
+  purchases?: Prisma.PurchaseUncheckedUpdateManyWithoutCourseNestedInput
+  marketplaceReviews?: Prisma.MarketplaceReviewQueueUncheckedUpdateManyWithoutCourseNestedInput
+  classrooms?: Prisma.ClassroomUncheckedUpdateManyWithoutCourseNestedInput
+  exports?: Prisma.ExportUncheckedUpdateManyWithoutCourseNestedInput
+  finalProject?: Prisma.FinalProjectUncheckedUpdateOneWithoutCourseNestedInput
+}
+
+export type CourseCreateWithoutIngestionRunsInput = {
+  id?: string
+  sourceType: $Enums.CourseSourceType
+  topic?: string | null
+  title: string
+  status?: $Enums.CourseStatus
+  failureReason?: string | null
+  ingestionStage?: string | null
+  language?: string | null
+  goal?: $Enums.Goal | null
+  level?: $Enums.Level | null
+  levelChangedAt?: Date | string | null
+  examDate?: Date | string | null
+  visibility?: $Enums.CourseVisibility
+  publishedAt?: Date | string | null
+  publishGateCheckedAt?: Date | string | null
+  publishAttestationAt?: Date | string | null
+  description?: string | null
+  price?: number | null
+  creatorPayoutPct?: number | null
+  stripeProductId?: string | null
+  stripePriceId?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  owner: Prisma.UserCreateNestedOneWithoutCoursesOwnedInput
+  sourceDocuments?: Prisma.SourceDocumentCreateNestedManyWithoutCourseInput
+  sourceChunks?: Prisma.SourceChunkCreateNestedManyWithoutCourseInput
+  sourceAssets?: Prisma.SourceAssetCreateNestedManyWithoutCourseInput
+  modules?: Prisma.ModuleCreateNestedManyWithoutCourseInput
+  courseForks?: Prisma.CourseForkCreateNestedManyWithoutOriginalCourseInput
+  courseReports?: Prisma.CourseReportCreateNestedManyWithoutCourseInput
+  certificates?: Prisma.CertificateCreateNestedManyWithoutCourseInput
+  purchases?: Prisma.PurchaseCreateNestedManyWithoutCourseInput
+  marketplaceReviews?: Prisma.MarketplaceReviewQueueCreateNestedManyWithoutCourseInput
+  classrooms?: Prisma.ClassroomCreateNestedManyWithoutCourseInput
+  exports?: Prisma.ExportCreateNestedManyWithoutCourseInput
+  finalProject?: Prisma.FinalProjectCreateNestedOneWithoutCourseInput
+}
+
+export type CourseUncheckedCreateWithoutIngestionRunsInput = {
+  id?: string
+  ownerId: string
+  sourceType: $Enums.CourseSourceType
+  topic?: string | null
+  title: string
+  status?: $Enums.CourseStatus
+  failureReason?: string | null
+  ingestionStage?: string | null
+  language?: string | null
+  goal?: $Enums.Goal | null
+  level?: $Enums.Level | null
+  levelChangedAt?: Date | string | null
+  examDate?: Date | string | null
+  visibility?: $Enums.CourseVisibility
+  publishedAt?: Date | string | null
+  publishGateCheckedAt?: Date | string | null
+  publishAttestationAt?: Date | string | null
+  description?: string | null
+  price?: number | null
+  creatorPayoutPct?: number | null
+  stripeProductId?: string | null
+  stripePriceId?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  sourceDocuments?: Prisma.SourceDocumentUncheckedCreateNestedManyWithoutCourseInput
+  sourceChunks?: Prisma.SourceChunkUncheckedCreateNestedManyWithoutCourseInput
+  sourceAssets?: Prisma.SourceAssetUncheckedCreateNestedManyWithoutCourseInput
+  modules?: Prisma.ModuleUncheckedCreateNestedManyWithoutCourseInput
+  courseForks?: Prisma.CourseForkUncheckedCreateNestedManyWithoutOriginalCourseInput
+  courseReports?: Prisma.CourseReportUncheckedCreateNestedManyWithoutCourseInput
+  certificates?: Prisma.CertificateUncheckedCreateNestedManyWithoutCourseInput
+  purchases?: Prisma.PurchaseUncheckedCreateNestedManyWithoutCourseInput
+  marketplaceReviews?: Prisma.MarketplaceReviewQueueUncheckedCreateNestedManyWithoutCourseInput
+  classrooms?: Prisma.ClassroomUncheckedCreateNestedManyWithoutCourseInput
+  exports?: Prisma.ExportUncheckedCreateNestedManyWithoutCourseInput
+  finalProject?: Prisma.FinalProjectUncheckedCreateNestedOneWithoutCourseInput
+}
+
+export type CourseCreateOrConnectWithoutIngestionRunsInput = {
+  where: Prisma.CourseWhereUniqueInput
+  create: Prisma.XOR<Prisma.CourseCreateWithoutIngestionRunsInput, Prisma.CourseUncheckedCreateWithoutIngestionRunsInput>
+}
+
+export type CourseUpsertWithoutIngestionRunsInput = {
+  update: Prisma.XOR<Prisma.CourseUpdateWithoutIngestionRunsInput, Prisma.CourseUncheckedUpdateWithoutIngestionRunsInput>
+  create: Prisma.XOR<Prisma.CourseCreateWithoutIngestionRunsInput, Prisma.CourseUncheckedCreateWithoutIngestionRunsInput>
+  where?: Prisma.CourseWhereInput
+}
+
+export type CourseUpdateToOneWithWhereWithoutIngestionRunsInput = {
+  where?: Prisma.CourseWhereInput
+  data: Prisma.XOR<Prisma.CourseUpdateWithoutIngestionRunsInput, Prisma.CourseUncheckedUpdateWithoutIngestionRunsInput>
+}
+
+export type CourseUpdateWithoutIngestionRunsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceType?: Prisma.EnumCourseSourceTypeFieldUpdateOperationsInput | $Enums.CourseSourceType
+  topic?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumCourseStatusFieldUpdateOperationsInput | $Enums.CourseStatus
+  failureReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ingestionStage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  language?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  goal?: Prisma.NullableEnumGoalFieldUpdateOperationsInput | $Enums.Goal | null
+  level?: Prisma.NullableEnumLevelFieldUpdateOperationsInput | $Enums.Level | null
+  levelChangedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  examDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  visibility?: Prisma.EnumCourseVisibilityFieldUpdateOperationsInput | $Enums.CourseVisibility
+  publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  publishGateCheckedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  publishAttestationAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  price?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  creatorPayoutPct?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  stripeProductId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripePriceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  owner?: Prisma.UserUpdateOneRequiredWithoutCoursesOwnedNestedInput
+  sourceDocuments?: Prisma.SourceDocumentUpdateManyWithoutCourseNestedInput
+  sourceChunks?: Prisma.SourceChunkUpdateManyWithoutCourseNestedInput
+  sourceAssets?: Prisma.SourceAssetUpdateManyWithoutCourseNestedInput
+  modules?: Prisma.ModuleUpdateManyWithoutCourseNestedInput
+  courseForks?: Prisma.CourseForkUpdateManyWithoutOriginalCourseNestedInput
+  courseReports?: Prisma.CourseReportUpdateManyWithoutCourseNestedInput
+  certificates?: Prisma.CertificateUpdateManyWithoutCourseNestedInput
+  purchases?: Prisma.PurchaseUpdateManyWithoutCourseNestedInput
+  marketplaceReviews?: Prisma.MarketplaceReviewQueueUpdateManyWithoutCourseNestedInput
+  classrooms?: Prisma.ClassroomUpdateManyWithoutCourseNestedInput
+  exports?: Prisma.ExportUpdateManyWithoutCourseNestedInput
+  finalProject?: Prisma.FinalProjectUpdateOneWithoutCourseNestedInput
+}
+
+export type CourseUncheckedUpdateWithoutIngestionRunsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  ownerId?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceType?: Prisma.EnumCourseSourceTypeFieldUpdateOperationsInput | $Enums.CourseSourceType
+  topic?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumCourseStatusFieldUpdateOperationsInput | $Enums.CourseStatus
+  failureReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ingestionStage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  language?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  goal?: Prisma.NullableEnumGoalFieldUpdateOperationsInput | $Enums.Goal | null
+  level?: Prisma.NullableEnumLevelFieldUpdateOperationsInput | $Enums.Level | null
+  levelChangedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  examDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  visibility?: Prisma.EnumCourseVisibilityFieldUpdateOperationsInput | $Enums.CourseVisibility
+  publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  publishGateCheckedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  publishAttestationAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  price?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  creatorPayoutPct?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  stripeProductId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripePriceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  sourceDocuments?: Prisma.SourceDocumentUncheckedUpdateManyWithoutCourseNestedInput
+  sourceChunks?: Prisma.SourceChunkUncheckedUpdateManyWithoutCourseNestedInput
+  sourceAssets?: Prisma.SourceAssetUncheckedUpdateManyWithoutCourseNestedInput
+  modules?: Prisma.ModuleUncheckedUpdateManyWithoutCourseNestedInput
+  courseForks?: Prisma.CourseForkUncheckedUpdateManyWithoutOriginalCourseNestedInput
+  courseReports?: Prisma.CourseReportUncheckedUpdateManyWithoutCourseNestedInput
+  certificates?: Prisma.CertificateUncheckedUpdateManyWithoutCourseNestedInput
+  purchases?: Prisma.PurchaseUncheckedUpdateManyWithoutCourseNestedInput
+  marketplaceReviews?: Prisma.MarketplaceReviewQueueUncheckedUpdateManyWithoutCourseNestedInput
+  classrooms?: Prisma.ClassroomUncheckedUpdateManyWithoutCourseNestedInput
+  exports?: Prisma.ExportUncheckedUpdateManyWithoutCourseNestedInput
+  finalProject?: Prisma.FinalProjectUncheckedUpdateOneWithoutCourseNestedInput
+}
+
+export type CourseCreateWithoutSourceAssetsInput = {
+  id?: string
+  sourceType: $Enums.CourseSourceType
+  topic?: string | null
+  title: string
+  status?: $Enums.CourseStatus
+  failureReason?: string | null
+  ingestionStage?: string | null
+  language?: string | null
+  goal?: $Enums.Goal | null
+  level?: $Enums.Level | null
+  levelChangedAt?: Date | string | null
+  examDate?: Date | string | null
+  visibility?: $Enums.CourseVisibility
+  publishedAt?: Date | string | null
+  publishGateCheckedAt?: Date | string | null
+  publishAttestationAt?: Date | string | null
+  description?: string | null
+  price?: number | null
+  creatorPayoutPct?: number | null
+  stripeProductId?: string | null
+  stripePriceId?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  owner: Prisma.UserCreateNestedOneWithoutCoursesOwnedInput
+  sourceDocuments?: Prisma.SourceDocumentCreateNestedManyWithoutCourseInput
+  sourceChunks?: Prisma.SourceChunkCreateNestedManyWithoutCourseInput
+  ingestionRuns?: Prisma.IngestionRunCreateNestedManyWithoutCourseInput
+  modules?: Prisma.ModuleCreateNestedManyWithoutCourseInput
+  courseForks?: Prisma.CourseForkCreateNestedManyWithoutOriginalCourseInput
+  courseReports?: Prisma.CourseReportCreateNestedManyWithoutCourseInput
+  certificates?: Prisma.CertificateCreateNestedManyWithoutCourseInput
+  purchases?: Prisma.PurchaseCreateNestedManyWithoutCourseInput
+  marketplaceReviews?: Prisma.MarketplaceReviewQueueCreateNestedManyWithoutCourseInput
+  classrooms?: Prisma.ClassroomCreateNestedManyWithoutCourseInput
+  exports?: Prisma.ExportCreateNestedManyWithoutCourseInput
+  finalProject?: Prisma.FinalProjectCreateNestedOneWithoutCourseInput
+}
+
+export type CourseUncheckedCreateWithoutSourceAssetsInput = {
+  id?: string
+  ownerId: string
+  sourceType: $Enums.CourseSourceType
+  topic?: string | null
+  title: string
+  status?: $Enums.CourseStatus
+  failureReason?: string | null
+  ingestionStage?: string | null
+  language?: string | null
+  goal?: $Enums.Goal | null
+  level?: $Enums.Level | null
+  levelChangedAt?: Date | string | null
+  examDate?: Date | string | null
+  visibility?: $Enums.CourseVisibility
+  publishedAt?: Date | string | null
+  publishGateCheckedAt?: Date | string | null
+  publishAttestationAt?: Date | string | null
+  description?: string | null
+  price?: number | null
+  creatorPayoutPct?: number | null
+  stripeProductId?: string | null
+  stripePriceId?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  sourceDocuments?: Prisma.SourceDocumentUncheckedCreateNestedManyWithoutCourseInput
+  sourceChunks?: Prisma.SourceChunkUncheckedCreateNestedManyWithoutCourseInput
+  ingestionRuns?: Prisma.IngestionRunUncheckedCreateNestedManyWithoutCourseInput
+  modules?: Prisma.ModuleUncheckedCreateNestedManyWithoutCourseInput
+  courseForks?: Prisma.CourseForkUncheckedCreateNestedManyWithoutOriginalCourseInput
+  courseReports?: Prisma.CourseReportUncheckedCreateNestedManyWithoutCourseInput
+  certificates?: Prisma.CertificateUncheckedCreateNestedManyWithoutCourseInput
+  purchases?: Prisma.PurchaseUncheckedCreateNestedManyWithoutCourseInput
+  marketplaceReviews?: Prisma.MarketplaceReviewQueueUncheckedCreateNestedManyWithoutCourseInput
+  classrooms?: Prisma.ClassroomUncheckedCreateNestedManyWithoutCourseInput
+  exports?: Prisma.ExportUncheckedCreateNestedManyWithoutCourseInput
+  finalProject?: Prisma.FinalProjectUncheckedCreateNestedOneWithoutCourseInput
+}
+
+export type CourseCreateOrConnectWithoutSourceAssetsInput = {
+  where: Prisma.CourseWhereUniqueInput
+  create: Prisma.XOR<Prisma.CourseCreateWithoutSourceAssetsInput, Prisma.CourseUncheckedCreateWithoutSourceAssetsInput>
+}
+
+export type CourseUpsertWithoutSourceAssetsInput = {
+  update: Prisma.XOR<Prisma.CourseUpdateWithoutSourceAssetsInput, Prisma.CourseUncheckedUpdateWithoutSourceAssetsInput>
+  create: Prisma.XOR<Prisma.CourseCreateWithoutSourceAssetsInput, Prisma.CourseUncheckedCreateWithoutSourceAssetsInput>
+  where?: Prisma.CourseWhereInput
+}
+
+export type CourseUpdateToOneWithWhereWithoutSourceAssetsInput = {
+  where?: Prisma.CourseWhereInput
+  data: Prisma.XOR<Prisma.CourseUpdateWithoutSourceAssetsInput, Prisma.CourseUncheckedUpdateWithoutSourceAssetsInput>
+}
+
+export type CourseUpdateWithoutSourceAssetsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceType?: Prisma.EnumCourseSourceTypeFieldUpdateOperationsInput | $Enums.CourseSourceType
+  topic?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumCourseStatusFieldUpdateOperationsInput | $Enums.CourseStatus
+  failureReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ingestionStage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  language?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  goal?: Prisma.NullableEnumGoalFieldUpdateOperationsInput | $Enums.Goal | null
+  level?: Prisma.NullableEnumLevelFieldUpdateOperationsInput | $Enums.Level | null
+  levelChangedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  examDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  visibility?: Prisma.EnumCourseVisibilityFieldUpdateOperationsInput | $Enums.CourseVisibility
+  publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  publishGateCheckedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  publishAttestationAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  price?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  creatorPayoutPct?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  stripeProductId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripePriceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  owner?: Prisma.UserUpdateOneRequiredWithoutCoursesOwnedNestedInput
+  sourceDocuments?: Prisma.SourceDocumentUpdateManyWithoutCourseNestedInput
+  sourceChunks?: Prisma.SourceChunkUpdateManyWithoutCourseNestedInput
+  ingestionRuns?: Prisma.IngestionRunUpdateManyWithoutCourseNestedInput
+  modules?: Prisma.ModuleUpdateManyWithoutCourseNestedInput
+  courseForks?: Prisma.CourseForkUpdateManyWithoutOriginalCourseNestedInput
+  courseReports?: Prisma.CourseReportUpdateManyWithoutCourseNestedInput
+  certificates?: Prisma.CertificateUpdateManyWithoutCourseNestedInput
+  purchases?: Prisma.PurchaseUpdateManyWithoutCourseNestedInput
+  marketplaceReviews?: Prisma.MarketplaceReviewQueueUpdateManyWithoutCourseNestedInput
+  classrooms?: Prisma.ClassroomUpdateManyWithoutCourseNestedInput
+  exports?: Prisma.ExportUpdateManyWithoutCourseNestedInput
+  finalProject?: Prisma.FinalProjectUpdateOneWithoutCourseNestedInput
+}
+
+export type CourseUncheckedUpdateWithoutSourceAssetsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  ownerId?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceType?: Prisma.EnumCourseSourceTypeFieldUpdateOperationsInput | $Enums.CourseSourceType
+  topic?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumCourseStatusFieldUpdateOperationsInput | $Enums.CourseStatus
+  failureReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ingestionStage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  language?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  goal?: Prisma.NullableEnumGoalFieldUpdateOperationsInput | $Enums.Goal | null
+  level?: Prisma.NullableEnumLevelFieldUpdateOperationsInput | $Enums.Level | null
+  levelChangedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  examDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  visibility?: Prisma.EnumCourseVisibilityFieldUpdateOperationsInput | $Enums.CourseVisibility
+  publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  publishGateCheckedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  publishAttestationAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  price?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  creatorPayoutPct?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  stripeProductId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripePriceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  sourceDocuments?: Prisma.SourceDocumentUncheckedUpdateManyWithoutCourseNestedInput
+  sourceChunks?: Prisma.SourceChunkUncheckedUpdateManyWithoutCourseNestedInput
+  ingestionRuns?: Prisma.IngestionRunUncheckedUpdateManyWithoutCourseNestedInput
   modules?: Prisma.ModuleUncheckedUpdateManyWithoutCourseNestedInput
   courseForks?: Prisma.CourseForkUncheckedUpdateManyWithoutOriginalCourseNestedInput
   courseReports?: Prisma.CourseReportUncheckedUpdateManyWithoutCourseNestedInput
@@ -1580,6 +1986,8 @@ export type CourseCreateWithoutModulesInput = {
   owner: Prisma.UserCreateNestedOneWithoutCoursesOwnedInput
   sourceDocuments?: Prisma.SourceDocumentCreateNestedManyWithoutCourseInput
   sourceChunks?: Prisma.SourceChunkCreateNestedManyWithoutCourseInput
+  sourceAssets?: Prisma.SourceAssetCreateNestedManyWithoutCourseInput
+  ingestionRuns?: Prisma.IngestionRunCreateNestedManyWithoutCourseInput
   courseForks?: Prisma.CourseForkCreateNestedManyWithoutOriginalCourseInput
   courseReports?: Prisma.CourseReportCreateNestedManyWithoutCourseInput
   certificates?: Prisma.CertificateCreateNestedManyWithoutCourseInput
@@ -1617,6 +2025,8 @@ export type CourseUncheckedCreateWithoutModulesInput = {
   updatedAt?: Date | string
   sourceDocuments?: Prisma.SourceDocumentUncheckedCreateNestedManyWithoutCourseInput
   sourceChunks?: Prisma.SourceChunkUncheckedCreateNestedManyWithoutCourseInput
+  sourceAssets?: Prisma.SourceAssetUncheckedCreateNestedManyWithoutCourseInput
+  ingestionRuns?: Prisma.IngestionRunUncheckedCreateNestedManyWithoutCourseInput
   courseForks?: Prisma.CourseForkUncheckedCreateNestedManyWithoutOriginalCourseInput
   courseReports?: Prisma.CourseReportUncheckedCreateNestedManyWithoutCourseInput
   certificates?: Prisma.CertificateUncheckedCreateNestedManyWithoutCourseInput
@@ -1670,6 +2080,8 @@ export type CourseUpdateWithoutModulesInput = {
   owner?: Prisma.UserUpdateOneRequiredWithoutCoursesOwnedNestedInput
   sourceDocuments?: Prisma.SourceDocumentUpdateManyWithoutCourseNestedInput
   sourceChunks?: Prisma.SourceChunkUpdateManyWithoutCourseNestedInput
+  sourceAssets?: Prisma.SourceAssetUpdateManyWithoutCourseNestedInput
+  ingestionRuns?: Prisma.IngestionRunUpdateManyWithoutCourseNestedInput
   courseForks?: Prisma.CourseForkUpdateManyWithoutOriginalCourseNestedInput
   courseReports?: Prisma.CourseReportUpdateManyWithoutCourseNestedInput
   certificates?: Prisma.CertificateUpdateManyWithoutCourseNestedInput
@@ -1707,6 +2119,8 @@ export type CourseUncheckedUpdateWithoutModulesInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   sourceDocuments?: Prisma.SourceDocumentUncheckedUpdateManyWithoutCourseNestedInput
   sourceChunks?: Prisma.SourceChunkUncheckedUpdateManyWithoutCourseNestedInput
+  sourceAssets?: Prisma.SourceAssetUncheckedUpdateManyWithoutCourseNestedInput
+  ingestionRuns?: Prisma.IngestionRunUncheckedUpdateManyWithoutCourseNestedInput
   courseForks?: Prisma.CourseForkUncheckedUpdateManyWithoutOriginalCourseNestedInput
   courseReports?: Prisma.CourseReportUncheckedUpdateManyWithoutCourseNestedInput
   certificates?: Prisma.CertificateUncheckedUpdateManyWithoutCourseNestedInput
@@ -1744,6 +2158,8 @@ export type CourseCreateWithoutCourseForksInput = {
   owner: Prisma.UserCreateNestedOneWithoutCoursesOwnedInput
   sourceDocuments?: Prisma.SourceDocumentCreateNestedManyWithoutCourseInput
   sourceChunks?: Prisma.SourceChunkCreateNestedManyWithoutCourseInput
+  sourceAssets?: Prisma.SourceAssetCreateNestedManyWithoutCourseInput
+  ingestionRuns?: Prisma.IngestionRunCreateNestedManyWithoutCourseInput
   modules?: Prisma.ModuleCreateNestedManyWithoutCourseInput
   courseReports?: Prisma.CourseReportCreateNestedManyWithoutCourseInput
   certificates?: Prisma.CertificateCreateNestedManyWithoutCourseInput
@@ -1781,6 +2197,8 @@ export type CourseUncheckedCreateWithoutCourseForksInput = {
   updatedAt?: Date | string
   sourceDocuments?: Prisma.SourceDocumentUncheckedCreateNestedManyWithoutCourseInput
   sourceChunks?: Prisma.SourceChunkUncheckedCreateNestedManyWithoutCourseInput
+  sourceAssets?: Prisma.SourceAssetUncheckedCreateNestedManyWithoutCourseInput
+  ingestionRuns?: Prisma.IngestionRunUncheckedCreateNestedManyWithoutCourseInput
   modules?: Prisma.ModuleUncheckedCreateNestedManyWithoutCourseInput
   courseReports?: Prisma.CourseReportUncheckedCreateNestedManyWithoutCourseInput
   certificates?: Prisma.CertificateUncheckedCreateNestedManyWithoutCourseInput
@@ -1834,6 +2252,8 @@ export type CourseUpdateWithoutCourseForksInput = {
   owner?: Prisma.UserUpdateOneRequiredWithoutCoursesOwnedNestedInput
   sourceDocuments?: Prisma.SourceDocumentUpdateManyWithoutCourseNestedInput
   sourceChunks?: Prisma.SourceChunkUpdateManyWithoutCourseNestedInput
+  sourceAssets?: Prisma.SourceAssetUpdateManyWithoutCourseNestedInput
+  ingestionRuns?: Prisma.IngestionRunUpdateManyWithoutCourseNestedInput
   modules?: Prisma.ModuleUpdateManyWithoutCourseNestedInput
   courseReports?: Prisma.CourseReportUpdateManyWithoutCourseNestedInput
   certificates?: Prisma.CertificateUpdateManyWithoutCourseNestedInput
@@ -1871,6 +2291,8 @@ export type CourseUncheckedUpdateWithoutCourseForksInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   sourceDocuments?: Prisma.SourceDocumentUncheckedUpdateManyWithoutCourseNestedInput
   sourceChunks?: Prisma.SourceChunkUncheckedUpdateManyWithoutCourseNestedInput
+  sourceAssets?: Prisma.SourceAssetUncheckedUpdateManyWithoutCourseNestedInput
+  ingestionRuns?: Prisma.IngestionRunUncheckedUpdateManyWithoutCourseNestedInput
   modules?: Prisma.ModuleUncheckedUpdateManyWithoutCourseNestedInput
   courseReports?: Prisma.CourseReportUncheckedUpdateManyWithoutCourseNestedInput
   certificates?: Prisma.CertificateUncheckedUpdateManyWithoutCourseNestedInput
@@ -1908,6 +2330,8 @@ export type CourseCreateWithoutCourseReportsInput = {
   owner: Prisma.UserCreateNestedOneWithoutCoursesOwnedInput
   sourceDocuments?: Prisma.SourceDocumentCreateNestedManyWithoutCourseInput
   sourceChunks?: Prisma.SourceChunkCreateNestedManyWithoutCourseInput
+  sourceAssets?: Prisma.SourceAssetCreateNestedManyWithoutCourseInput
+  ingestionRuns?: Prisma.IngestionRunCreateNestedManyWithoutCourseInput
   modules?: Prisma.ModuleCreateNestedManyWithoutCourseInput
   courseForks?: Prisma.CourseForkCreateNestedManyWithoutOriginalCourseInput
   certificates?: Prisma.CertificateCreateNestedManyWithoutCourseInput
@@ -1945,6 +2369,8 @@ export type CourseUncheckedCreateWithoutCourseReportsInput = {
   updatedAt?: Date | string
   sourceDocuments?: Prisma.SourceDocumentUncheckedCreateNestedManyWithoutCourseInput
   sourceChunks?: Prisma.SourceChunkUncheckedCreateNestedManyWithoutCourseInput
+  sourceAssets?: Prisma.SourceAssetUncheckedCreateNestedManyWithoutCourseInput
+  ingestionRuns?: Prisma.IngestionRunUncheckedCreateNestedManyWithoutCourseInput
   modules?: Prisma.ModuleUncheckedCreateNestedManyWithoutCourseInput
   courseForks?: Prisma.CourseForkUncheckedCreateNestedManyWithoutOriginalCourseInput
   certificates?: Prisma.CertificateUncheckedCreateNestedManyWithoutCourseInput
@@ -1998,6 +2424,8 @@ export type CourseUpdateWithoutCourseReportsInput = {
   owner?: Prisma.UserUpdateOneRequiredWithoutCoursesOwnedNestedInput
   sourceDocuments?: Prisma.SourceDocumentUpdateManyWithoutCourseNestedInput
   sourceChunks?: Prisma.SourceChunkUpdateManyWithoutCourseNestedInput
+  sourceAssets?: Prisma.SourceAssetUpdateManyWithoutCourseNestedInput
+  ingestionRuns?: Prisma.IngestionRunUpdateManyWithoutCourseNestedInput
   modules?: Prisma.ModuleUpdateManyWithoutCourseNestedInput
   courseForks?: Prisma.CourseForkUpdateManyWithoutOriginalCourseNestedInput
   certificates?: Prisma.CertificateUpdateManyWithoutCourseNestedInput
@@ -2035,6 +2463,8 @@ export type CourseUncheckedUpdateWithoutCourseReportsInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   sourceDocuments?: Prisma.SourceDocumentUncheckedUpdateManyWithoutCourseNestedInput
   sourceChunks?: Prisma.SourceChunkUncheckedUpdateManyWithoutCourseNestedInput
+  sourceAssets?: Prisma.SourceAssetUncheckedUpdateManyWithoutCourseNestedInput
+  ingestionRuns?: Prisma.IngestionRunUncheckedUpdateManyWithoutCourseNestedInput
   modules?: Prisma.ModuleUncheckedUpdateManyWithoutCourseNestedInput
   courseForks?: Prisma.CourseForkUncheckedUpdateManyWithoutOriginalCourseNestedInput
   certificates?: Prisma.CertificateUncheckedUpdateManyWithoutCourseNestedInput
@@ -2072,6 +2502,8 @@ export type CourseCreateWithoutExportsInput = {
   owner: Prisma.UserCreateNestedOneWithoutCoursesOwnedInput
   sourceDocuments?: Prisma.SourceDocumentCreateNestedManyWithoutCourseInput
   sourceChunks?: Prisma.SourceChunkCreateNestedManyWithoutCourseInput
+  sourceAssets?: Prisma.SourceAssetCreateNestedManyWithoutCourseInput
+  ingestionRuns?: Prisma.IngestionRunCreateNestedManyWithoutCourseInput
   modules?: Prisma.ModuleCreateNestedManyWithoutCourseInput
   courseForks?: Prisma.CourseForkCreateNestedManyWithoutOriginalCourseInput
   courseReports?: Prisma.CourseReportCreateNestedManyWithoutCourseInput
@@ -2109,6 +2541,8 @@ export type CourseUncheckedCreateWithoutExportsInput = {
   updatedAt?: Date | string
   sourceDocuments?: Prisma.SourceDocumentUncheckedCreateNestedManyWithoutCourseInput
   sourceChunks?: Prisma.SourceChunkUncheckedCreateNestedManyWithoutCourseInput
+  sourceAssets?: Prisma.SourceAssetUncheckedCreateNestedManyWithoutCourseInput
+  ingestionRuns?: Prisma.IngestionRunUncheckedCreateNestedManyWithoutCourseInput
   modules?: Prisma.ModuleUncheckedCreateNestedManyWithoutCourseInput
   courseForks?: Prisma.CourseForkUncheckedCreateNestedManyWithoutOriginalCourseInput
   courseReports?: Prisma.CourseReportUncheckedCreateNestedManyWithoutCourseInput
@@ -2162,6 +2596,8 @@ export type CourseUpdateWithoutExportsInput = {
   owner?: Prisma.UserUpdateOneRequiredWithoutCoursesOwnedNestedInput
   sourceDocuments?: Prisma.SourceDocumentUpdateManyWithoutCourseNestedInput
   sourceChunks?: Prisma.SourceChunkUpdateManyWithoutCourseNestedInput
+  sourceAssets?: Prisma.SourceAssetUpdateManyWithoutCourseNestedInput
+  ingestionRuns?: Prisma.IngestionRunUpdateManyWithoutCourseNestedInput
   modules?: Prisma.ModuleUpdateManyWithoutCourseNestedInput
   courseForks?: Prisma.CourseForkUpdateManyWithoutOriginalCourseNestedInput
   courseReports?: Prisma.CourseReportUpdateManyWithoutCourseNestedInput
@@ -2199,6 +2635,8 @@ export type CourseUncheckedUpdateWithoutExportsInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   sourceDocuments?: Prisma.SourceDocumentUncheckedUpdateManyWithoutCourseNestedInput
   sourceChunks?: Prisma.SourceChunkUncheckedUpdateManyWithoutCourseNestedInput
+  sourceAssets?: Prisma.SourceAssetUncheckedUpdateManyWithoutCourseNestedInput
+  ingestionRuns?: Prisma.IngestionRunUncheckedUpdateManyWithoutCourseNestedInput
   modules?: Prisma.ModuleUncheckedUpdateManyWithoutCourseNestedInput
   courseForks?: Prisma.CourseForkUncheckedUpdateManyWithoutOriginalCourseNestedInput
   courseReports?: Prisma.CourseReportUncheckedUpdateManyWithoutCourseNestedInput
@@ -2236,6 +2674,8 @@ export type CourseCreateWithoutCertificatesInput = {
   owner: Prisma.UserCreateNestedOneWithoutCoursesOwnedInput
   sourceDocuments?: Prisma.SourceDocumentCreateNestedManyWithoutCourseInput
   sourceChunks?: Prisma.SourceChunkCreateNestedManyWithoutCourseInput
+  sourceAssets?: Prisma.SourceAssetCreateNestedManyWithoutCourseInput
+  ingestionRuns?: Prisma.IngestionRunCreateNestedManyWithoutCourseInput
   modules?: Prisma.ModuleCreateNestedManyWithoutCourseInput
   courseForks?: Prisma.CourseForkCreateNestedManyWithoutOriginalCourseInput
   courseReports?: Prisma.CourseReportCreateNestedManyWithoutCourseInput
@@ -2273,6 +2713,8 @@ export type CourseUncheckedCreateWithoutCertificatesInput = {
   updatedAt?: Date | string
   sourceDocuments?: Prisma.SourceDocumentUncheckedCreateNestedManyWithoutCourseInput
   sourceChunks?: Prisma.SourceChunkUncheckedCreateNestedManyWithoutCourseInput
+  sourceAssets?: Prisma.SourceAssetUncheckedCreateNestedManyWithoutCourseInput
+  ingestionRuns?: Prisma.IngestionRunUncheckedCreateNestedManyWithoutCourseInput
   modules?: Prisma.ModuleUncheckedCreateNestedManyWithoutCourseInput
   courseForks?: Prisma.CourseForkUncheckedCreateNestedManyWithoutOriginalCourseInput
   courseReports?: Prisma.CourseReportUncheckedCreateNestedManyWithoutCourseInput
@@ -2326,6 +2768,8 @@ export type CourseUpdateWithoutCertificatesInput = {
   owner?: Prisma.UserUpdateOneRequiredWithoutCoursesOwnedNestedInput
   sourceDocuments?: Prisma.SourceDocumentUpdateManyWithoutCourseNestedInput
   sourceChunks?: Prisma.SourceChunkUpdateManyWithoutCourseNestedInput
+  sourceAssets?: Prisma.SourceAssetUpdateManyWithoutCourseNestedInput
+  ingestionRuns?: Prisma.IngestionRunUpdateManyWithoutCourseNestedInput
   modules?: Prisma.ModuleUpdateManyWithoutCourseNestedInput
   courseForks?: Prisma.CourseForkUpdateManyWithoutOriginalCourseNestedInput
   courseReports?: Prisma.CourseReportUpdateManyWithoutCourseNestedInput
@@ -2363,6 +2807,8 @@ export type CourseUncheckedUpdateWithoutCertificatesInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   sourceDocuments?: Prisma.SourceDocumentUncheckedUpdateManyWithoutCourseNestedInput
   sourceChunks?: Prisma.SourceChunkUncheckedUpdateManyWithoutCourseNestedInput
+  sourceAssets?: Prisma.SourceAssetUncheckedUpdateManyWithoutCourseNestedInput
+  ingestionRuns?: Prisma.IngestionRunUncheckedUpdateManyWithoutCourseNestedInput
   modules?: Prisma.ModuleUncheckedUpdateManyWithoutCourseNestedInput
   courseForks?: Prisma.CourseForkUncheckedUpdateManyWithoutOriginalCourseNestedInput
   courseReports?: Prisma.CourseReportUncheckedUpdateManyWithoutCourseNestedInput
@@ -2400,6 +2846,8 @@ export type CourseCreateWithoutPurchasesInput = {
   owner: Prisma.UserCreateNestedOneWithoutCoursesOwnedInput
   sourceDocuments?: Prisma.SourceDocumentCreateNestedManyWithoutCourseInput
   sourceChunks?: Prisma.SourceChunkCreateNestedManyWithoutCourseInput
+  sourceAssets?: Prisma.SourceAssetCreateNestedManyWithoutCourseInput
+  ingestionRuns?: Prisma.IngestionRunCreateNestedManyWithoutCourseInput
   modules?: Prisma.ModuleCreateNestedManyWithoutCourseInput
   courseForks?: Prisma.CourseForkCreateNestedManyWithoutOriginalCourseInput
   courseReports?: Prisma.CourseReportCreateNestedManyWithoutCourseInput
@@ -2437,6 +2885,8 @@ export type CourseUncheckedCreateWithoutPurchasesInput = {
   updatedAt?: Date | string
   sourceDocuments?: Prisma.SourceDocumentUncheckedCreateNestedManyWithoutCourseInput
   sourceChunks?: Prisma.SourceChunkUncheckedCreateNestedManyWithoutCourseInput
+  sourceAssets?: Prisma.SourceAssetUncheckedCreateNestedManyWithoutCourseInput
+  ingestionRuns?: Prisma.IngestionRunUncheckedCreateNestedManyWithoutCourseInput
   modules?: Prisma.ModuleUncheckedCreateNestedManyWithoutCourseInput
   courseForks?: Prisma.CourseForkUncheckedCreateNestedManyWithoutOriginalCourseInput
   courseReports?: Prisma.CourseReportUncheckedCreateNestedManyWithoutCourseInput
@@ -2490,6 +2940,8 @@ export type CourseUpdateWithoutPurchasesInput = {
   owner?: Prisma.UserUpdateOneRequiredWithoutCoursesOwnedNestedInput
   sourceDocuments?: Prisma.SourceDocumentUpdateManyWithoutCourseNestedInput
   sourceChunks?: Prisma.SourceChunkUpdateManyWithoutCourseNestedInput
+  sourceAssets?: Prisma.SourceAssetUpdateManyWithoutCourseNestedInput
+  ingestionRuns?: Prisma.IngestionRunUpdateManyWithoutCourseNestedInput
   modules?: Prisma.ModuleUpdateManyWithoutCourseNestedInput
   courseForks?: Prisma.CourseForkUpdateManyWithoutOriginalCourseNestedInput
   courseReports?: Prisma.CourseReportUpdateManyWithoutCourseNestedInput
@@ -2527,6 +2979,8 @@ export type CourseUncheckedUpdateWithoutPurchasesInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   sourceDocuments?: Prisma.SourceDocumentUncheckedUpdateManyWithoutCourseNestedInput
   sourceChunks?: Prisma.SourceChunkUncheckedUpdateManyWithoutCourseNestedInput
+  sourceAssets?: Prisma.SourceAssetUncheckedUpdateManyWithoutCourseNestedInput
+  ingestionRuns?: Prisma.IngestionRunUncheckedUpdateManyWithoutCourseNestedInput
   modules?: Prisma.ModuleUncheckedUpdateManyWithoutCourseNestedInput
   courseForks?: Prisma.CourseForkUncheckedUpdateManyWithoutOriginalCourseNestedInput
   courseReports?: Prisma.CourseReportUncheckedUpdateManyWithoutCourseNestedInput
@@ -2564,6 +3018,8 @@ export type CourseCreateWithoutMarketplaceReviewsInput = {
   owner: Prisma.UserCreateNestedOneWithoutCoursesOwnedInput
   sourceDocuments?: Prisma.SourceDocumentCreateNestedManyWithoutCourseInput
   sourceChunks?: Prisma.SourceChunkCreateNestedManyWithoutCourseInput
+  sourceAssets?: Prisma.SourceAssetCreateNestedManyWithoutCourseInput
+  ingestionRuns?: Prisma.IngestionRunCreateNestedManyWithoutCourseInput
   modules?: Prisma.ModuleCreateNestedManyWithoutCourseInput
   courseForks?: Prisma.CourseForkCreateNestedManyWithoutOriginalCourseInput
   courseReports?: Prisma.CourseReportCreateNestedManyWithoutCourseInput
@@ -2601,6 +3057,8 @@ export type CourseUncheckedCreateWithoutMarketplaceReviewsInput = {
   updatedAt?: Date | string
   sourceDocuments?: Prisma.SourceDocumentUncheckedCreateNestedManyWithoutCourseInput
   sourceChunks?: Prisma.SourceChunkUncheckedCreateNestedManyWithoutCourseInput
+  sourceAssets?: Prisma.SourceAssetUncheckedCreateNestedManyWithoutCourseInput
+  ingestionRuns?: Prisma.IngestionRunUncheckedCreateNestedManyWithoutCourseInput
   modules?: Prisma.ModuleUncheckedCreateNestedManyWithoutCourseInput
   courseForks?: Prisma.CourseForkUncheckedCreateNestedManyWithoutOriginalCourseInput
   courseReports?: Prisma.CourseReportUncheckedCreateNestedManyWithoutCourseInput
@@ -2654,6 +3112,8 @@ export type CourseUpdateWithoutMarketplaceReviewsInput = {
   owner?: Prisma.UserUpdateOneRequiredWithoutCoursesOwnedNestedInput
   sourceDocuments?: Prisma.SourceDocumentUpdateManyWithoutCourseNestedInput
   sourceChunks?: Prisma.SourceChunkUpdateManyWithoutCourseNestedInput
+  sourceAssets?: Prisma.SourceAssetUpdateManyWithoutCourseNestedInput
+  ingestionRuns?: Prisma.IngestionRunUpdateManyWithoutCourseNestedInput
   modules?: Prisma.ModuleUpdateManyWithoutCourseNestedInput
   courseForks?: Prisma.CourseForkUpdateManyWithoutOriginalCourseNestedInput
   courseReports?: Prisma.CourseReportUpdateManyWithoutCourseNestedInput
@@ -2691,6 +3151,8 @@ export type CourseUncheckedUpdateWithoutMarketplaceReviewsInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   sourceDocuments?: Prisma.SourceDocumentUncheckedUpdateManyWithoutCourseNestedInput
   sourceChunks?: Prisma.SourceChunkUncheckedUpdateManyWithoutCourseNestedInput
+  sourceAssets?: Prisma.SourceAssetUncheckedUpdateManyWithoutCourseNestedInput
+  ingestionRuns?: Prisma.IngestionRunUncheckedUpdateManyWithoutCourseNestedInput
   modules?: Prisma.ModuleUncheckedUpdateManyWithoutCourseNestedInput
   courseForks?: Prisma.CourseForkUncheckedUpdateManyWithoutOriginalCourseNestedInput
   courseReports?: Prisma.CourseReportUncheckedUpdateManyWithoutCourseNestedInput
@@ -2728,6 +3190,8 @@ export type CourseCreateWithoutClassroomsInput = {
   owner: Prisma.UserCreateNestedOneWithoutCoursesOwnedInput
   sourceDocuments?: Prisma.SourceDocumentCreateNestedManyWithoutCourseInput
   sourceChunks?: Prisma.SourceChunkCreateNestedManyWithoutCourseInput
+  sourceAssets?: Prisma.SourceAssetCreateNestedManyWithoutCourseInput
+  ingestionRuns?: Prisma.IngestionRunCreateNestedManyWithoutCourseInput
   modules?: Prisma.ModuleCreateNestedManyWithoutCourseInput
   courseForks?: Prisma.CourseForkCreateNestedManyWithoutOriginalCourseInput
   courseReports?: Prisma.CourseReportCreateNestedManyWithoutCourseInput
@@ -2765,6 +3229,8 @@ export type CourseUncheckedCreateWithoutClassroomsInput = {
   updatedAt?: Date | string
   sourceDocuments?: Prisma.SourceDocumentUncheckedCreateNestedManyWithoutCourseInput
   sourceChunks?: Prisma.SourceChunkUncheckedCreateNestedManyWithoutCourseInput
+  sourceAssets?: Prisma.SourceAssetUncheckedCreateNestedManyWithoutCourseInput
+  ingestionRuns?: Prisma.IngestionRunUncheckedCreateNestedManyWithoutCourseInput
   modules?: Prisma.ModuleUncheckedCreateNestedManyWithoutCourseInput
   courseForks?: Prisma.CourseForkUncheckedCreateNestedManyWithoutOriginalCourseInput
   courseReports?: Prisma.CourseReportUncheckedCreateNestedManyWithoutCourseInput
@@ -2818,6 +3284,8 @@ export type CourseUpdateWithoutClassroomsInput = {
   owner?: Prisma.UserUpdateOneRequiredWithoutCoursesOwnedNestedInput
   sourceDocuments?: Prisma.SourceDocumentUpdateManyWithoutCourseNestedInput
   sourceChunks?: Prisma.SourceChunkUpdateManyWithoutCourseNestedInput
+  sourceAssets?: Prisma.SourceAssetUpdateManyWithoutCourseNestedInput
+  ingestionRuns?: Prisma.IngestionRunUpdateManyWithoutCourseNestedInput
   modules?: Prisma.ModuleUpdateManyWithoutCourseNestedInput
   courseForks?: Prisma.CourseForkUpdateManyWithoutOriginalCourseNestedInput
   courseReports?: Prisma.CourseReportUpdateManyWithoutCourseNestedInput
@@ -2855,6 +3323,8 @@ export type CourseUncheckedUpdateWithoutClassroomsInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   sourceDocuments?: Prisma.SourceDocumentUncheckedUpdateManyWithoutCourseNestedInput
   sourceChunks?: Prisma.SourceChunkUncheckedUpdateManyWithoutCourseNestedInput
+  sourceAssets?: Prisma.SourceAssetUncheckedUpdateManyWithoutCourseNestedInput
+  ingestionRuns?: Prisma.IngestionRunUncheckedUpdateManyWithoutCourseNestedInput
   modules?: Prisma.ModuleUncheckedUpdateManyWithoutCourseNestedInput
   courseForks?: Prisma.CourseForkUncheckedUpdateManyWithoutOriginalCourseNestedInput
   courseReports?: Prisma.CourseReportUncheckedUpdateManyWithoutCourseNestedInput
@@ -2892,6 +3362,8 @@ export type CourseCreateWithoutFinalProjectInput = {
   owner: Prisma.UserCreateNestedOneWithoutCoursesOwnedInput
   sourceDocuments?: Prisma.SourceDocumentCreateNestedManyWithoutCourseInput
   sourceChunks?: Prisma.SourceChunkCreateNestedManyWithoutCourseInput
+  sourceAssets?: Prisma.SourceAssetCreateNestedManyWithoutCourseInput
+  ingestionRuns?: Prisma.IngestionRunCreateNestedManyWithoutCourseInput
   modules?: Prisma.ModuleCreateNestedManyWithoutCourseInput
   courseForks?: Prisma.CourseForkCreateNestedManyWithoutOriginalCourseInput
   courseReports?: Prisma.CourseReportCreateNestedManyWithoutCourseInput
@@ -2929,6 +3401,8 @@ export type CourseUncheckedCreateWithoutFinalProjectInput = {
   updatedAt?: Date | string
   sourceDocuments?: Prisma.SourceDocumentUncheckedCreateNestedManyWithoutCourseInput
   sourceChunks?: Prisma.SourceChunkUncheckedCreateNestedManyWithoutCourseInput
+  sourceAssets?: Prisma.SourceAssetUncheckedCreateNestedManyWithoutCourseInput
+  ingestionRuns?: Prisma.IngestionRunUncheckedCreateNestedManyWithoutCourseInput
   modules?: Prisma.ModuleUncheckedCreateNestedManyWithoutCourseInput
   courseForks?: Prisma.CourseForkUncheckedCreateNestedManyWithoutOriginalCourseInput
   courseReports?: Prisma.CourseReportUncheckedCreateNestedManyWithoutCourseInput
@@ -2982,6 +3456,8 @@ export type CourseUpdateWithoutFinalProjectInput = {
   owner?: Prisma.UserUpdateOneRequiredWithoutCoursesOwnedNestedInput
   sourceDocuments?: Prisma.SourceDocumentUpdateManyWithoutCourseNestedInput
   sourceChunks?: Prisma.SourceChunkUpdateManyWithoutCourseNestedInput
+  sourceAssets?: Prisma.SourceAssetUpdateManyWithoutCourseNestedInput
+  ingestionRuns?: Prisma.IngestionRunUpdateManyWithoutCourseNestedInput
   modules?: Prisma.ModuleUpdateManyWithoutCourseNestedInput
   courseForks?: Prisma.CourseForkUpdateManyWithoutOriginalCourseNestedInput
   courseReports?: Prisma.CourseReportUpdateManyWithoutCourseNestedInput
@@ -3019,6 +3495,8 @@ export type CourseUncheckedUpdateWithoutFinalProjectInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   sourceDocuments?: Prisma.SourceDocumentUncheckedUpdateManyWithoutCourseNestedInput
   sourceChunks?: Prisma.SourceChunkUncheckedUpdateManyWithoutCourseNestedInput
+  sourceAssets?: Prisma.SourceAssetUncheckedUpdateManyWithoutCourseNestedInput
+  ingestionRuns?: Prisma.IngestionRunUncheckedUpdateManyWithoutCourseNestedInput
   modules?: Prisma.ModuleUncheckedUpdateManyWithoutCourseNestedInput
   courseForks?: Prisma.CourseForkUncheckedUpdateManyWithoutOriginalCourseNestedInput
   courseReports?: Prisma.CourseReportUncheckedUpdateManyWithoutCourseNestedInput
@@ -3081,6 +3559,8 @@ export type CourseUpdateWithoutOwnerInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   sourceDocuments?: Prisma.SourceDocumentUpdateManyWithoutCourseNestedInput
   sourceChunks?: Prisma.SourceChunkUpdateManyWithoutCourseNestedInput
+  sourceAssets?: Prisma.SourceAssetUpdateManyWithoutCourseNestedInput
+  ingestionRuns?: Prisma.IngestionRunUpdateManyWithoutCourseNestedInput
   modules?: Prisma.ModuleUpdateManyWithoutCourseNestedInput
   courseForks?: Prisma.CourseForkUpdateManyWithoutOriginalCourseNestedInput
   courseReports?: Prisma.CourseReportUpdateManyWithoutCourseNestedInput
@@ -3118,6 +3598,8 @@ export type CourseUncheckedUpdateWithoutOwnerInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   sourceDocuments?: Prisma.SourceDocumentUncheckedUpdateManyWithoutCourseNestedInput
   sourceChunks?: Prisma.SourceChunkUncheckedUpdateManyWithoutCourseNestedInput
+  sourceAssets?: Prisma.SourceAssetUncheckedUpdateManyWithoutCourseNestedInput
+  ingestionRuns?: Prisma.IngestionRunUncheckedUpdateManyWithoutCourseNestedInput
   modules?: Prisma.ModuleUncheckedUpdateManyWithoutCourseNestedInput
   courseForks?: Prisma.CourseForkUncheckedUpdateManyWithoutOriginalCourseNestedInput
   courseReports?: Prisma.CourseReportUncheckedUpdateManyWithoutCourseNestedInput
@@ -3163,6 +3645,8 @@ export type CourseUncheckedUpdateManyWithoutOwnerInput = {
 export type CourseCountOutputType = {
   sourceDocuments: number
   sourceChunks: number
+  sourceAssets: number
+  ingestionRuns: number
   modules: number
   courseForks: number
   courseReports: number
@@ -3176,6 +3660,8 @@ export type CourseCountOutputType = {
 export type CourseCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   sourceDocuments?: boolean | CourseCountOutputTypeCountSourceDocumentsArgs
   sourceChunks?: boolean | CourseCountOutputTypeCountSourceChunksArgs
+  sourceAssets?: boolean | CourseCountOutputTypeCountSourceAssetsArgs
+  ingestionRuns?: boolean | CourseCountOutputTypeCountIngestionRunsArgs
   modules?: boolean | CourseCountOutputTypeCountModulesArgs
   courseForks?: boolean | CourseCountOutputTypeCountCourseForksArgs
   courseReports?: boolean | CourseCountOutputTypeCountCourseReportsArgs
@@ -3208,6 +3694,20 @@ export type CourseCountOutputTypeCountSourceDocumentsArgs<ExtArgs extends runtim
  */
 export type CourseCountOutputTypeCountSourceChunksArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.SourceChunkWhereInput
+}
+
+/**
+ * CourseCountOutputType without action
+ */
+export type CourseCountOutputTypeCountSourceAssetsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.SourceAssetWhereInput
+}
+
+/**
+ * CourseCountOutputType without action
+ */
+export type CourseCountOutputTypeCountIngestionRunsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.IngestionRunWhereInput
 }
 
 /**
@@ -3295,6 +3795,8 @@ export type CourseSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   owner?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   sourceDocuments?: boolean | Prisma.Course$sourceDocumentsArgs<ExtArgs>
   sourceChunks?: boolean | Prisma.Course$sourceChunksArgs<ExtArgs>
+  sourceAssets?: boolean | Prisma.Course$sourceAssetsArgs<ExtArgs>
+  ingestionRuns?: boolean | Prisma.Course$ingestionRunsArgs<ExtArgs>
   modules?: boolean | Prisma.Course$modulesArgs<ExtArgs>
   courseForks?: boolean | Prisma.Course$courseForksArgs<ExtArgs>
   courseReports?: boolean | Prisma.Course$courseReportsArgs<ExtArgs>
@@ -3395,6 +3897,8 @@ export type CourseInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   owner?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   sourceDocuments?: boolean | Prisma.Course$sourceDocumentsArgs<ExtArgs>
   sourceChunks?: boolean | Prisma.Course$sourceChunksArgs<ExtArgs>
+  sourceAssets?: boolean | Prisma.Course$sourceAssetsArgs<ExtArgs>
+  ingestionRuns?: boolean | Prisma.Course$ingestionRunsArgs<ExtArgs>
   modules?: boolean | Prisma.Course$modulesArgs<ExtArgs>
   courseForks?: boolean | Prisma.Course$courseForksArgs<ExtArgs>
   courseReports?: boolean | Prisma.Course$courseReportsArgs<ExtArgs>
@@ -3419,6 +3923,8 @@ export type $CoursePayload<ExtArgs extends runtime.Types.Extensions.InternalArgs
     owner: Prisma.$UserPayload<ExtArgs>
     sourceDocuments: Prisma.$SourceDocumentPayload<ExtArgs>[]
     sourceChunks: Prisma.$SourceChunkPayload<ExtArgs>[]
+    sourceAssets: Prisma.$SourceAssetPayload<ExtArgs>[]
+    ingestionRuns: Prisma.$IngestionRunPayload<ExtArgs>[]
     modules: Prisma.$ModulePayload<ExtArgs>[]
     courseForks: Prisma.$CourseForkPayload<ExtArgs>[]
     courseReports: Prisma.$CourseReportPayload<ExtArgs>[]
@@ -3851,6 +4357,8 @@ export interface Prisma__CourseClient<T, Null = never, ExtArgs extends runtime.T
   owner<T extends Prisma.UserDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UserDefaultArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   sourceDocuments<T extends Prisma.Course$sourceDocumentsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Course$sourceDocumentsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SourceDocumentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   sourceChunks<T extends Prisma.Course$sourceChunksArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Course$sourceChunksArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SourceChunkPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  sourceAssets<T extends Prisma.Course$sourceAssetsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Course$sourceAssetsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SourceAssetPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  ingestionRuns<T extends Prisma.Course$ingestionRunsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Course$ingestionRunsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$IngestionRunPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   modules<T extends Prisma.Course$modulesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Course$modulesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ModulePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   courseForks<T extends Prisma.Course$courseForksArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Course$courseForksArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CourseForkPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   courseReports<T extends Prisma.Course$courseReportsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Course$courseReportsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CourseReportPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -4359,6 +4867,54 @@ export type Course$sourceChunksArgs<ExtArgs extends runtime.Types.Extensions.Int
   take?: number
   skip?: number
   distinct?: Prisma.SourceChunkScalarFieldEnum | Prisma.SourceChunkScalarFieldEnum[]
+}
+
+/**
+ * Course.sourceAssets
+ */
+export type Course$sourceAssetsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the SourceAsset
+   */
+  select?: Prisma.SourceAssetSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the SourceAsset
+   */
+  omit?: Prisma.SourceAssetOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.SourceAssetInclude<ExtArgs> | null
+  where?: Prisma.SourceAssetWhereInput
+  orderBy?: Prisma.SourceAssetOrderByWithRelationInput | Prisma.SourceAssetOrderByWithRelationInput[]
+  cursor?: Prisma.SourceAssetWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.SourceAssetScalarFieldEnum | Prisma.SourceAssetScalarFieldEnum[]
+}
+
+/**
+ * Course.ingestionRuns
+ */
+export type Course$ingestionRunsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the IngestionRun
+   */
+  select?: Prisma.IngestionRunSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the IngestionRun
+   */
+  omit?: Prisma.IngestionRunOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.IngestionRunInclude<ExtArgs> | null
+  where?: Prisma.IngestionRunWhereInput
+  orderBy?: Prisma.IngestionRunOrderByWithRelationInput | Prisma.IngestionRunOrderByWithRelationInput[]
+  cursor?: Prisma.IngestionRunWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.IngestionRunScalarFieldEnum | Prisma.IngestionRunScalarFieldEnum[]
 }
 
 /**

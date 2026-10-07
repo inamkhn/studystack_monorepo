@@ -5,6 +5,43 @@
 
 import { deflateSync } from "node:zlib";
 
+/**
+ * Downscale raw multi-channel pixels (1/3/4) to at most `maxPixels` total,
+ * nearest-neighbor. OCR guardrail (doc §17): very high-resolution scans
+ * would otherwise blow up memory in the WASM engine; downsampling is
+ * deterministic and bounded. Returns the input untouched when already under
+ * the cap.
+ */
+export function downscaleToMaxPixels(
+  data: Uint8Array | Uint8ClampedArray,
+  width: number,
+  height: number,
+  channels: 1 | 2 | 3 | 4,
+  maxPixels: number,
+): { data: Uint8Array; width: number; height: number } {
+  const totalPixels = width * height;
+  if (width <= 0 || height <= 0 || totalPixels <= maxPixels) {
+    return { data: data as Uint8Array, width, height };
+  }
+
+  const factor = Math.sqrt(totalPixels / maxPixels);
+  const newWidth = Math.max(1, Math.floor(width / factor));
+  const newHeight = Math.max(1, Math.floor(height / factor));
+  const out = new Uint8Array(newWidth * newHeight * channels);
+
+  for (let y = 0; y < newHeight; y++) {
+    const srcY = Math.min(height - 1, Math.floor(y * factor));
+    for (let x = 0; x < newWidth; x++) {
+      const srcX = Math.min(width - 1, Math.floor(x * factor));
+      const src = (srcY * width + srcX) * channels;
+      const dst = (y * newWidth + x) * channels;
+      for (let c = 0; c < channels; c++) out[dst + c] = data[src + c];
+    }
+  }
+
+  return { data: out, width: newWidth, height: newHeight };
+}
+
 const CRC_TABLE = (() => {
   const table = new Uint32Array(256);
   for (let n = 0; n < 256; n++) {

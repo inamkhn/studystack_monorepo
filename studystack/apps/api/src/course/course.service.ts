@@ -7,15 +7,25 @@ import {
   NotFoundException,
   PayloadTooLargeException,
   ServiceUnavailableException,
+  UnsupportedMediaTypeException,
 } from "@nestjs/common";
 import { InjectQueue } from "@nestjs/bullmq";
 import { Goal, Level } from "../generated/prisma/client.js";
 import { Queue } from "bullmq";
 import { createHash } from "node:crypto";
 import { createReadStream } from "node:fs";
-import { mkdir, rename, unlink } from "fs/promises";
+import { mkdir, readFile, rename, unlink } from "fs/promises";
 import * as path from "path";
 import { StorageService } from "../storage/storage.service.js";
+import {
+  ExtractionError,
+  IngestionErrorCode,
+} from "../ai/pipeline/types.js";
+import { UploadValidationService } from "../uploads/upload-validation.service.js";
+import {
+  METRICS,
+  IngestionTelemetry,
+} from "../observability/ingestion-telemetry.js";
 import {
   INGESTION_QUEUE,
   JOB_PRIORITY,
@@ -53,11 +63,45 @@ export class CourseService {
     @InjectQueue(RESEARCH_QUEUE) private readonly researchQueue: Queue,
     @InjectQueue(STRUCTURING_QUEUE) private readonly structuringQueue: Queue,
     private readonly storage: StorageService,
+    private readonly uploads: UploadValidationService,
+    private readonly telemetry: IngestionTelemetry,
   ) {}
 
   // ── F1: upload path ────────────────────────────────────────────────────
 
   async createUploadCourse(
+    userId: string,
+    file: Express.Multer.File,
+    attestRights?: boolean,
+  ) {
+    // §41 upload funnel: one start per attempt; finalized only if it
+    // reaches the queue, otherwise rejected (validation/abuse/duplicate).
+    this.telemetry.increment(METRICS.uploadsStarted);
+    try {
+      const course = await this.createUploadCourseInner(
+        userId,
+        file,
+        attestRights,
+      );
+      this.telemetry.increment(METRICS.uploadsFinalized);
+      this.telemetry.logEvent(
+        "log",
+        "upload:finalized",
+        { courseId: course.id },
+        { via: "multipart" },
+      );
+      return course;
+    } catch (error) {
+      this.telemetry.increment(METRICS.uploadsRejected);
+      this.telemetry.logEvent("warn", "upload:rejected", {}, {
+        via: "multipart",
+        reason: error instanceof Error ? error.message : String(error),
+      });
+      throw error;
+    }
+  }
+
+  private async createUploadCourseInner(
     userId: string,
     file: Express.Multer.File,
     attestRights?: boolean,
@@ -69,7 +113,20 @@ export class CourseService {
     // F1 edge case: corrupted/disguised files are rejected up front with a
     // clear error instead of creating a course that parks in `ingesting`.
     // Path-based because uploads are disk-streamed (never in-memory).
-    await validateUploadFilePath(file.path, file.originalname);
+    const kind = await validateUploadFilePath(file.path, file.originalname);
+
+    // F1 §5/§6: per-file size cap + DOCX archive-bomb / dangerous-member
+    // guard run before any row exists — a bomb is rejected here, never
+    // enqueued to inflate in the worker. Only DOCX needs its bytes read
+    // (the ZIP central directory); PDF/text skip straight past.
+    try {
+      this.uploads.assertWithinSizeLimit(file.size);
+      if (kind === "docx") {
+        this.uploads.validateBytes("docx", await readFile(file.path));
+      }
+    } catch (error) {
+      throw this.toUploadHttpException(error);
+    }
 
     // F1 §4.4: abuse controls run before any row exists — rate limit,
     // storage quota, and duplicate detection (same content hash under this
@@ -175,6 +232,29 @@ export class CourseService {
       attestRights?: boolean;
     },
   ) {
+    // §41: a presign is an upload start; the funnel finalizes on confirm.
+    this.telemetry.increment(METRICS.uploadsStarted);
+    try {
+      return await this.presignUploadInner(userId, opts);
+    } catch (error) {
+      this.telemetry.increment(METRICS.uploadsRejected);
+      this.telemetry.logEvent("warn", "upload:rejected", {}, {
+        via: "presign",
+        reason: error instanceof Error ? error.message : String(error),
+      });
+      throw error;
+    }
+  }
+
+  private async presignUploadInner(
+    userId: string,
+    opts: {
+      filename: string;
+      contentType: string;
+      sizeBytes: number;
+      attestRights?: boolean;
+    },
+  ) {
     if (this.storage.getDriver() !== "s3") {
       throw new ServiceUnavailableException(
         "Presigned uploads require STORAGE_DRIVER=s3 — use multipart POST /courses/upload",
@@ -186,6 +266,15 @@ export class CourseService {
       throw new BadRequestException(
         "Only PDF, DOCX, and plain-text (.txt / .md) files are supported",
       );
+    }
+
+    // §5: cheap declared-size gate now (the actual stored size is
+    // re-checked against the same cap on confirm — the browser's PUT is
+    // out-of-band and untrusted).
+    try {
+      this.uploads.assertWithinSizeLimit(opts.sizeBytes);
+    } catch (error) {
+      throw this.toUploadHttpException(error);
     }
 
     await this.assertUploadAllowed(userId, opts.sizeBytes);
@@ -212,7 +301,9 @@ export class CourseService {
           fileType: ext || null,
           fileSizeBytes: opts.sizeBytes,
           licenseStatus: "user_uploaded_unknown",
-          extractionStatus: "awaiting-upload",
+          // Enum value (doc §8) — the presign reserved the row; bytes have
+          // not landed yet. Course.ingestionStage keeps its wire string.
+          extractionStatus: "awaiting_upload",
         },
       });
       const { url, expiresIn } = await this.storage.presignPut(
@@ -237,9 +328,32 @@ export class CourseService {
       course.status === "ingesting" &&
       course.ingestionStage !== "awaiting-upload"
     ) {
-      return course; // idempotent — already confirmed/queued
+      return course; // idempotent — already confirmed/queued (no new finalize)
     }
+    try {
+      const updated = await this.confirmUploadInner(course, courseId);
+      this.telemetry.increment(METRICS.uploadsFinalized);
+      this.telemetry.logEvent(
+        "log",
+        "upload:finalized",
+        { courseId },
+        { via: "presign-confirm" },
+      );
+      return updated;
+    } catch (error) {
+      this.telemetry.increment(METRICS.uploadsRejected);
+      this.telemetry.logEvent("warn", "upload:rejected", { courseId }, {
+        via: "presign-confirm",
+        reason: error instanceof Error ? error.message : String(error),
+      });
+      throw error;
+    }
+  }
 
+  private async confirmUploadInner(
+    course: Awaited<ReturnType<CourseService["requireOwnedCourse"]>>,
+    courseId: string,
+  ) {
     const document = await this.prisma.sourceDocument.findFirst({
       where: { courseId },
     });
@@ -273,6 +387,42 @@ export class CourseService {
       );
     }
 
+    // F1 §5/§6: enforce the per-file cap against the ACTUAL stored size
+    // (the declared presign size is untrusted) and run the DOCX archive
+    // guard on the landed bytes before queueing ingestion. A failure here
+    // fails the course cleanly rather than parking it in `ingesting`.
+    try {
+      this.uploads.assertWithinSizeLimit(size);
+      if (claimed === "docx") {
+        this.uploads.validateBytes(
+          "docx",
+          await this.storage.getObjectBytes(document.fileUrl),
+        );
+      }
+    } catch (error) {
+      const code =
+        error instanceof ExtractionError
+          ? error.code
+          : IngestionErrorCode.FileCorrupted;
+      const message =
+        error instanceof Error ? error.message : "Upload validation failed";
+      await this.prisma.$transaction([
+        this.prisma.sourceDocument.updateMany({
+          where: { courseId },
+          data: {
+            extractionStatus: "failed",
+            extractionErrorCode: code,
+            extractionErrorMessage: message,
+          },
+        }),
+        this.prisma.course.update({
+          where: { id: courseId },
+          data: { status: "failed", failureReason: message },
+        }),
+      ]);
+      throw this.toUploadHttpException(error);
+    }
+
     await this.prisma.sourceDocument.updateMany({
       where: { courseId },
       data: { extractionStatus: null, fileSizeBytes: size },
@@ -295,6 +445,30 @@ export class CourseService {
     }
 
     return updated;
+  }
+
+  /**
+   * Maps a domain ExtractionError from the upload validators onto the
+   * HTTP contract: oversize → 413, unsupported type → 415, everything
+   * else (corrupted / archive bomb / malware) → 400 with the stable code
+   * in the body so the client can branch on cause (doc §36).
+   */
+  private toUploadHttpException(error: unknown): HttpException {
+    if (error instanceof ExtractionError) {
+      const body = { message: error.message, code: error.code };
+      switch (error.code) {
+        case IngestionErrorCode.FileTooLarge:
+          return new PayloadTooLargeException(body);
+        case IngestionErrorCode.UnsupportedFileType:
+          return new UnsupportedMediaTypeException(body);
+        default:
+          return new BadRequestException(body);
+      }
+    }
+    if (error instanceof HttpException) return error;
+    return new BadRequestException(
+      error instanceof Error ? error.message : "Upload validation failed",
+    );
   }
 
   /**
@@ -360,6 +534,38 @@ export class CourseService {
       ),
     ]);
 
+    // Phase 2 observability (doc §41/§43): the live IngestionRun carries
+    // the resumable page checkpoint + terminal error taxonomy. Latest run
+    // overall — per-document runs and (future) course-wide runs both show.
+    const [latestRun, documentsReady, failedDoc] = await Promise.all([
+      this.prisma.ingestionRun.findFirst({
+        where: { courseId },
+        orderBy: { createdAt: "desc" },
+        select: {
+          status: true,
+          stage: true,
+          progress: true,
+          pagesProcessed: true,
+          pipelineVersion: true,
+          attempt: true,
+          errorCode: true,
+          errorMessage: true,
+          sourceDocumentId: true,
+        },
+      }),
+      this.prisma.sourceDocument.count({
+        where: { courseId, extractionStatus: "ready" },
+      }),
+      this.prisma.sourceDocument.findFirst({
+        where: { courseId, extractionErrorCode: { not: null } },
+        orderBy: { uploadedAt: "asc" },
+        select: {
+          extractionErrorCode: true,
+          extractionErrorMessage: true,
+        },
+      }),
+    ]);
+
     return {
       id: course.id,
       title: course.title,
@@ -377,7 +583,25 @@ export class CourseService {
         stage: course.ingestionStage ?? null,
         sourceDocuments,
         sourceChunks,
+        documentsReady,
+        // F1 Phase 2 (doc §26): pages checkpointed by the current run —
+        // a resumed extraction continues from here.
+        pagesProcessed: latestRun?.pagesProcessed ?? 0,
+        // Latest run's 0-100 estimate (extracting stage only — 99 until
+        // the document finishes). Null before any run exists.
+        ...(latestRun ? { runProgress: latestRun.progress } : {}),
       },
+      // Terminal per-document cause when one failed (e.g. a password-
+      // protected PDF inside an otherwise-fine course) — clients branch
+      // on the code (doc §36).
+      ...(failedDoc?.extractionErrorCode
+        ? {
+            documentError: {
+              code: failedDoc.extractionErrorCode,
+              message: failedDoc.extractionErrorMessage,
+            },
+          }
+        : {}),
     };
   }
 

@@ -68,7 +68,7 @@ export async function embedCourseChunks(
   // time bounded on large courses.
   const BATCH = 50;
   for (let i = 0; i < rows.length; i += BATCH) {
-    const batch = rows.slice(i, i + BATCH).map((row, j) => toSchemaVector(vectors[i + j]));
+    const batch = rows.slice(i, i + BATCH).map((_row, j) => toSchemaVector(vectors[i + j]));
     await prisma.$transaction(async (tx) => {
       await setChunkScope(tx, courseId);
       for (let j = 0; j < batch.length; j++) {
@@ -101,23 +101,4 @@ export async function embedConceptRows(
     `;
   });
   await prisma.$transaction(updates);
-}
-
-/** Embeds a single concept (canonical name + aliases) and stores it. */
-export async function embedConcept(
-  prisma: PrismaService,
-  conceptId: string,
-  canonicalName: string,
-  aliases: string[],
-): Promise<void> {
-  const embeddings = buildEmbeddings();
-  const text = aliases.length
-    ? `${canonicalName} (${aliases.join(", ")})`
-    : canonicalName;
-  const [vector] = await embeddings.embedDocuments([text]);
-  const normalized = toSchemaVector(vector);
-  await prisma.$executeRaw`
-    UPDATE concepts SET embedding = ${JSON.stringify(normalized)}::vector
-    WHERE id = ${conceptId}
-  `;
 }

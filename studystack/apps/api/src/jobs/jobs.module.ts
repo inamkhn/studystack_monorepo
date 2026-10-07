@@ -2,6 +2,8 @@ import { BullModule } from "@nestjs/bullmq";
 import { ConfigService } from "@nestjs/config";
 import { Module } from "@nestjs/common";
 import { INGESTION_QUEUE, MASTERY_DECAY_QUEUE, RESEARCH_QUEUE, STRUCTURING_QUEUE } from "./jobs.constants.js";
+import { UploadsModule } from "../uploads/uploads.module.js";
+import { ObservabilityModule } from "../observability/observability.module.js";
 import { BackfillProcessor } from "./backfill.processor.js";
 import { BackfillService } from "./backfill.service.js";
 import { IngestionProcessor } from "./ingestion.processor.js";
@@ -24,6 +26,8 @@ import { StructuringProcessor } from "./structuring.processor.js";
       { name: STRUCTURING_QUEUE },
       { name: MASTERY_DECAY_QUEUE },
     ),
+    UploadsModule,
+    ObservabilityModule,
   ],
   providers: [
     IngestionProcessor,

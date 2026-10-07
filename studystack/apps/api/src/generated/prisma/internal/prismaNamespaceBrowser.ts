@@ -57,6 +57,8 @@ export const ModelName = {
   Course: 'Course',
   SourceDocument: 'SourceDocument',
   SourceChunk: 'SourceChunk',
+  IngestionRun: 'IngestionRun',
+  SourceAsset: 'SourceAsset',
   Module: 'Module',
   Subtopic: 'Subtopic',
   Concept: 'Concept',
@@ -174,7 +176,10 @@ export const SourceDocumentScalarFieldEnum = {
   fileType: 'fileType',
   fileSizeBytes: 'fileSizeBytes',
   contentHash: 'contentHash',
+  pageCount: 'pageCount',
   extractionStatus: 'extractionStatus',
+  extractionErrorCode: 'extractionErrorCode',
+  extractionErrorMessage: 'extractionErrorMessage',
   licenseStatus: 'licenseStatus',
   uploadedAt: 'uploadedAt'
 } as const
@@ -189,10 +194,54 @@ export const SourceChunkScalarFieldEnum = {
   chunkText: 'chunkText',
   metadata: 'metadata',
   needsResearchFill: 'needsResearchFill',
-  createdAt: 'createdAt'
+  createdAt: 'createdAt',
+  chunkOrdinal: 'chunkOrdinal',
+  contentHash: 'contentHash',
+  pipelineVersion: 'pipelineVersion'
 } as const
 
 export type SourceChunkScalarFieldEnum = (typeof SourceChunkScalarFieldEnum)[keyof typeof SourceChunkScalarFieldEnum]
+
+
+export const IngestionRunScalarFieldEnum = {
+  id: 'id',
+  courseId: 'courseId',
+  sourceDocumentId: 'sourceDocumentId',
+  status: 'status',
+  stage: 'stage',
+  progress: 'progress',
+  pagesProcessed: 'pagesProcessed',
+  pipelineVersion: 'pipelineVersion',
+  parserVersion: 'parserVersion',
+  ocrVersion: 'ocrVersion',
+  embeddingModel: 'embeddingModel',
+  attempt: 'attempt',
+  errorCode: 'errorCode',
+  errorMessage: 'errorMessage',
+  metrics: 'metrics',
+  startedAt: 'startedAt',
+  completedAt: 'completedAt',
+  createdAt: 'createdAt'
+} as const
+
+export type IngestionRunScalarFieldEnum = (typeof IngestionRunScalarFieldEnum)[keyof typeof IngestionRunScalarFieldEnum]
+
+
+export const SourceAssetScalarFieldEnum = {
+  id: 'id',
+  courseId: 'courseId',
+  sourceDocumentId: 'sourceDocumentId',
+  storageKey: 'storageKey',
+  mimeType: 'mimeType',
+  width: 'width',
+  height: 'height',
+  pageNumber: 'pageNumber',
+  sectionRef: 'sectionRef',
+  kind: 'kind',
+  createdAt: 'createdAt'
+} as const
+
+export type SourceAssetScalarFieldEnum = (typeof SourceAssetScalarFieldEnum)[keyof typeof SourceAssetScalarFieldEnum]
 
 
 export const ModuleScalarFieldEnum = {

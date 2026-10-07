@@ -133,6 +133,10 @@ export class CourseMaintenanceService {
       if (moduleIds.length > 0) {
         await tx.module.deleteMany({ where: { id: { in: moduleIds } } });
       }
+      // F1 Phase 1 tables (RESTRICT to course; assets also to documents) —
+      // deleted before the chunks/documents/course rows they reference.
+      await tx.ingestionRun.deleteMany({ where: { courseId } });
+      await tx.sourceAsset.deleteMany({ where: { courseId } });
       await tx.sourceChunk.deleteMany({ where: { courseId } });
       await tx.sourceDocument.deleteMany({ where: { courseId } });
       await tx.export.deleteMany({ where: { courseId } });

@@ -18,6 +18,7 @@ import { diskStorage } from "multer";
 import { mkdirSync } from "node:fs";
 import { randomUUID } from "node:crypto";
 import * as path from "path";
+import { UPLOAD_MAX_BYTES } from "../uploads/upload-limits.js";
 import { CurrentUser } from "../auth/current-user.decorator.js";
 import { JwtAuthGuard } from "../auth/jwt-auth.guard.js";
 import { UPLOAD_DIR } from "../common/utils/storage.js";
@@ -61,7 +62,7 @@ export class CourseController {
           );
         },
       }),
-      limits: { fileSize: 50 * 1024 * 1024 },
+      limits: { fileSize: UPLOAD_MAX_BYTES },
     }),
   )
   async uploadCourse(

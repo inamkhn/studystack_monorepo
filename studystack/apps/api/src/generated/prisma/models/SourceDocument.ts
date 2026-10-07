@@ -28,10 +28,12 @@ export type AggregateSourceDocument = {
 
 export type SourceDocumentAvgAggregateOutputType = {
   fileSizeBytes: number | null
+  pageCount: number | null
 }
 
 export type SourceDocumentSumAggregateOutputType = {
   fileSizeBytes: number | null
+  pageCount: number | null
 }
 
 export type SourceDocumentMinAggregateOutputType = {
@@ -42,7 +44,10 @@ export type SourceDocumentMinAggregateOutputType = {
   fileType: string | null
   fileSizeBytes: number | null
   contentHash: string | null
-  extractionStatus: string | null
+  pageCount: number | null
+  extractionStatus: $Enums.ExtractionStatus | null
+  extractionErrorCode: string | null
+  extractionErrorMessage: string | null
   licenseStatus: $Enums.LicenseStatus | null
   uploadedAt: Date | null
 }
@@ -55,7 +60,10 @@ export type SourceDocumentMaxAggregateOutputType = {
   fileType: string | null
   fileSizeBytes: number | null
   contentHash: string | null
-  extractionStatus: string | null
+  pageCount: number | null
+  extractionStatus: $Enums.ExtractionStatus | null
+  extractionErrorCode: string | null
+  extractionErrorMessage: string | null
   licenseStatus: $Enums.LicenseStatus | null
   uploadedAt: Date | null
 }
@@ -68,7 +76,10 @@ export type SourceDocumentCountAggregateOutputType = {
   fileType: number
   fileSizeBytes: number
   contentHash: number
+  pageCount: number
   extractionStatus: number
+  extractionErrorCode: number
+  extractionErrorMessage: number
   licenseStatus: number
   uploadedAt: number
   _all: number
@@ -77,10 +88,12 @@ export type SourceDocumentCountAggregateOutputType = {
 
 export type SourceDocumentAvgAggregateInputType = {
   fileSizeBytes?: true
+  pageCount?: true
 }
 
 export type SourceDocumentSumAggregateInputType = {
   fileSizeBytes?: true
+  pageCount?: true
 }
 
 export type SourceDocumentMinAggregateInputType = {
@@ -91,7 +104,10 @@ export type SourceDocumentMinAggregateInputType = {
   fileType?: true
   fileSizeBytes?: true
   contentHash?: true
+  pageCount?: true
   extractionStatus?: true
+  extractionErrorCode?: true
+  extractionErrorMessage?: true
   licenseStatus?: true
   uploadedAt?: true
 }
@@ -104,7 +120,10 @@ export type SourceDocumentMaxAggregateInputType = {
   fileType?: true
   fileSizeBytes?: true
   contentHash?: true
+  pageCount?: true
   extractionStatus?: true
+  extractionErrorCode?: true
+  extractionErrorMessage?: true
   licenseStatus?: true
   uploadedAt?: true
 }
@@ -117,7 +136,10 @@ export type SourceDocumentCountAggregateInputType = {
   fileType?: true
   fileSizeBytes?: true
   contentHash?: true
+  pageCount?: true
   extractionStatus?: true
+  extractionErrorCode?: true
+  extractionErrorMessage?: true
   licenseStatus?: true
   uploadedAt?: true
   _all?: true
@@ -217,7 +239,10 @@ export type SourceDocumentGroupByOutputType = {
   fileType: string | null
   fileSizeBytes: number | null
   contentHash: string | null
-  extractionStatus: string | null
+  pageCount: number | null
+  extractionStatus: $Enums.ExtractionStatus | null
+  extractionErrorCode: string | null
+  extractionErrorMessage: string | null
   licenseStatus: $Enums.LicenseStatus
   uploadedAt: Date
   _count: SourceDocumentCountAggregateOutputType | null
@@ -253,11 +278,16 @@ export type SourceDocumentWhereInput = {
   fileType?: Prisma.StringNullableFilter<"SourceDocument"> | string | null
   fileSizeBytes?: Prisma.IntNullableFilter<"SourceDocument"> | number | null
   contentHash?: Prisma.StringNullableFilter<"SourceDocument"> | string | null
-  extractionStatus?: Prisma.StringNullableFilter<"SourceDocument"> | string | null
+  pageCount?: Prisma.IntNullableFilter<"SourceDocument"> | number | null
+  extractionStatus?: Prisma.EnumExtractionStatusNullableFilter<"SourceDocument"> | $Enums.ExtractionStatus | null
+  extractionErrorCode?: Prisma.StringNullableFilter<"SourceDocument"> | string | null
+  extractionErrorMessage?: Prisma.StringNullableFilter<"SourceDocument"> | string | null
   licenseStatus?: Prisma.EnumLicenseStatusFilter<"SourceDocument"> | $Enums.LicenseStatus
   uploadedAt?: Prisma.DateTimeFilter<"SourceDocument"> | Date | string
   course?: Prisma.XOR<Prisma.CourseScalarRelationFilter, Prisma.CourseWhereInput>
   sourceChunks?: Prisma.SourceChunkListRelationFilter
+  sourceAssets?: Prisma.SourceAssetListRelationFilter
+  ingestionRuns?: Prisma.IngestionRunListRelationFilter
 }
 
 export type SourceDocumentOrderByWithRelationInput = {
@@ -268,11 +298,16 @@ export type SourceDocumentOrderByWithRelationInput = {
   fileType?: Prisma.SortOrderInput | Prisma.SortOrder
   fileSizeBytes?: Prisma.SortOrderInput | Prisma.SortOrder
   contentHash?: Prisma.SortOrderInput | Prisma.SortOrder
+  pageCount?: Prisma.SortOrderInput | Prisma.SortOrder
   extractionStatus?: Prisma.SortOrderInput | Prisma.SortOrder
+  extractionErrorCode?: Prisma.SortOrderInput | Prisma.SortOrder
+  extractionErrorMessage?: Prisma.SortOrderInput | Prisma.SortOrder
   licenseStatus?: Prisma.SortOrder
   uploadedAt?: Prisma.SortOrder
   course?: Prisma.CourseOrderByWithRelationInput
   sourceChunks?: Prisma.SourceChunkOrderByRelationAggregateInput
+  sourceAssets?: Prisma.SourceAssetOrderByRelationAggregateInput
+  ingestionRuns?: Prisma.IngestionRunOrderByRelationAggregateInput
 }
 
 export type SourceDocumentWhereUniqueInput = Prisma.AtLeast<{
@@ -286,11 +321,16 @@ export type SourceDocumentWhereUniqueInput = Prisma.AtLeast<{
   fileType?: Prisma.StringNullableFilter<"SourceDocument"> | string | null
   fileSizeBytes?: Prisma.IntNullableFilter<"SourceDocument"> | number | null
   contentHash?: Prisma.StringNullableFilter<"SourceDocument"> | string | null
-  extractionStatus?: Prisma.StringNullableFilter<"SourceDocument"> | string | null
+  pageCount?: Prisma.IntNullableFilter<"SourceDocument"> | number | null
+  extractionStatus?: Prisma.EnumExtractionStatusNullableFilter<"SourceDocument"> | $Enums.ExtractionStatus | null
+  extractionErrorCode?: Prisma.StringNullableFilter<"SourceDocument"> | string | null
+  extractionErrorMessage?: Prisma.StringNullableFilter<"SourceDocument"> | string | null
   licenseStatus?: Prisma.EnumLicenseStatusFilter<"SourceDocument"> | $Enums.LicenseStatus
   uploadedAt?: Prisma.DateTimeFilter<"SourceDocument"> | Date | string
   course?: Prisma.XOR<Prisma.CourseScalarRelationFilter, Prisma.CourseWhereInput>
   sourceChunks?: Prisma.SourceChunkListRelationFilter
+  sourceAssets?: Prisma.SourceAssetListRelationFilter
+  ingestionRuns?: Prisma.IngestionRunListRelationFilter
 }, "id">
 
 export type SourceDocumentOrderByWithAggregationInput = {
@@ -301,7 +341,10 @@ export type SourceDocumentOrderByWithAggregationInput = {
   fileType?: Prisma.SortOrderInput | Prisma.SortOrder
   fileSizeBytes?: Prisma.SortOrderInput | Prisma.SortOrder
   contentHash?: Prisma.SortOrderInput | Prisma.SortOrder
+  pageCount?: Prisma.SortOrderInput | Prisma.SortOrder
   extractionStatus?: Prisma.SortOrderInput | Prisma.SortOrder
+  extractionErrorCode?: Prisma.SortOrderInput | Prisma.SortOrder
+  extractionErrorMessage?: Prisma.SortOrderInput | Prisma.SortOrder
   licenseStatus?: Prisma.SortOrder
   uploadedAt?: Prisma.SortOrder
   _count?: Prisma.SourceDocumentCountOrderByAggregateInput
@@ -322,7 +365,10 @@ export type SourceDocumentScalarWhereWithAggregatesInput = {
   fileType?: Prisma.StringNullableWithAggregatesFilter<"SourceDocument"> | string | null
   fileSizeBytes?: Prisma.IntNullableWithAggregatesFilter<"SourceDocument"> | number | null
   contentHash?: Prisma.StringNullableWithAggregatesFilter<"SourceDocument"> | string | null
-  extractionStatus?: Prisma.StringNullableWithAggregatesFilter<"SourceDocument"> | string | null
+  pageCount?: Prisma.IntNullableWithAggregatesFilter<"SourceDocument"> | number | null
+  extractionStatus?: Prisma.EnumExtractionStatusNullableWithAggregatesFilter<"SourceDocument"> | $Enums.ExtractionStatus | null
+  extractionErrorCode?: Prisma.StringNullableWithAggregatesFilter<"SourceDocument"> | string | null
+  extractionErrorMessage?: Prisma.StringNullableWithAggregatesFilter<"SourceDocument"> | string | null
   licenseStatus?: Prisma.EnumLicenseStatusWithAggregatesFilter<"SourceDocument"> | $Enums.LicenseStatus
   uploadedAt?: Prisma.DateTimeWithAggregatesFilter<"SourceDocument"> | Date | string
 }
@@ -334,11 +380,16 @@ export type SourceDocumentCreateInput = {
   fileType?: string | null
   fileSizeBytes?: number | null
   contentHash?: string | null
-  extractionStatus?: string | null
+  pageCount?: number | null
+  extractionStatus?: $Enums.ExtractionStatus | null
+  extractionErrorCode?: string | null
+  extractionErrorMessage?: string | null
   licenseStatus?: $Enums.LicenseStatus
   uploadedAt?: Date | string
   course: Prisma.CourseCreateNestedOneWithoutSourceDocumentsInput
   sourceChunks?: Prisma.SourceChunkCreateNestedManyWithoutSourceDocumentInput
+  sourceAssets?: Prisma.SourceAssetCreateNestedManyWithoutSourceDocumentInput
+  ingestionRuns?: Prisma.IngestionRunCreateNestedManyWithoutSourceDocumentInput
 }
 
 export type SourceDocumentUncheckedCreateInput = {
@@ -349,10 +400,15 @@ export type SourceDocumentUncheckedCreateInput = {
   fileType?: string | null
   fileSizeBytes?: number | null
   contentHash?: string | null
-  extractionStatus?: string | null
+  pageCount?: number | null
+  extractionStatus?: $Enums.ExtractionStatus | null
+  extractionErrorCode?: string | null
+  extractionErrorMessage?: string | null
   licenseStatus?: $Enums.LicenseStatus
   uploadedAt?: Date | string
   sourceChunks?: Prisma.SourceChunkUncheckedCreateNestedManyWithoutSourceDocumentInput
+  sourceAssets?: Prisma.SourceAssetUncheckedCreateNestedManyWithoutSourceDocumentInput
+  ingestionRuns?: Prisma.IngestionRunUncheckedCreateNestedManyWithoutSourceDocumentInput
 }
 
 export type SourceDocumentUpdateInput = {
@@ -362,11 +418,16 @@ export type SourceDocumentUpdateInput = {
   fileType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileSizeBytes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   contentHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  extractionStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pageCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  extractionStatus?: Prisma.NullableEnumExtractionStatusFieldUpdateOperationsInput | $Enums.ExtractionStatus | null
+  extractionErrorCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  extractionErrorMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   licenseStatus?: Prisma.EnumLicenseStatusFieldUpdateOperationsInput | $Enums.LicenseStatus
   uploadedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   course?: Prisma.CourseUpdateOneRequiredWithoutSourceDocumentsNestedInput
   sourceChunks?: Prisma.SourceChunkUpdateManyWithoutSourceDocumentNestedInput
+  sourceAssets?: Prisma.SourceAssetUpdateManyWithoutSourceDocumentNestedInput
+  ingestionRuns?: Prisma.IngestionRunUpdateManyWithoutSourceDocumentNestedInput
 }
 
 export type SourceDocumentUncheckedUpdateInput = {
@@ -377,10 +438,15 @@ export type SourceDocumentUncheckedUpdateInput = {
   fileType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileSizeBytes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   contentHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  extractionStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pageCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  extractionStatus?: Prisma.NullableEnumExtractionStatusFieldUpdateOperationsInput | $Enums.ExtractionStatus | null
+  extractionErrorCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  extractionErrorMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   licenseStatus?: Prisma.EnumLicenseStatusFieldUpdateOperationsInput | $Enums.LicenseStatus
   uploadedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   sourceChunks?: Prisma.SourceChunkUncheckedUpdateManyWithoutSourceDocumentNestedInput
+  sourceAssets?: Prisma.SourceAssetUncheckedUpdateManyWithoutSourceDocumentNestedInput
+  ingestionRuns?: Prisma.IngestionRunUncheckedUpdateManyWithoutSourceDocumentNestedInput
 }
 
 export type SourceDocumentCreateManyInput = {
@@ -391,7 +457,10 @@ export type SourceDocumentCreateManyInput = {
   fileType?: string | null
   fileSizeBytes?: number | null
   contentHash?: string | null
-  extractionStatus?: string | null
+  pageCount?: number | null
+  extractionStatus?: $Enums.ExtractionStatus | null
+  extractionErrorCode?: string | null
+  extractionErrorMessage?: string | null
   licenseStatus?: $Enums.LicenseStatus
   uploadedAt?: Date | string
 }
@@ -403,7 +472,10 @@ export type SourceDocumentUpdateManyMutationInput = {
   fileType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileSizeBytes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   contentHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  extractionStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pageCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  extractionStatus?: Prisma.NullableEnumExtractionStatusFieldUpdateOperationsInput | $Enums.ExtractionStatus | null
+  extractionErrorCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  extractionErrorMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   licenseStatus?: Prisma.EnumLicenseStatusFieldUpdateOperationsInput | $Enums.LicenseStatus
   uploadedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -416,7 +488,10 @@ export type SourceDocumentUncheckedUpdateManyInput = {
   fileType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileSizeBytes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   contentHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  extractionStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pageCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  extractionStatus?: Prisma.NullableEnumExtractionStatusFieldUpdateOperationsInput | $Enums.ExtractionStatus | null
+  extractionErrorCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  extractionErrorMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   licenseStatus?: Prisma.EnumLicenseStatusFieldUpdateOperationsInput | $Enums.LicenseStatus
   uploadedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -439,13 +514,17 @@ export type SourceDocumentCountOrderByAggregateInput = {
   fileType?: Prisma.SortOrder
   fileSizeBytes?: Prisma.SortOrder
   contentHash?: Prisma.SortOrder
+  pageCount?: Prisma.SortOrder
   extractionStatus?: Prisma.SortOrder
+  extractionErrorCode?: Prisma.SortOrder
+  extractionErrorMessage?: Prisma.SortOrder
   licenseStatus?: Prisma.SortOrder
   uploadedAt?: Prisma.SortOrder
 }
 
 export type SourceDocumentAvgOrderByAggregateInput = {
   fileSizeBytes?: Prisma.SortOrder
+  pageCount?: Prisma.SortOrder
 }
 
 export type SourceDocumentMaxOrderByAggregateInput = {
@@ -456,7 +535,10 @@ export type SourceDocumentMaxOrderByAggregateInput = {
   fileType?: Prisma.SortOrder
   fileSizeBytes?: Prisma.SortOrder
   contentHash?: Prisma.SortOrder
+  pageCount?: Prisma.SortOrder
   extractionStatus?: Prisma.SortOrder
+  extractionErrorCode?: Prisma.SortOrder
+  extractionErrorMessage?: Prisma.SortOrder
   licenseStatus?: Prisma.SortOrder
   uploadedAt?: Prisma.SortOrder
 }
@@ -469,18 +551,27 @@ export type SourceDocumentMinOrderByAggregateInput = {
   fileType?: Prisma.SortOrder
   fileSizeBytes?: Prisma.SortOrder
   contentHash?: Prisma.SortOrder
+  pageCount?: Prisma.SortOrder
   extractionStatus?: Prisma.SortOrder
+  extractionErrorCode?: Prisma.SortOrder
+  extractionErrorMessage?: Prisma.SortOrder
   licenseStatus?: Prisma.SortOrder
   uploadedAt?: Prisma.SortOrder
 }
 
 export type SourceDocumentSumOrderByAggregateInput = {
   fileSizeBytes?: Prisma.SortOrder
+  pageCount?: Prisma.SortOrder
 }
 
 export type SourceDocumentScalarRelationFilter = {
   is?: Prisma.SourceDocumentWhereInput
   isNot?: Prisma.SourceDocumentWhereInput
+}
+
+export type SourceDocumentNullableScalarRelationFilter = {
+  is?: Prisma.SourceDocumentWhereInput | null
+  isNot?: Prisma.SourceDocumentWhereInput | null
 }
 
 export type SourceDocumentCreateNestedManyWithoutCourseInput = {
@@ -533,6 +624,10 @@ export type NullableIntFieldUpdateOperationsInput = {
   divide?: number
 }
 
+export type NullableEnumExtractionStatusFieldUpdateOperationsInput = {
+  set?: $Enums.ExtractionStatus | null
+}
+
 export type EnumLicenseStatusFieldUpdateOperationsInput = {
   set?: $Enums.LicenseStatus
 }
@@ -551,6 +646,36 @@ export type SourceDocumentUpdateOneRequiredWithoutSourceChunksNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.SourceDocumentUpdateToOneWithWhereWithoutSourceChunksInput, Prisma.SourceDocumentUpdateWithoutSourceChunksInput>, Prisma.SourceDocumentUncheckedUpdateWithoutSourceChunksInput>
 }
 
+export type SourceDocumentCreateNestedOneWithoutIngestionRunsInput = {
+  create?: Prisma.XOR<Prisma.SourceDocumentCreateWithoutIngestionRunsInput, Prisma.SourceDocumentUncheckedCreateWithoutIngestionRunsInput>
+  connectOrCreate?: Prisma.SourceDocumentCreateOrConnectWithoutIngestionRunsInput
+  connect?: Prisma.SourceDocumentWhereUniqueInput
+}
+
+export type SourceDocumentUpdateOneWithoutIngestionRunsNestedInput = {
+  create?: Prisma.XOR<Prisma.SourceDocumentCreateWithoutIngestionRunsInput, Prisma.SourceDocumentUncheckedCreateWithoutIngestionRunsInput>
+  connectOrCreate?: Prisma.SourceDocumentCreateOrConnectWithoutIngestionRunsInput
+  upsert?: Prisma.SourceDocumentUpsertWithoutIngestionRunsInput
+  disconnect?: Prisma.SourceDocumentWhereInput | boolean
+  delete?: Prisma.SourceDocumentWhereInput | boolean
+  connect?: Prisma.SourceDocumentWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.SourceDocumentUpdateToOneWithWhereWithoutIngestionRunsInput, Prisma.SourceDocumentUpdateWithoutIngestionRunsInput>, Prisma.SourceDocumentUncheckedUpdateWithoutIngestionRunsInput>
+}
+
+export type SourceDocumentCreateNestedOneWithoutSourceAssetsInput = {
+  create?: Prisma.XOR<Prisma.SourceDocumentCreateWithoutSourceAssetsInput, Prisma.SourceDocumentUncheckedCreateWithoutSourceAssetsInput>
+  connectOrCreate?: Prisma.SourceDocumentCreateOrConnectWithoutSourceAssetsInput
+  connect?: Prisma.SourceDocumentWhereUniqueInput
+}
+
+export type SourceDocumentUpdateOneRequiredWithoutSourceAssetsNestedInput = {
+  create?: Prisma.XOR<Prisma.SourceDocumentCreateWithoutSourceAssetsInput, Prisma.SourceDocumentUncheckedCreateWithoutSourceAssetsInput>
+  connectOrCreate?: Prisma.SourceDocumentCreateOrConnectWithoutSourceAssetsInput
+  upsert?: Prisma.SourceDocumentUpsertWithoutSourceAssetsInput
+  connect?: Prisma.SourceDocumentWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.SourceDocumentUpdateToOneWithWhereWithoutSourceAssetsInput, Prisma.SourceDocumentUpdateWithoutSourceAssetsInput>, Prisma.SourceDocumentUncheckedUpdateWithoutSourceAssetsInput>
+}
+
 export type SourceDocumentCreateWithoutCourseInput = {
   id?: string
   fileUrl?: string | null
@@ -558,10 +683,15 @@ export type SourceDocumentCreateWithoutCourseInput = {
   fileType?: string | null
   fileSizeBytes?: number | null
   contentHash?: string | null
-  extractionStatus?: string | null
+  pageCount?: number | null
+  extractionStatus?: $Enums.ExtractionStatus | null
+  extractionErrorCode?: string | null
+  extractionErrorMessage?: string | null
   licenseStatus?: $Enums.LicenseStatus
   uploadedAt?: Date | string
   sourceChunks?: Prisma.SourceChunkCreateNestedManyWithoutSourceDocumentInput
+  sourceAssets?: Prisma.SourceAssetCreateNestedManyWithoutSourceDocumentInput
+  ingestionRuns?: Prisma.IngestionRunCreateNestedManyWithoutSourceDocumentInput
 }
 
 export type SourceDocumentUncheckedCreateWithoutCourseInput = {
@@ -571,10 +701,15 @@ export type SourceDocumentUncheckedCreateWithoutCourseInput = {
   fileType?: string | null
   fileSizeBytes?: number | null
   contentHash?: string | null
-  extractionStatus?: string | null
+  pageCount?: number | null
+  extractionStatus?: $Enums.ExtractionStatus | null
+  extractionErrorCode?: string | null
+  extractionErrorMessage?: string | null
   licenseStatus?: $Enums.LicenseStatus
   uploadedAt?: Date | string
   sourceChunks?: Prisma.SourceChunkUncheckedCreateNestedManyWithoutSourceDocumentInput
+  sourceAssets?: Prisma.SourceAssetUncheckedCreateNestedManyWithoutSourceDocumentInput
+  ingestionRuns?: Prisma.IngestionRunUncheckedCreateNestedManyWithoutSourceDocumentInput
 }
 
 export type SourceDocumentCreateOrConnectWithoutCourseInput = {
@@ -614,7 +749,10 @@ export type SourceDocumentScalarWhereInput = {
   fileType?: Prisma.StringNullableFilter<"SourceDocument"> | string | null
   fileSizeBytes?: Prisma.IntNullableFilter<"SourceDocument"> | number | null
   contentHash?: Prisma.StringNullableFilter<"SourceDocument"> | string | null
-  extractionStatus?: Prisma.StringNullableFilter<"SourceDocument"> | string | null
+  pageCount?: Prisma.IntNullableFilter<"SourceDocument"> | number | null
+  extractionStatus?: Prisma.EnumExtractionStatusNullableFilter<"SourceDocument"> | $Enums.ExtractionStatus | null
+  extractionErrorCode?: Prisma.StringNullableFilter<"SourceDocument"> | string | null
+  extractionErrorMessage?: Prisma.StringNullableFilter<"SourceDocument"> | string | null
   licenseStatus?: Prisma.EnumLicenseStatusFilter<"SourceDocument"> | $Enums.LicenseStatus
   uploadedAt?: Prisma.DateTimeFilter<"SourceDocument"> | Date | string
 }
@@ -626,10 +764,15 @@ export type SourceDocumentCreateWithoutSourceChunksInput = {
   fileType?: string | null
   fileSizeBytes?: number | null
   contentHash?: string | null
-  extractionStatus?: string | null
+  pageCount?: number | null
+  extractionStatus?: $Enums.ExtractionStatus | null
+  extractionErrorCode?: string | null
+  extractionErrorMessage?: string | null
   licenseStatus?: $Enums.LicenseStatus
   uploadedAt?: Date | string
   course: Prisma.CourseCreateNestedOneWithoutSourceDocumentsInput
+  sourceAssets?: Prisma.SourceAssetCreateNestedManyWithoutSourceDocumentInput
+  ingestionRuns?: Prisma.IngestionRunCreateNestedManyWithoutSourceDocumentInput
 }
 
 export type SourceDocumentUncheckedCreateWithoutSourceChunksInput = {
@@ -640,9 +783,14 @@ export type SourceDocumentUncheckedCreateWithoutSourceChunksInput = {
   fileType?: string | null
   fileSizeBytes?: number | null
   contentHash?: string | null
-  extractionStatus?: string | null
+  pageCount?: number | null
+  extractionStatus?: $Enums.ExtractionStatus | null
+  extractionErrorCode?: string | null
+  extractionErrorMessage?: string | null
   licenseStatus?: $Enums.LicenseStatus
   uploadedAt?: Date | string
+  sourceAssets?: Prisma.SourceAssetUncheckedCreateNestedManyWithoutSourceDocumentInput
+  ingestionRuns?: Prisma.IngestionRunUncheckedCreateNestedManyWithoutSourceDocumentInput
 }
 
 export type SourceDocumentCreateOrConnectWithoutSourceChunksInput = {
@@ -668,10 +816,15 @@ export type SourceDocumentUpdateWithoutSourceChunksInput = {
   fileType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileSizeBytes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   contentHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  extractionStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pageCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  extractionStatus?: Prisma.NullableEnumExtractionStatusFieldUpdateOperationsInput | $Enums.ExtractionStatus | null
+  extractionErrorCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  extractionErrorMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   licenseStatus?: Prisma.EnumLicenseStatusFieldUpdateOperationsInput | $Enums.LicenseStatus
   uploadedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   course?: Prisma.CourseUpdateOneRequiredWithoutSourceDocumentsNestedInput
+  sourceAssets?: Prisma.SourceAssetUpdateManyWithoutSourceDocumentNestedInput
+  ingestionRuns?: Prisma.IngestionRunUpdateManyWithoutSourceDocumentNestedInput
 }
 
 export type SourceDocumentUncheckedUpdateWithoutSourceChunksInput = {
@@ -682,9 +835,190 @@ export type SourceDocumentUncheckedUpdateWithoutSourceChunksInput = {
   fileType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileSizeBytes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   contentHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  extractionStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pageCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  extractionStatus?: Prisma.NullableEnumExtractionStatusFieldUpdateOperationsInput | $Enums.ExtractionStatus | null
+  extractionErrorCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  extractionErrorMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   licenseStatus?: Prisma.EnumLicenseStatusFieldUpdateOperationsInput | $Enums.LicenseStatus
   uploadedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  sourceAssets?: Prisma.SourceAssetUncheckedUpdateManyWithoutSourceDocumentNestedInput
+  ingestionRuns?: Prisma.IngestionRunUncheckedUpdateManyWithoutSourceDocumentNestedInput
+}
+
+export type SourceDocumentCreateWithoutIngestionRunsInput = {
+  id?: string
+  fileUrl?: string | null
+  sourceUrl?: string | null
+  fileType?: string | null
+  fileSizeBytes?: number | null
+  contentHash?: string | null
+  pageCount?: number | null
+  extractionStatus?: $Enums.ExtractionStatus | null
+  extractionErrorCode?: string | null
+  extractionErrorMessage?: string | null
+  licenseStatus?: $Enums.LicenseStatus
+  uploadedAt?: Date | string
+  course: Prisma.CourseCreateNestedOneWithoutSourceDocumentsInput
+  sourceChunks?: Prisma.SourceChunkCreateNestedManyWithoutSourceDocumentInput
+  sourceAssets?: Prisma.SourceAssetCreateNestedManyWithoutSourceDocumentInput
+}
+
+export type SourceDocumentUncheckedCreateWithoutIngestionRunsInput = {
+  id?: string
+  courseId: string
+  fileUrl?: string | null
+  sourceUrl?: string | null
+  fileType?: string | null
+  fileSizeBytes?: number | null
+  contentHash?: string | null
+  pageCount?: number | null
+  extractionStatus?: $Enums.ExtractionStatus | null
+  extractionErrorCode?: string | null
+  extractionErrorMessage?: string | null
+  licenseStatus?: $Enums.LicenseStatus
+  uploadedAt?: Date | string
+  sourceChunks?: Prisma.SourceChunkUncheckedCreateNestedManyWithoutSourceDocumentInput
+  sourceAssets?: Prisma.SourceAssetUncheckedCreateNestedManyWithoutSourceDocumentInput
+}
+
+export type SourceDocumentCreateOrConnectWithoutIngestionRunsInput = {
+  where: Prisma.SourceDocumentWhereUniqueInput
+  create: Prisma.XOR<Prisma.SourceDocumentCreateWithoutIngestionRunsInput, Prisma.SourceDocumentUncheckedCreateWithoutIngestionRunsInput>
+}
+
+export type SourceDocumentUpsertWithoutIngestionRunsInput = {
+  update: Prisma.XOR<Prisma.SourceDocumentUpdateWithoutIngestionRunsInput, Prisma.SourceDocumentUncheckedUpdateWithoutIngestionRunsInput>
+  create: Prisma.XOR<Prisma.SourceDocumentCreateWithoutIngestionRunsInput, Prisma.SourceDocumentUncheckedCreateWithoutIngestionRunsInput>
+  where?: Prisma.SourceDocumentWhereInput
+}
+
+export type SourceDocumentUpdateToOneWithWhereWithoutIngestionRunsInput = {
+  where?: Prisma.SourceDocumentWhereInput
+  data: Prisma.XOR<Prisma.SourceDocumentUpdateWithoutIngestionRunsInput, Prisma.SourceDocumentUncheckedUpdateWithoutIngestionRunsInput>
+}
+
+export type SourceDocumentUpdateWithoutIngestionRunsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  fileUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fileType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fileSizeBytes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  contentHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pageCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  extractionStatus?: Prisma.NullableEnumExtractionStatusFieldUpdateOperationsInput | $Enums.ExtractionStatus | null
+  extractionErrorCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  extractionErrorMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  licenseStatus?: Prisma.EnumLicenseStatusFieldUpdateOperationsInput | $Enums.LicenseStatus
+  uploadedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  course?: Prisma.CourseUpdateOneRequiredWithoutSourceDocumentsNestedInput
+  sourceChunks?: Prisma.SourceChunkUpdateManyWithoutSourceDocumentNestedInput
+  sourceAssets?: Prisma.SourceAssetUpdateManyWithoutSourceDocumentNestedInput
+}
+
+export type SourceDocumentUncheckedUpdateWithoutIngestionRunsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  courseId?: Prisma.StringFieldUpdateOperationsInput | string
+  fileUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fileType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fileSizeBytes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  contentHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pageCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  extractionStatus?: Prisma.NullableEnumExtractionStatusFieldUpdateOperationsInput | $Enums.ExtractionStatus | null
+  extractionErrorCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  extractionErrorMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  licenseStatus?: Prisma.EnumLicenseStatusFieldUpdateOperationsInput | $Enums.LicenseStatus
+  uploadedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  sourceChunks?: Prisma.SourceChunkUncheckedUpdateManyWithoutSourceDocumentNestedInput
+  sourceAssets?: Prisma.SourceAssetUncheckedUpdateManyWithoutSourceDocumentNestedInput
+}
+
+export type SourceDocumentCreateWithoutSourceAssetsInput = {
+  id?: string
+  fileUrl?: string | null
+  sourceUrl?: string | null
+  fileType?: string | null
+  fileSizeBytes?: number | null
+  contentHash?: string | null
+  pageCount?: number | null
+  extractionStatus?: $Enums.ExtractionStatus | null
+  extractionErrorCode?: string | null
+  extractionErrorMessage?: string | null
+  licenseStatus?: $Enums.LicenseStatus
+  uploadedAt?: Date | string
+  course: Prisma.CourseCreateNestedOneWithoutSourceDocumentsInput
+  sourceChunks?: Prisma.SourceChunkCreateNestedManyWithoutSourceDocumentInput
+  ingestionRuns?: Prisma.IngestionRunCreateNestedManyWithoutSourceDocumentInput
+}
+
+export type SourceDocumentUncheckedCreateWithoutSourceAssetsInput = {
+  id?: string
+  courseId: string
+  fileUrl?: string | null
+  sourceUrl?: string | null
+  fileType?: string | null
+  fileSizeBytes?: number | null
+  contentHash?: string | null
+  pageCount?: number | null
+  extractionStatus?: $Enums.ExtractionStatus | null
+  extractionErrorCode?: string | null
+  extractionErrorMessage?: string | null
+  licenseStatus?: $Enums.LicenseStatus
+  uploadedAt?: Date | string
+  sourceChunks?: Prisma.SourceChunkUncheckedCreateNestedManyWithoutSourceDocumentInput
+  ingestionRuns?: Prisma.IngestionRunUncheckedCreateNestedManyWithoutSourceDocumentInput
+}
+
+export type SourceDocumentCreateOrConnectWithoutSourceAssetsInput = {
+  where: Prisma.SourceDocumentWhereUniqueInput
+  create: Prisma.XOR<Prisma.SourceDocumentCreateWithoutSourceAssetsInput, Prisma.SourceDocumentUncheckedCreateWithoutSourceAssetsInput>
+}
+
+export type SourceDocumentUpsertWithoutSourceAssetsInput = {
+  update: Prisma.XOR<Prisma.SourceDocumentUpdateWithoutSourceAssetsInput, Prisma.SourceDocumentUncheckedUpdateWithoutSourceAssetsInput>
+  create: Prisma.XOR<Prisma.SourceDocumentCreateWithoutSourceAssetsInput, Prisma.SourceDocumentUncheckedCreateWithoutSourceAssetsInput>
+  where?: Prisma.SourceDocumentWhereInput
+}
+
+export type SourceDocumentUpdateToOneWithWhereWithoutSourceAssetsInput = {
+  where?: Prisma.SourceDocumentWhereInput
+  data: Prisma.XOR<Prisma.SourceDocumentUpdateWithoutSourceAssetsInput, Prisma.SourceDocumentUncheckedUpdateWithoutSourceAssetsInput>
+}
+
+export type SourceDocumentUpdateWithoutSourceAssetsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  fileUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fileType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fileSizeBytes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  contentHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pageCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  extractionStatus?: Prisma.NullableEnumExtractionStatusFieldUpdateOperationsInput | $Enums.ExtractionStatus | null
+  extractionErrorCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  extractionErrorMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  licenseStatus?: Prisma.EnumLicenseStatusFieldUpdateOperationsInput | $Enums.LicenseStatus
+  uploadedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  course?: Prisma.CourseUpdateOneRequiredWithoutSourceDocumentsNestedInput
+  sourceChunks?: Prisma.SourceChunkUpdateManyWithoutSourceDocumentNestedInput
+  ingestionRuns?: Prisma.IngestionRunUpdateManyWithoutSourceDocumentNestedInput
+}
+
+export type SourceDocumentUncheckedUpdateWithoutSourceAssetsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  courseId?: Prisma.StringFieldUpdateOperationsInput | string
+  fileUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fileType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fileSizeBytes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  contentHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pageCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  extractionStatus?: Prisma.NullableEnumExtractionStatusFieldUpdateOperationsInput | $Enums.ExtractionStatus | null
+  extractionErrorCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  extractionErrorMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  licenseStatus?: Prisma.EnumLicenseStatusFieldUpdateOperationsInput | $Enums.LicenseStatus
+  uploadedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  sourceChunks?: Prisma.SourceChunkUncheckedUpdateManyWithoutSourceDocumentNestedInput
+  ingestionRuns?: Prisma.IngestionRunUncheckedUpdateManyWithoutSourceDocumentNestedInput
 }
 
 export type SourceDocumentCreateManyCourseInput = {
@@ -694,7 +1028,10 @@ export type SourceDocumentCreateManyCourseInput = {
   fileType?: string | null
   fileSizeBytes?: number | null
   contentHash?: string | null
-  extractionStatus?: string | null
+  pageCount?: number | null
+  extractionStatus?: $Enums.ExtractionStatus | null
+  extractionErrorCode?: string | null
+  extractionErrorMessage?: string | null
   licenseStatus?: $Enums.LicenseStatus
   uploadedAt?: Date | string
 }
@@ -706,10 +1043,15 @@ export type SourceDocumentUpdateWithoutCourseInput = {
   fileType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileSizeBytes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   contentHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  extractionStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pageCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  extractionStatus?: Prisma.NullableEnumExtractionStatusFieldUpdateOperationsInput | $Enums.ExtractionStatus | null
+  extractionErrorCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  extractionErrorMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   licenseStatus?: Prisma.EnumLicenseStatusFieldUpdateOperationsInput | $Enums.LicenseStatus
   uploadedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   sourceChunks?: Prisma.SourceChunkUpdateManyWithoutSourceDocumentNestedInput
+  sourceAssets?: Prisma.SourceAssetUpdateManyWithoutSourceDocumentNestedInput
+  ingestionRuns?: Prisma.IngestionRunUpdateManyWithoutSourceDocumentNestedInput
 }
 
 export type SourceDocumentUncheckedUpdateWithoutCourseInput = {
@@ -719,10 +1061,15 @@ export type SourceDocumentUncheckedUpdateWithoutCourseInput = {
   fileType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileSizeBytes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   contentHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  extractionStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pageCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  extractionStatus?: Prisma.NullableEnumExtractionStatusFieldUpdateOperationsInput | $Enums.ExtractionStatus | null
+  extractionErrorCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  extractionErrorMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   licenseStatus?: Prisma.EnumLicenseStatusFieldUpdateOperationsInput | $Enums.LicenseStatus
   uploadedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   sourceChunks?: Prisma.SourceChunkUncheckedUpdateManyWithoutSourceDocumentNestedInput
+  sourceAssets?: Prisma.SourceAssetUncheckedUpdateManyWithoutSourceDocumentNestedInput
+  ingestionRuns?: Prisma.IngestionRunUncheckedUpdateManyWithoutSourceDocumentNestedInput
 }
 
 export type SourceDocumentUncheckedUpdateManyWithoutCourseInput = {
@@ -732,7 +1079,10 @@ export type SourceDocumentUncheckedUpdateManyWithoutCourseInput = {
   fileType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileSizeBytes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   contentHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  extractionStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pageCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  extractionStatus?: Prisma.NullableEnumExtractionStatusFieldUpdateOperationsInput | $Enums.ExtractionStatus | null
+  extractionErrorCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  extractionErrorMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   licenseStatus?: Prisma.EnumLicenseStatusFieldUpdateOperationsInput | $Enums.LicenseStatus
   uploadedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -744,10 +1094,14 @@ export type SourceDocumentUncheckedUpdateManyWithoutCourseInput = {
 
 export type SourceDocumentCountOutputType = {
   sourceChunks: number
+  sourceAssets: number
+  ingestionRuns: number
 }
 
 export type SourceDocumentCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   sourceChunks?: boolean | SourceDocumentCountOutputTypeCountSourceChunksArgs
+  sourceAssets?: boolean | SourceDocumentCountOutputTypeCountSourceAssetsArgs
+  ingestionRuns?: boolean | SourceDocumentCountOutputTypeCountIngestionRunsArgs
 }
 
 /**
@@ -767,6 +1121,20 @@ export type SourceDocumentCountOutputTypeCountSourceChunksArgs<ExtArgs extends r
   where?: Prisma.SourceChunkWhereInput
 }
 
+/**
+ * SourceDocumentCountOutputType without action
+ */
+export type SourceDocumentCountOutputTypeCountSourceAssetsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.SourceAssetWhereInput
+}
+
+/**
+ * SourceDocumentCountOutputType without action
+ */
+export type SourceDocumentCountOutputTypeCountIngestionRunsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.IngestionRunWhereInput
+}
+
 
 export type SourceDocumentSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -776,11 +1144,16 @@ export type SourceDocumentSelect<ExtArgs extends runtime.Types.Extensions.Intern
   fileType?: boolean
   fileSizeBytes?: boolean
   contentHash?: boolean
+  pageCount?: boolean
   extractionStatus?: boolean
+  extractionErrorCode?: boolean
+  extractionErrorMessage?: boolean
   licenseStatus?: boolean
   uploadedAt?: boolean
   course?: boolean | Prisma.CourseDefaultArgs<ExtArgs>
   sourceChunks?: boolean | Prisma.SourceDocument$sourceChunksArgs<ExtArgs>
+  sourceAssets?: boolean | Prisma.SourceDocument$sourceAssetsArgs<ExtArgs>
+  ingestionRuns?: boolean | Prisma.SourceDocument$ingestionRunsArgs<ExtArgs>
   _count?: boolean | Prisma.SourceDocumentCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["sourceDocument"]>
 
@@ -792,7 +1165,10 @@ export type SourceDocumentSelectCreateManyAndReturn<ExtArgs extends runtime.Type
   fileType?: boolean
   fileSizeBytes?: boolean
   contentHash?: boolean
+  pageCount?: boolean
   extractionStatus?: boolean
+  extractionErrorCode?: boolean
+  extractionErrorMessage?: boolean
   licenseStatus?: boolean
   uploadedAt?: boolean
   course?: boolean | Prisma.CourseDefaultArgs<ExtArgs>
@@ -806,7 +1182,10 @@ export type SourceDocumentSelectUpdateManyAndReturn<ExtArgs extends runtime.Type
   fileType?: boolean
   fileSizeBytes?: boolean
   contentHash?: boolean
+  pageCount?: boolean
   extractionStatus?: boolean
+  extractionErrorCode?: boolean
+  extractionErrorMessage?: boolean
   licenseStatus?: boolean
   uploadedAt?: boolean
   course?: boolean | Prisma.CourseDefaultArgs<ExtArgs>
@@ -820,15 +1199,20 @@ export type SourceDocumentSelectScalar = {
   fileType?: boolean
   fileSizeBytes?: boolean
   contentHash?: boolean
+  pageCount?: boolean
   extractionStatus?: boolean
+  extractionErrorCode?: boolean
+  extractionErrorMessage?: boolean
   licenseStatus?: boolean
   uploadedAt?: boolean
 }
 
-export type SourceDocumentOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "courseId" | "fileUrl" | "sourceUrl" | "fileType" | "fileSizeBytes" | "contentHash" | "extractionStatus" | "licenseStatus" | "uploadedAt", ExtArgs["result"]["sourceDocument"]>
+export type SourceDocumentOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "courseId" | "fileUrl" | "sourceUrl" | "fileType" | "fileSizeBytes" | "contentHash" | "pageCount" | "extractionStatus" | "extractionErrorCode" | "extractionErrorMessage" | "licenseStatus" | "uploadedAt", ExtArgs["result"]["sourceDocument"]>
 export type SourceDocumentInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   course?: boolean | Prisma.CourseDefaultArgs<ExtArgs>
   sourceChunks?: boolean | Prisma.SourceDocument$sourceChunksArgs<ExtArgs>
+  sourceAssets?: boolean | Prisma.SourceDocument$sourceAssetsArgs<ExtArgs>
+  ingestionRuns?: boolean | Prisma.SourceDocument$ingestionRunsArgs<ExtArgs>
   _count?: boolean | Prisma.SourceDocumentCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type SourceDocumentIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -843,6 +1227,8 @@ export type $SourceDocumentPayload<ExtArgs extends runtime.Types.Extensions.Inte
   objects: {
     course: Prisma.$CoursePayload<ExtArgs>
     sourceChunks: Prisma.$SourceChunkPayload<ExtArgs>[]
+    sourceAssets: Prisma.$SourceAssetPayload<ExtArgs>[]
+    ingestionRuns: Prisma.$IngestionRunPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -852,7 +1238,10 @@ export type $SourceDocumentPayload<ExtArgs extends runtime.Types.Extensions.Inte
     fileType: string | null
     fileSizeBytes: number | null
     contentHash: string | null
-    extractionStatus: string | null
+    pageCount: number | null
+    extractionStatus: $Enums.ExtractionStatus | null
+    extractionErrorCode: string | null
+    extractionErrorMessage: string | null
     licenseStatus: $Enums.LicenseStatus
     uploadedAt: Date
   }, ExtArgs["result"]["sourceDocument"]>
@@ -1251,6 +1640,8 @@ export interface Prisma__SourceDocumentClient<T, Null = never, ExtArgs extends r
   readonly [Symbol.toStringTag]: "PrismaPromise"
   course<T extends Prisma.CourseDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.CourseDefaultArgs<ExtArgs>>): Prisma.Prisma__CourseClient<runtime.Types.Result.GetResult<Prisma.$CoursePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   sourceChunks<T extends Prisma.SourceDocument$sourceChunksArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.SourceDocument$sourceChunksArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SourceChunkPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  sourceAssets<T extends Prisma.SourceDocument$sourceAssetsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.SourceDocument$sourceAssetsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SourceAssetPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  ingestionRuns<T extends Prisma.SourceDocument$ingestionRunsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.SourceDocument$ingestionRunsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$IngestionRunPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1287,7 +1678,10 @@ export interface SourceDocumentFieldRefs {
   readonly fileType: Prisma.FieldRef<"SourceDocument", 'String'>
   readonly fileSizeBytes: Prisma.FieldRef<"SourceDocument", 'Int'>
   readonly contentHash: Prisma.FieldRef<"SourceDocument", 'String'>
-  readonly extractionStatus: Prisma.FieldRef<"SourceDocument", 'String'>
+  readonly pageCount: Prisma.FieldRef<"SourceDocument", 'Int'>
+  readonly extractionStatus: Prisma.FieldRef<"SourceDocument", 'ExtractionStatus'>
+  readonly extractionErrorCode: Prisma.FieldRef<"SourceDocument", 'String'>
+  readonly extractionErrorMessage: Prisma.FieldRef<"SourceDocument", 'String'>
   readonly licenseStatus: Prisma.FieldRef<"SourceDocument", 'LicenseStatus'>
   readonly uploadedAt: Prisma.FieldRef<"SourceDocument", 'DateTime'>
 }
@@ -1712,6 +2106,54 @@ export type SourceDocument$sourceChunksArgs<ExtArgs extends runtime.Types.Extens
   take?: number
   skip?: number
   distinct?: Prisma.SourceChunkScalarFieldEnum | Prisma.SourceChunkScalarFieldEnum[]
+}
+
+/**
+ * SourceDocument.sourceAssets
+ */
+export type SourceDocument$sourceAssetsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the SourceAsset
+   */
+  select?: Prisma.SourceAssetSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the SourceAsset
+   */
+  omit?: Prisma.SourceAssetOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.SourceAssetInclude<ExtArgs> | null
+  where?: Prisma.SourceAssetWhereInput
+  orderBy?: Prisma.SourceAssetOrderByWithRelationInput | Prisma.SourceAssetOrderByWithRelationInput[]
+  cursor?: Prisma.SourceAssetWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.SourceAssetScalarFieldEnum | Prisma.SourceAssetScalarFieldEnum[]
+}
+
+/**
+ * SourceDocument.ingestionRuns
+ */
+export type SourceDocument$ingestionRunsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the IngestionRun
+   */
+  select?: Prisma.IngestionRunSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the IngestionRun
+   */
+  omit?: Prisma.IngestionRunOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.IngestionRunInclude<ExtArgs> | null
+  where?: Prisma.IngestionRunWhereInput
+  orderBy?: Prisma.IngestionRunOrderByWithRelationInput | Prisma.IngestionRunOrderByWithRelationInput[]
+  cursor?: Prisma.IngestionRunWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.IngestionRunScalarFieldEnum | Prisma.IngestionRunScalarFieldEnum[]
 }
 
 /**

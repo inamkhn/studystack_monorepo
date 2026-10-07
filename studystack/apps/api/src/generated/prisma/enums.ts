@@ -143,3 +143,57 @@ export const MarketplaceReviewStatus = {
 } as const
 
 export type MarketplaceReviewStatus = (typeof MarketplaceReviewStatus)[keyof typeof MarketplaceReviewStatus]
+
+
+export const ExtractionStatus = {
+  awaiting_upload: 'awaiting_upload',
+  queued: 'queued',
+  validating: 'validating',
+  extracting: 'extracting',
+  ocr: 'ocr',
+  segmenting: 'segmenting',
+  chunking: 'chunking',
+  embedding: 'embedding',
+  research_fill: 'research_fill',
+  ready: 'ready',
+  failed: 'failed'
+} as const
+
+export type ExtractionStatus = (typeof ExtractionStatus)[keyof typeof ExtractionStatus]
+
+
+export const IngestionRunStatus = {
+  running: 'running',
+  completed: 'completed',
+  failed: 'failed',
+  cancelled: 'cancelled'
+} as const
+
+export type IngestionRunStatus = (typeof IngestionRunStatus)[keyof typeof IngestionRunStatus]
+
+
+export const IngestionStage = {
+  queued: 'queued',
+  validating: 'validating',
+  extracting: 'extracting',
+  ocr: 'ocr',
+  segmenting: 'segmenting',
+  chunking: 'chunking',
+  embedding: 'embedding',
+  research_fill: 'research_fill',
+  convergence: 'convergence',
+  completed: 'completed',
+  failed: 'failed'
+} as const
+
+export type IngestionStage = (typeof IngestionStage)[keyof typeof IngestionStage]
+
+
+export const SourceAssetKind = {
+  image: 'image',
+  diagram: 'diagram',
+  table: 'table',
+  other: 'other'
+} as const
+
+export type SourceAssetKind = (typeof SourceAssetKind)[keyof typeof SourceAssetKind]

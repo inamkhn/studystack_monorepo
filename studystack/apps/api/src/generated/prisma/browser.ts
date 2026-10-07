@@ -48,6 +48,16 @@ export type SourceDocument = Prisma.SourceDocumentModel
  */
 export type SourceChunk = Prisma.SourceChunkModel
 /**
+ * Model IngestionRun
+ * 
+ */
+export type IngestionRun = Prisma.IngestionRunModel
+/**
+ * Model SourceAsset
+ * 
+ */
+export type SourceAsset = Prisma.SourceAssetModel
+/**
  * Model Module
  * 
  */
